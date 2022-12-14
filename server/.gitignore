@@ -1,3 +1,6 @@
 build/
 server
 sqlite
+
+db/meshserver.db
+db/.fuse*

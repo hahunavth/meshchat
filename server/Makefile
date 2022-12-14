@@ -16,9 +16,9 @@ clean:
 
 # migration
 migrateup: sqlite db/schema.up.sql
-	./sqlite db/meshserver.db < db/migration/schema.up.sql
+	./sqlite db/meshserver.db < db/schema.up.sql
 
 migratedown: sqlite db/schema.down.sql
-	./sqlite db/meshserver.db < db/migration/schema.down.sql
+	./sqlite db/meshserver.db < db/schema.down.sql
 
 .PHONY: config build test clean migrateup migratedown
