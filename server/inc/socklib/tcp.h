@@ -23,7 +23,7 @@
 socket_t tcp4_create_listener(const char* addr, in_port_t port, int backlogs);
 
 /**
- * Accept connections to socket bound to lsfd, return comm socket for client
+ * Accept connections to socket bound to a socket descriptor, return communicating socket for client
  * 
  * @param lsfd socket descriptor of the server
  * @param client stores address of the client, null value would ignore this
@@ -33,7 +33,7 @@ socket_t tcp4_create_listener(const char* addr, in_port_t port, int backlogs);
 socket_t tcp4_accept(socket_t lsfd, struct sockaddr* client);
 
 /**
- * Accept a connection, do job and destroy connection 
+ * Accept a connection, do job on the same thread and destroy connection 
  * 
  * @param lsfd socket descriptor of the server
  * @param client store address of the client

@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <pthread.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
 
@@ -19,11 +20,7 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static void insert_node(socket_t sockfd)
 {
 	struct node_t *node = (struct node_t *)malloc(sizeof(struct node_t));
-	if(!node)
-	{
-		LOG_ERR("malloc");
-		abort();
-	}
+	assert(node);
 	node->sockfd = sockfd;
 	node->next = head;
 	head = node;
@@ -76,13 +73,11 @@ void print_sock_list()
 
 static int is_socklib_init = 0;
 
-void _socklib_destroy(int signum);
 void socklib_init()
 {
 	if(is_socklib_init) return;
 	puts("\nInitializing socklib ...\n");
 	signal(SIGPIPE, SIG_IGN);
-	signal(SIGABRT, _socklib_destroy);
 	is_socklib_init = 1;
 }
 
@@ -90,17 +85,18 @@ socket_t socklib_create_socket(int domain, int type, int protocol)
 {
     if(!is_socklib_init){
 	    fprintf(stderr, "socklib not initialized\n");
-	    return INVALID_SOCK;
+	    return SOCKLIB_INVALID_SOCK;
 	}
     
 	socket_t sockfd = socket(domain, type, protocol);
-	if(sockfd == INVALID_SOCK){
-		LOG_ERR("socket");
-		abort();
+	if(sockfd == SOCKLIB_INVALID_SOCK){
+		SOCKLIB_LOG_ERR("socket");
+		return SOCKLIB_INVALID_SOCK;
 	}
 	pthread_mutex_lock(&mutex);
 	insert_node(sockfd);
 	pthread_mutex_unlock(&mutex);
+	
 	return sockfd;
 }
 
@@ -162,7 +158,6 @@ void socklib_destroy()
 	pthread_mutex_unlock(&mutex);
 
 	signal(SIGPIPE, SIG_DFL);
+
 	is_socklib_init = 0;
 }
-
-inline void _socklib_destroy(int signum){socklib_destroy(); exit(signum);}

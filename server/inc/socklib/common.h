@@ -16,24 +16,23 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 typedef int socket_t;
 
-#define INVALID_SOCK -1
+#define SOCKLIB_INVALID_SOCK -1
 
-#ifndef LOG_ERR
-	#define LOG_ERR(func) {\
-		pid_t pid = getpid();\
-		pthread_t tid = pthread_self();\
-		fprintf(stderr, "pid = %d, tid = %lu, file: %s, line: %d, %s() error, errno = %d: %s\n", pid, tid, __FILE__, __LINE__, func, errno, strerror(errno));\
-	}
-#endif
+#define SOCKLIB_LOG_ERR(func) {\
+	pid_t pid = getpid();\
+	pthread_t tid = pthread_self();\
+	fprintf(stderr, "pid = %d, tid = %lu, file: %s, line: %d, %s() error, errno = %d: %s\n", pid, tid, __FILE__, __LINE__, func, errno, strerror(errno));\
+}
 
-/** Init socklib */
+/** 
+ * Init socklib. Should be called before any operation of socklib
+ */
 void socklib_init();
 
 /** 

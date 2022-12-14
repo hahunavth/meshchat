@@ -3,9 +3,6 @@ config:
 
 build:
 	cmake --build build/
-
-clean:
-	rm -rf ./build/*
 	
 test:
 ifdef TEST
@@ -13,6 +10,9 @@ ifdef TEST
 else
 	ctest -VV --test-dir build
 endif
+
+clean:
+	rm -rf ./build/*
 
 # migration
 migrateup: sqlite db/schema.up.sql
