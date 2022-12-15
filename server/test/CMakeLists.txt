@@ -11,3 +11,17 @@ add_test(
 	NAME socklib_test
 	COMMAND $<TARGET_FILE:socklib_test>
 )
+
+add_executable(sll_test sll_test.c)
+target_link_libraries(sll_test PRIVATE util_sll)
+add_test(
+	NAME sll_test
+	COMMAND $<TARGET_FILE:sll_test>
+)
+
+add_executable(string_test string_test.c)
+target_link_libraries(string_test PRIVATE util_string)
+add_test(
+	NAME string_test
+	COMMAND $<TARGET_FILE:string_test>
+)

@@ -1,9 +1,17 @@
 config:
+ifdef DEBUG
+	cmake -DCMAKE_BUILD_TYPE=Debug -S . -B debug
+else
 	cmake -S . -B build
+endif
 
 build:
+ifdef DEBUG
+	cmake --build debug/
+else
 	cmake --build build/
-	
+endif
+
 test:
 ifdef TEST
 	ctest -VV --test-dir build -R $(TEST)
@@ -12,7 +20,7 @@ else
 endif
 
 clean:
-	rm -rf ./build/*
+	rm -rf ./build/* server sqlite
 
 # migration
 migrateup: sqlite db/schema.up.sql

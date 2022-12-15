@@ -1,4 +1,5 @@
 #include "socklib/common.h"
+#include "utils/sll.h"
 
 #include <assert.h>
 #include <pthread.h>
@@ -6,71 +7,8 @@
 #include <stdio.h>
 #include <signal.h>
 
-/////////////////////////////////////////
-
-struct node_t
-{
-	socket_t sockfd;
-	struct node_t *next;
-};
-
-static struct node_t *head = NULL;
+static sllnode_t* head = NULL;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-static void insert_node(socket_t sockfd)
-{
-	struct node_t *node = (struct node_t *)malloc(sizeof(struct node_t));
-	assert(node);
-	node->sockfd = sockfd;
-	node->next = head;
-	head = node;
-}
-
-static struct node_t *find_node(socket_t sockfd, struct node_t **prev)
-{
-	struct node_t *node = head;
-	struct node_t *_prev = NULL;
-
-	while (node)
-	{
-		if (node->sockfd == sockfd)
-		{
-			if (prev) *prev = _prev;
-			return node;
-		}
-		_prev = node;
-		node = node->next;
-	}
-
-	return NULL;
-}
-
-static void delete_node(socket_t sockfd)
-{
-	struct node_t *node;
-	struct node_t *prev;
-	if ((node = find_node(sockfd, &prev)))
-	{
-		if(prev) prev->next = node->next;
-		if(node == head)
-		    head = head->next;
-		free(node);
-	}
-}
-
-void print_sock_list()
-{
-	struct node_t *node = head;
-	printf("\nSocket list: ");
-	while(node){
-		printf("%d, ", node->sockfd);
-		node = node->next;
-	}
-	puts("");
-}
-
-/////////////////////////////////////////
-
 static int is_socklib_init = 0;
 
 void socklib_init()
@@ -94,7 +32,7 @@ socket_t socklib_create_socket(int domain, int type, int protocol)
 		return SOCKLIB_INVALID_SOCK;
 	}
 	pthread_mutex_lock(&mutex);
-	insert_node(sockfd);
+	sll_insert_node(&head, new_jval_i(sockfd));
 	pthread_mutex_unlock(&mutex);
 	
 	return sockfd;
@@ -108,8 +46,9 @@ void socklib_register_sockfd(socket_t sockfd)
 	}
     
     pthread_mutex_lock(&mutex);
-	if(!find_node(sockfd, NULL)){
-		insert_node(sockfd);
+	Jval val = new_jval_i(sockfd);
+	if(!sll_find_node(head, val, NULL)){
+		sll_insert_node(&head, val);
 	}
 	pthread_mutex_unlock(&mutex);
 }
@@ -122,9 +61,25 @@ int socklib_is_sock_open(socket_t sockfd)
 	}
     
     pthread_mutex_lock(&mutex);
-	struct node_t *node = find_node(sockfd, NULL);
+	int res = sll_find_node(head, new_jval_i(sockfd), NULL);
 	pthread_mutex_unlock(&mutex);
-	return (node != NULL);
+	return res;
+}
+
+void print_sock_list()
+{
+	sllnode_t *node = head;
+	printf("\nSocket list: ");
+	while(node){
+		printf("%d ", (node->val).i);
+		node = node->next;
+	}
+	puts("");
+}
+
+static void free_node(Jval v)
+{
+	close(v.i);
 }
 
 void socklib_close_socket(socket_t sockfd)
@@ -134,9 +89,8 @@ void socklib_close_socket(socket_t sockfd)
 	    return;
 	};
     
-    close(sockfd);
 	pthread_mutex_lock(&mutex);
-	delete_node(sockfd);
+	sll_delete_free_node(&head, new_jval_i(sockfd), free_node);
 	pthread_mutex_unlock(&mutex);
 }
 
@@ -148,13 +102,7 @@ void socklib_destroy()
 	struct node_t *node;
 
 	pthread_mutex_lock(&mutex);
-	while (head)
-	{
-		close(head->sockfd);
-		node = head;
-		head = head->next;
-		free(node);
-	}
+	sll_remove_free(&head, free_node);
 	pthread_mutex_unlock(&mutex);
 
 	signal(SIGPIPE, SIG_DFL);
