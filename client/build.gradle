@@ -5,7 +5,7 @@ plugins {
     id 'org.beryx.jlink' version '2.25.0'
 }
 
-group 'com.net-chat'
+group 'com.meshchat'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -24,34 +24,24 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-    mainModule = 'com.netchat.client'
-    mainClass = 'com.netchat.client.HelloApplication'
+    mainModule = 'com.meshchat.client'
+    mainClass = 'com.meshchat.client.HelloApplication'
 }
 
 javafx {
     version = '17.0.2'
-    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.media']
+    modules = ['javafx.controls', 'javafx.fxml']
 }
 
 dependencies {
     implementation('org.controlsfx:controlsfx:11.1.1')
-    implementation('com.dlsc.formsfx:formsfx-core:11.5.0') {
-        exclude(group: 'org.openjfx')
-    }
-    implementation('net.synedra:validatorfx:0.3.1') {
-        exclude(group: 'org.openjfx')
-    }
-    implementation('org.kordamp.ikonli:ikonli-javafx:12.3.1')
     implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
-    implementation('eu.hansolo:tilesfx:17.1.9') {
-        exclude(group: 'org.openjfx')
-    }
-    implementation('com.github.almasb:fxgl:11.17') {
-        exclude(group: 'org.openjfx')
-    }
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
+    testImplementation("org.testfx:testfx-core:4.0.16-alpha")
+    testImplementation("org.testfx:testfx-junit5:4.0.16-alpha")
 }
 
 test {

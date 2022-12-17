@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox minWidth="320.0" prefHeight="720.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 36px;" text="Chat">
+         <font>
+            <Font name="Comic Sans MS" size="36.0" />
+         </font>
+         <VBox.margin>
+            <Insets left="24.0" top="24.0" />
+         </VBox.margin>
+      </Text>
+      <TextField promptText="Search people or message" style="-fx-background-color: #f8f8fa; -fx-border-radius: 50px; -fx-border-width: 1px; -fx-border-color: white; -fx-background-radius: 50px;">
+         <padding>
+            <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
+         </padding>
+         <VBox.margin>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </VBox.margin>
+      </TextField>
+      <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #ffffff;" VBox.vgrow="ALWAYS">
+         <content>
+            <VBox prefWidth="277.0" style="-fx-background-color: white;">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 16px;" text="Messages" VBox.vgrow="ALWAYS">
+                     <font>
+                        <Font name="Comic Sans MS" size="16.0" />
+                     </font>
+                  </Text>
+                  <VBox fx:id="chatList" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+         </content>
+      </ScrollPane>
+   </children>
+</VBox>

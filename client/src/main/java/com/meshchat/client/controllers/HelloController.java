@@ -1,4 +1,4 @@
-package com.netchat.client;
+package com.meshchat.client.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
