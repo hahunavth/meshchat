@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<HBox alignment="CENTER_RIGHT" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <AnchorPane style="-fx-background-color: #6c41d9; -fx-background-radius: 8px; -fx-border-color: #e3e6ea; -fx-border-width: 1px; -fx-border-radius: 8px;">
+         <children>
+            <Text fx:id="content" fill="#f1f0f2" layoutX="21.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-weight: bold; -fx-font-size: 12px;" text="Hello" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <font>
+                  <Font size="12.0" />
+               </font>
+            </Text>
+         </children>
+         <HBox.margin>
+            <Insets bottom="12.0" left="16.0" right="16.0" top="12.0" />
+         </HBox.margin>
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+      </AnchorPane>
+   </children>
+</HBox>

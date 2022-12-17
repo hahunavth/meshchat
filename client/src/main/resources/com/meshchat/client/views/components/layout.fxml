@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox alignment="CENTER" layoutX="348.0" layoutY="189.0" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <children>
+            <Pane fx:id="tabsView" minWidth="72.0" prefWidth="72.0" />
+            <Pane fx:id="menuView" prefHeight="720.0" />
+            <Pane fx:id="detailsView" prefHeight="720.0" prefWidth="360.0" HBox.hgrow="ALWAYS" />
+            <Pane fx:id="infoView" prefHeight="720.0" prefWidth="240.0" />
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox alignment="CENTER" layoutX="348.0" layoutY="189.0" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="720.0" prefWidth="72.0">
+               <children>
+                  <ImageView fitHeight="40.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../assets/logo.png" />
+                     </image>
+                     <VBox.margin>
+                        <Insets top="12.0" />
+                     </VBox.margin>
+                  </ImageView>
+                  <VBox alignment="CENTER" prefHeight="494.0" prefWidth="64.0" spacing="12.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <ImageView fitHeight="38.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../assets/message.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fitHeight="61.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../assets/friend.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fitHeight="45.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../assets/setting.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="101.0" prefWidth="64.0" />
+               </children>
+            </VBox>
+            <VBox prefHeight="720.0" prefWidth="287.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Chat">
+                     <font>
+                        <Font name="Comic Sans MS" size="36.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="24.0" top="24.0" />
+                     </VBox.margin>
+                  </Text>
+                  <TextField promptText="Search people or message" style="-fx-background-color: #f8f8fa;">
+                     <padding>
+                        <Insets bottom="8.0" top="8.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #ffffff;" VBox.vgrow="ALWAYS">
+                    <content>
+                      <AnchorPane fx:id="chatList" prefHeight="673.0" prefWidth="264.0" style="-fx-background-color: #ffffff;">
+                           <children>
+                              <Text layoutX="14.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Messages">
+                                 <font>
+                                    <Font name="Comic Sans MS" size="16.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+            <VBox prefHeight="720.0" prefWidth="694.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="82.0" prefWidth="687.0">
+                     <children>
+                        <ImageView fitHeight="50.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../assets/avatar2.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets left="24.0" />
+                           </HBox.margin>
+                        </ImageView>
+                        <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="User 1">
+                                 <font>
+                                    <Font name="Comic Sans MS" size="16.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="12.0" />
+                                 </VBox.margin>
+                              </Text>
+                              <Text fill="#ffa53d" strokeType="OUTSIDE" strokeWidth="0.0" text="Typing...">
+                                 <font>
+                                    <Font name="Comic Sans MS" size="12.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets left="12.0" />
+                                 </VBox.margin>
+                              </Text>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="4.0" />
+                           </HBox.margin>
+                        </VBox>
+                        <HBox alignment="CENTER_RIGHT" prefHeight="76.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <ImageView fitHeight="41.0" fitWidth="41.0" opacity="0.31" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../assets/3dot.png" />
+                                 </image>
+                                 <HBox.margin>
+                                    <Insets right="12.0" />
+                                 </HBox.margin>
+                              </ImageView>
+                           </children>
+                        </HBox>
+                     </children>
+                  </HBox>
+                  <AnchorPane prefHeight="468.0" prefWidth="687.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <ScrollPane layoutX="7.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="713.0" prefWidth="668.0" style="-fx-background-color: #f8f8fa;" />
+                          </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
+                  <HBox alignment="CENTER" prefHeight="61.0" prefWidth="687.0">
+                     <children>
+                        <TextField promptText="Write a message" style="-fx-background-color: #f8f8fa;" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets left="12.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets bottom="8.0" top="8.0" />
+                           </padding>
+                           <font>
+                              <Font name="Chilanka Regular" size="13.0" />
+                           </font>
+                        </TextField>
+                        <ImageView fitHeight="36.0" fitWidth="39.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../assets/send.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                           </HBox.margin>
+                        </ImageView>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox prefHeight="720.0" prefWidth="257.0" />
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
