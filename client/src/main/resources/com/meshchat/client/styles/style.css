@@ -1,0 +1,9 @@
+#img-btn{
+    /*-moz-border-radius: 12px;*/
+    --fxbackground-color: red;
+
+}
+
+#img-btn:active {
+    --fxbackground-color: red;
+}

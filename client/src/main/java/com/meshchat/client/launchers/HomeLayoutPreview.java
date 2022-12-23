@@ -14,7 +14,7 @@ public class HomeLayoutPreview extends PreviewLauncher {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
         HomeLayout layout = new HomeLayout(primaryStage);
 
         layout.getSessionContainer(HomeLayout.SIDEBAR).setBackground(

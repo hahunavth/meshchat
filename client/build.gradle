@@ -19,6 +19,13 @@ ext {
 sourceCompatibility = '17'
 targetCompatibility = '17'
 
+//
+task copyTestResources(type: Copy) {
+    from "${projectDir}/src/main/resources"
+    into "${buildDir}/classes/test"
+}
+processTestResources.dependsOn copyTestResources
+
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
@@ -33,15 +40,31 @@ javafx {
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
+
 dependencies {
+
+
     implementation('org.controlsfx:controlsfx:11.1.1')
     implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
 
+    implementation("com.github.jnr:jnr-ffi:2.2.13")
+
+//    implementation 'net.java.dev.jna:jna:5.6.0'
+//    // https://mvnrepository.com/artifact/javax.activation/activation
+//    implementation 'javax.activation:activation:1.1.1'
+//    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-impl
+//    implementation 'com.sun.xml.bind:jaxb-impl:4.0.1'
+//    // https://mvnrepository.com/artifact/com.sun.xml.bind/jaxb-core
+//    implementation 'com.sun.xml.bind:jaxb-core:4.0.1'
+//    // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
+//    implementation 'javax.xml.bind:jaxb-api:2.4.0-b180830.0359'
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:${junitVersion}")
 
-    testImplementation("org.testfx:testfx-core:4.0.16-alpha")
-    testImplementation("org.testfx:testfx-junit5:4.0.16-alpha")
+//    testImplementation("org.testfx:testfx-core:4.0.16-alpha")
+//    testImplementation("org.testfx:testfx-junit5:4.0.16-alpha")
 }
 
 test {

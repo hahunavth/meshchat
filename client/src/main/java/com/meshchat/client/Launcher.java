@@ -1,4 +1,4 @@
-package com.meshchat.client.launchers;
+package com.meshchat.client;
 
 import com.meshchat.client.net.TCPClient;
 import com.meshchat.client.utils.Config;
@@ -8,6 +8,7 @@ import com.meshchat.client.views.navigation.TabNavigation;
 import com.meshchat.client.views.settings.SettingDetailsScreenHandler;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
@@ -17,16 +18,39 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.util.Objects;
 
-public class HomeLauncher extends Application {
+public class Launcher extends Application {
 
+    public static TCPClient tcpClient;
 
-    public static void main(String[] args) {
-        launch(args);
+    /**
+     * Create tcp client
+     */
+    private void startTcpClient () {
+        tcpClient = new TCPClient();
+        // close on exit
+        Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+            tcpClient.close();
+            System.out.println("Close connection!");
+        }});
+
+        Thread clientThread = new Thread(tcpClient);
+        clientThread.start();
     }
 
+    /**
+     * Init GUI
+     */
     @Override
     public void start(Stage stage) throws IOException {
         try {
+            startTcpClient();
+
+            // close all on exit app
+            stage.setOnCloseRequest((event -> {
+                    Platform.exit();
+                    System.exit(0);
+            }));
+
             // initialize the scene
             FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource(Config.SPLASH_PATH)));
             AnchorPane root = loader.load();
@@ -56,16 +80,13 @@ public class HomeLauncher extends Application {
             // layout and navigation
             TabsLayout layout = new TabsLayout(stage);
             TabNavigation nav = new TabNavigation(stage, layout);
-            // After fade out, load actual content
-            fadeOut.setOnFinished((e) -> {
-                layout.setTitle("Home Screen");
-                layout.show();
-            });
-            // init screen
+            layout.addSessionContent(TabsLayout.TAB, nav);
             HomeScreenHandler screen = new HomeScreenHandler(stage);
             SettingDetailsScreenHandler setting = new SettingDetailsScreenHandler(stage);
+
+            // After fade out, load actual content
             fadeOut.setOnFinished((e) -> {
-                layout.addSessionContent(TabsLayout.TAB, nav);
+                layout.setTitle("Mesh chat");
                 nav.addMenuItem(Config.MSG_ICON_PATH, screen);
                 nav.addMenuItem(Config.SETTING_ICON_PATH, setting);
                 layout.show();
@@ -74,5 +95,9 @@ public class HomeLauncher extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        launch();
     }
 }

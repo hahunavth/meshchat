@@ -12,12 +12,12 @@ public class MsgItem extends BaseScreenHandler {
     @FXML
     public Text content;
 
-    public MsgItem(Stage stage, String text) throws IOException {
+    public MsgItem(Stage stage, String text) {
         super(stage, Config.MSG_SEND_ITEM_PATH);
         this.content.setText(text);
     }
 
-    public MsgItem(Stage stage, String text, boolean isReceved) throws IOException {
+    public MsgItem(Stage stage, String text, boolean isReceved) {
         super(stage, Config.MSG_RECV_ITEM_PATH);
         this.content.setText(text);
     }

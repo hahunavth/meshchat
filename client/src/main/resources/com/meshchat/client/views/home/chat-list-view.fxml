@@ -17,7 +17,7 @@
             <Insets left="24.0" top="24.0" />
          </VBox.margin>
       </Text>
-      <TextField promptText="Search people or message" style="-fx-background-color: #f8f8fa; -fx-border-radius: 50px; -fx-border-width: 1px; -fx-border-color: white; -fx-background-radius: 50px;">
+      <TextField promptText="Search people or message" style="-fx-background-color: #f8f8fa; -fx-border-radius: 50px; -fx-border-width: 1px; -fx-border-color: white; -fx-background-radius: 50px; -fx-background-image: url('https://www.iconpacks.net/icons/2/free-search-icon-3076-thumb.png'); -fx-background-position: right center; -fx-background-size: 20px; -fx-background-repeat: no-repeat;">
          <padding>
             <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
          </padding>
@@ -33,6 +33,9 @@
                      <font>
                         <Font name="Comic Sans MS" size="16.0" />
                      </font>
+                     <VBox.margin>
+                        <Insets left="8.0" />
+                     </VBox.margin>
                   </Text>
                   <VBox fx:id="chatList" VBox.vgrow="ALWAYS" />
                </children>

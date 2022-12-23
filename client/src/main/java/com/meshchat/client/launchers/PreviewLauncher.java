@@ -1,14 +1,11 @@
 package com.meshchat.client.launchers;
 
-import com.meshchat.client.Application;
+import com.meshchat.client.Launcher;
 import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public abstract class PreviewLauncher extends Application {
+public abstract class PreviewLauncher extends Launcher {
 
     private static String[] imageUrls = new String[] {
             "https://edencoding.com/wp-content/uploads/2021/03/layer_06_1920x1080.png",

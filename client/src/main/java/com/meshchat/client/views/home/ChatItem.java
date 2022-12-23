@@ -11,8 +11,12 @@ import java.io.IOException;
 public class ChatItem extends BaseScreenHandler {
     @FXML
     private HBox item;
-    public ChatItem(Stage stage) throws IOException {
+    public ChatItem(Stage stage) {
         super(stage, Config.CHAT_ITEM_PATH);
+    }
+
+    @FXML
+    public void initialize() {
         item.setOnMouseClicked((event) -> {
             System.out.println("Chat item");
         });

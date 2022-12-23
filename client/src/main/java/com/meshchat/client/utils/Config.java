@@ -6,8 +6,8 @@ public class Config {
     public static String HOME_PATH = "/com/meshchat/client/views/home-screen.fxml";
     // component
     public static String TAB_NAV = "/com/meshchat/client/views/components/tabs.fxml";
+    public static String TAB_LAYOUT_BUTTON_PATH = "/com/meshchat/client/views/components/tab-button.fxml";
     // layout
-//    public static String LAYOUT_PATH = "/com/meshchat/client/views/components/layouts/home-layout.fxml";
     public static String TAB_LAYOUT_PATH = "/com/meshchat/client/views/layouts/tab-layout.fxml";
     public static String HOME_LAYOUT_PATH = "/com/meshchat/client/views/layouts/home-layout.fxml";
     // home
@@ -22,7 +22,9 @@ public class Config {
     // icons
     public static String MSG_ICON_PATH = "/com/meshchat/client/assets/message.png";
     public static String SETTING_ICON_PATH = "/com/meshchat/client/assets/setting.png";
-
+    // css
+    public static String STYLE_PATH = "/com/meshchat/client/styles/style.css";
+    public static String SCROLL_BAR_STYLE_PATH = "/com/meshchat/client/styles/scroll-bar.css";
 
     public static int SCREEN_WIDTH = 1280;
     public static int SCREEN_HEIGHT = 720;

@@ -1,4 +1,4 @@
-package com.meshchat.client.views.layout;
+package com.meshchat.client.views.base;
 
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.FXMLScreenHandler;
@@ -8,14 +8,14 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class BaseLayout extends BaseScreenHandler {
+public abstract class BaseLayout extends BaseScreenHandler {
 
     private final HashMap<String, Pane> sessionMap = new HashMap<>();
 
     /**
      * Layout split into many session
      */
-    public BaseLayout(Stage stage, String screenPath) throws IOException {
+    public BaseLayout(Stage stage, String screenPath) {
         super(stage, screenPath);
     }
 
