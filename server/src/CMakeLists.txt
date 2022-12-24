@@ -1,10 +1,24 @@
 add_subdirectory(socklib)
+add_subdirectory(utils)
 
 add_executable(server main.c)
 target_link_libraries(server
 	PUBLIC socklib
+	PUBLIC sqlite3
+	PUBLIC sql
 )
 
-set_target_properties(server PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}"
+IF(NOT CMAKE_BUILD_TYPE MATCHES DEBUG)
+	set_target_properties(server PROPERTIES
+		RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	)
+ENDIF(NOT CMAKE_BUILD_TYPE MATCHES DEBUG)
+
+add_library(sql STATIC sql.c)
+target_link_libraries(sql
+	PUBLIC sqlite3
+	PUBLIC util_string
 )
+
+add_library(request STATIC request.c)
+# target_link_libraries(request)
