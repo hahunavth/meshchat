@@ -25,3 +25,23 @@ add_test(
 	NAME string_test
 	COMMAND $<TARGET_FILE:string_test>
 )
+
+add_executable(sql_test sql_test.c)
+target_link_libraries(sql_test
+	PRIVATE sqlite3
+	PRIVATE sql
+	PRIVATE util_random
+)
+add_test(
+	NAME sql_test
+	COMMAND $<TARGET_FILE:sql_test>
+)
+
+add_executable(request_test request_test.c)
+target_link_libraries(request_test
+	PRIVATE request
+)
+add_test(
+	NAME request_test
+	COMMAND $<TARGET_FILE:request_test>
+)

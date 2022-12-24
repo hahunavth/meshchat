@@ -3,5 +3,6 @@ debug/
 server
 sqlite
 
-db/meshserver.db
+db/*.db
 db/.fuse*
+tmp.sql
