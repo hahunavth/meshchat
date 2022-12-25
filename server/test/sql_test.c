@@ -77,7 +77,7 @@ void test_get_user_by_uname()
 
 	const int ucount = 4;
 	const char* usernames[] = {"auser1", "buser2", "cuser3", "duser4"};
-	long int ids[ucount];
+	uint32_t ids[ucount];
 
 	char password[10] = {0};
 	rand_str(password, 9);
@@ -296,6 +296,7 @@ void test_msg()
 	assert(strcmp(msg.content, res->content) == 0);
 	assert(msg.chat_id == res->chat_id);
 	assert(msg.conv_id == res->conv_id);
+	assert(res->type == MSG_SENT);
 	msg_free(res);
 
 	/* test msg_conv_get_all */
@@ -309,6 +310,7 @@ void test_msg()
 
 	/* send a message to a chat */
 	msg.from_user_id = user2;
+	msg.reply_to = newmsg;
 	msg.chat_id = newchat;
 	msg.conv_id = 0;
 	msg.content = "Hello from user 2";
@@ -318,7 +320,7 @@ void test_msg()
 	PRINT_RC(rc);
 	assert(sql_is_ok(rc));
 
-	SUCCESS("test_msg_create passed");
+	SUCCESS("test_msg_send passed");
 
 	/* test msg_chat_get_all */
 	list = msg_chat_get_all(db, newchat, 0, 1, &rc);
@@ -328,6 +330,29 @@ void test_msg()
 	sll_remove(&list);
 
 	SUCCESS("test_msg_chat_get_all passed");
+
+	/* test msg_delete */
+	msg_delete(db, newmsg, &rc);
+	PRINT_RC(rc);
+	assert(sql_is_ok(rc));
+	res = msg_get_detail(db, newmsg, &rc);
+	PRINT_RC(rc);
+	assert(sql_is_ok(rc));
+	assert(msg.from_user_id == res->from_user_id);
+	assert(msg.reply_to == res->reply_to);
+	assert(strlen(res->content) == 0);
+	assert(msg.chat_id == res->chat_id);
+	assert(msg.conv_id == res->conv_id);
+	assert(res->type == MSG_DELETED);
+	msg_free(res);
+
+	conv_drop(db, newconv, &rc);
+	PRINT_RC(rc);
+	assert(sql_is_ok(rc));
+	
+	chat_drop(db, newchat, &rc);
+	PRINT_RC(rc);
+	assert(sql_is_ok(rc));
 }
 
 int main(int argc, char** argv)
@@ -347,6 +372,8 @@ int main(int argc, char** argv)
 	test_conv();
 
 	test_chat();
+
+	test_msg();
 
 	sqlite3_close(db);
 
