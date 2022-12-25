@@ -34,7 +34,7 @@ typedef struct {
 } member_schema;
 
 enum MSG_TYPE{
-	SENT, DELIVERED, DELETED
+	MSG_SENT, MSG_DELIVERED, MSG_DELETED
 };
 
 typedef struct {
@@ -91,6 +91,8 @@ sllnode_t* msg_conv_get_all(sqlite3* db, uint32_t conv_id, int offset, int limit
 sllnode_t* msg_chat_get_all(sqlite3* db, uint32_t chat_id, int offset, int limit, int* lastrc);
 msg_schema* msg_get_detail(sqlite3* db, uint32_t msg_id, int* lastrc);
 uint32_t msg_send(sqlite3* db, const msg_schema* msg, int* lastrc);
+void msg_delivered(sqlite3* db, uint32_t msg_id, int* lastrc);
+void msg_delete(sqlite3*db, uint32_t msg_id, int* lastrc);
 void msg_drop(sqlite3*db, uint32_t msg_id, int* lastrc);
 
 void msg_free(msg_schema* msg);
