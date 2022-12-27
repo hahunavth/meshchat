@@ -1,6 +1,5 @@
 package com.meshchat.client.experiments;
 
-import jnr.ffi.LibraryLoader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,7 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class JNRTypeConverterTest {
+class JNRNumberConverterTest {
 
     JNRTypeConverter converter;
 
@@ -73,4 +72,6 @@ class JNRTypeConverterTest {
         assertEquals(in, out);
         System.out.println("out: " + out);
     }
+
+
 }

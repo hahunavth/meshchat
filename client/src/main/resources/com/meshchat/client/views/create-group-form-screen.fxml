@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox alignment="CENTER" layoutX="348.0" layoutY="189.0" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <children>
+            <VBox alignment="TOP_CENTER" prefHeight="720.0" prefWidth="72.0">
+               <children>
+                  <ImageView fitHeight="40.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../assets/logo.png" />
+                     </image>
+                     <VBox.margin>
+                        <Insets top="12.0" />
+                     </VBox.margin>
+                  </ImageView>
+                  <VBox alignment="CENTER" prefHeight="494.0" prefWidth="64.0" spacing="12.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <ImageView fitHeight="38.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../assets/message.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fitHeight="61.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../assets/friend.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fitHeight="45.0" fitWidth="36.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../assets/setting.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="101.0" prefWidth="64.0" />
+               </children>
+            </VBox>
+            <VBox prefHeight="720.0" prefWidth="287.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Settings">
+                     <font>
+                        <Font name="Comic Sans MS" size="36.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="24.0" top="24.0" />
+                     </VBox.margin>
+                  </Text>
+                  <TextField promptText="Search setting" style="-fx-background-color: #f8f8fa;">
+                     <padding>
+                        <Insets bottom="8.0" top="8.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #ffffff;" VBox.vgrow="ALWAYS">
+                    <content>
+                      <AnchorPane fx:id="chatList" prefHeight="673.0" prefWidth="264.0" style="-fx-background-color: #ffffff;">
+                           <children>
+                              <Button layoutX="26.0" layoutY="18.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="217.0" text="Create group chat" />
+                              <Button layoutX="27.0" layoutY="64.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="217.0" text="My group chat" />
+                              <Button layoutX="24.0" layoutY="112.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="217.0" text="Đăng xuất" />
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+            <VBox prefHeight="720.0" prefWidth="694.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <AnchorPane prefHeight="468.0" prefWidth="687.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <ScrollPane layoutX="7.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="713.0" prefWidth="668.0" style="-fx-background-color: #f8f8fa;">
+                                 <children>
+                                    <Text layoutX="47.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Create group chat">
+                                       <font>
+                                          <Font name="Comic Sans MS" size="24.0" />
+                                       </font>
+                                    </Text>
+                                    <Label layoutX="53.0" layoutY="115.0" text="Group name" />
+                                    <TextField layoutX="175.0" layoutY="111.0" prefHeight="25.0" prefWidth="450.0" />
+                                    <Label layoutX="52.0" layoutY="156.0" text="Add members" />
+                                    <TextField layoutX="176.0" layoutY="154.0" prefHeight="25.0" prefWidth="402.0" />
+                                    <Button layoutX="587.0" layoutY="154.0" mnemonicParsing="false" text="Add" />
+                                    <Label layoutX="52.0" layoutY="193.0" prefHeight="17.0" prefWidth="74.0" text="Members list" />
+                                    <TextArea layoutX="51.0" layoutY="221.0" prefHeight="236.0" prefWidth="574.0" />
+                                    <Button layoutX="565.0" layoutY="476.0" mnemonicParsing="false" text="Cancel" />
+                                    <Button layoutX="492.0" layoutY="476.0" mnemonicParsing="false" text="Create" />
+                                 </children></AnchorPane>
+                          </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
+               </children>
+            </VBox>
+            <VBox prefHeight="720.0" prefWidth="257.0" />
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>

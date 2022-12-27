@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" style="-fx-background-color: #f8f8fa;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" style="-fx-background-color: #f8f8fa;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox alignment="CENTER" prefHeight="82.0" prefWidth="687.0" style="-fx-background-color: white;">
          <children>
@@ -25,7 +20,7 @@
             </ImageView>
             <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="4.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="User 1">
+                  <Text fx:id="username" strokeType="OUTSIDE" strokeWidth="0.0" text="User 1">
                      <font>
                         <Font name="Comic Sans MS" size="16.0" />
                      </font>

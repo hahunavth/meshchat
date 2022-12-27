@@ -15,12 +15,13 @@ public class TabLayoutLaunch extends PreviewLauncher {
     public void start(Stage stage) throws IOException {
 
         stage.setTitle("TabLayout");
-        TabsLayout layout = new TabsLayout(stage);
+        TabsLayout layout = new TabsLayout();
+        layout.lazyInitialize(stage);
 
-        layout.getSessionContainer(TabsLayout.TAB).setBackground(
+        layout.getSessionContainer(TabsLayout.Sessions.TAB).setBackground(
                 this.getBackground(1)
         );
-        layout.getSessionContainer(TabsLayout.SCREEN).setBackground(
+        layout.getSessionContainer(TabsLayout.Sessions.SCREEN).setBackground(
                 this.getBackground(4)
         );
 

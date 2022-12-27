@@ -3,8 +3,13 @@ package com.meshchat.client.experiments;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 
+/**
+ * Test jnr:
+ * - Sử dụng struct common_t
+ */
 public class CommonJNR extends Struct {
 
+    // native attribute
     public Struct.BYTE c = new Struct.BYTE();
     public Struct.Float f = new Struct.Float();
     public Struct.Double d = new Struct.Double();
@@ -24,7 +29,21 @@ public class CommonJNR extends Struct {
     public Struct.String str3 = new Struct.AsciiStringRef();
     public Struct.String str4 = new Struct.AsciiStringRef();
 
+
     public CommonJNR(Runtime runtime) {
         super(runtime);
     }
+
+    public CommonJNR(Runtime runtime, Alignment alignment) {
+        super(runtime, alignment);
+    }
+
+    public CommonJNR(Runtime runtime, Struct enclosing) {
+        super(runtime, enclosing);
+    }
+
+    public CommonJNR(Runtime runtime, boolean isUnion) {
+        super(runtime, isUnion);
+    }
+
 }

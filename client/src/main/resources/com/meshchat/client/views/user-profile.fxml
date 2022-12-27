@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="TOP_CENTER" layoutX="124.0" layoutY="14.0" style="-fx-alignment: center;" text="User Profile" textFill="#6c3dd9">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <Pane layoutY="72.0" prefHeight="134.0" prefWidth="350.0">
+               <children>
+                  <ImageView fitHeight="132.0" fitWidth="200.0" layoutX="109.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@User.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </Pane>
+            <Line endX="100.0" layoutX="175.0" layoutY="44.0" startX="-100.0" />
+            <Button alignment="TOP_RIGHT" layoutX="324.0" layoutY="2.0" mnemonicParsing="false" text="X" textFill="#6c3dd9" />
+         </children>
+      </Pane>
+   </top>
+   <center>
+      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="124.0" layoutY="13.0" text="Nguyen Van A" textFill="#6c3dd9">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Hyperlink layoutX="279.0" layoutY="13.0" text="Edit" />
+         </children>
+      </Pane>
+   </center>
+   <bottom>
+      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="14.0" layoutY="14.0" text="Personal Information">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Hyperlink layoutX="280.0" layoutY="52.0" text="Edit" />
+            <VBox layoutY="39.0" prefHeight="164.0" prefWidth="117.0">
+               <children>
+                  <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@phone.png" />
+                     </image>
+                     <VBox.margin>
+                        <Insets left="19.0" top="13.0" />
+                     </VBox.margin>
+                  </ImageView>
+                  <Label text="Phone">
+                     <VBox.margin>
+                        <Insets left="50.0" top="-27.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            <Label layoutX="100.0" layoutY="55.0" />
+            <VBox layoutX="93.0" layoutY="34.0" prefHeight="164.0" prefWidth="163.0">
+               <children>
+                  <Label prefHeight="25.0" prefWidth="123.0" text="01234556789" textFill="#6c3dd9">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="30.0" top="18.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
+            <Line endX="96.99996948242188" endY="1.0000152587890625" layoutX="253.0" layoutY="-1.0" startX="-252.99998474121094" startY="1.0000152587890625" strokeWidth="0.3" />
+         </children>
+      </Pane>
+   </bottom>
+</BorderPane>
