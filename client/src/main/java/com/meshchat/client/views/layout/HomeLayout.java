@@ -6,7 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
-public class HomeLayout extends BaseLayout {
+public class HomeLayout extends BaseLayout<HomeLayout.Sessions> {
     @FXML
     private Pane sidebar;
     @FXML
@@ -14,14 +14,21 @@ public class HomeLayout extends BaseLayout {
     @FXML
     private Pane info;
 
-    public static final String SIDEBAR = "SIDEBAR";
-    public static final String CONTENT = "CONTENT";
-    public static final String INFO = "INFO";
+    public enum Sessions {
+        SIDEBAR,
+        CONTENT,
+        INFO
+    }
 
     public HomeLayout(Stage stage) {
-        super(stage, Config.HOME_LAYOUT_PATH);
-        super.addSession(SIDEBAR, this.sidebar);
-        super.addSession(CONTENT, this.content);
-        super.addSession(INFO, this.info);
+        super(Config.HOME_LAYOUT_PATH);
+    }
+
+    @FXML
+    public void initialize() {
+        super.initialize();
+        super.addSession(Sessions.SIDEBAR, this.sidebar);
+        super.addSession(Sessions.CONTENT, this.content);
+        super.addSession(Sessions.INFO, this.info);
     }
 }

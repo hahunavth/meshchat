@@ -11,8 +11,11 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * FXMLScreenHandler:
+ * for all views which load fxml
  * NOTE: Do not set fx:controller in .fxml files
- * <br/><s>fx:controller="com.meshchat.client.views.HomeScreenHandler"</s>
+ * <br/>
+ * <s>fx:controller="com.meshchat.client.views.HomeScreenHandler"</s>
  */
 public abstract class FXMLScreenHandler {
     protected FXMLLoader loader;

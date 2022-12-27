@@ -5,6 +5,9 @@ import javafx.geometry.Side;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 
+/**
+ * Launch để test view
+ */
 public abstract class PreviewLauncher extends Launcher {
 
     private static String[] imageUrls = new String[] {

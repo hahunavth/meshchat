@@ -17,13 +17,13 @@ public class HomeLayoutPreview extends PreviewLauncher {
     public void start(Stage primaryStage) {
         HomeLayout layout = new HomeLayout(primaryStage);
 
-        layout.getSessionContainer(HomeLayout.SIDEBAR).setBackground(
+        layout.getSessionContainer(HomeLayout.Sessions.SIDEBAR).setBackground(
                 this.getBackground(1)
         );
-        layout.getSessionContainer(HomeLayout.INFO).setBackground(
+        layout.getSessionContainer(HomeLayout.Sessions.INFO).setBackground(
                 this.getBackground(3)
         );
-        layout.getSessionContainer(HomeLayout.CONTENT).setBackground(
+        layout.getSessionContainer(HomeLayout.Sessions.CONTENT).setBackground(
                 this.getBackground(5)
         );
 

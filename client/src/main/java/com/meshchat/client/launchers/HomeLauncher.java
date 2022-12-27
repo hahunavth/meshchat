@@ -1,6 +1,5 @@
 package com.meshchat.client.launchers;
 
-import com.meshchat.client.net.TCPClient;
 import com.meshchat.client.utils.Config;
 import com.meshchat.client.views.home.HomeScreenHandler;
 import com.meshchat.client.views.layout.TabsLayout;
@@ -54,8 +53,9 @@ public class HomeLauncher extends Application {
             });
 
             // layout and navigation
-            TabsLayout layout = new TabsLayout(stage);
-            TabNavigation nav = new TabNavigation(stage, layout);
+            TabsLayout layout = new TabsLayout();
+            layout.lazyInitialize(stage);
+            TabNavigation nav = new TabNavigation(layout);
             // After fade out, load actual content
             fadeOut.setOnFinished((e) -> {
                 layout.setTitle("Home Screen");
@@ -65,9 +65,9 @@ public class HomeLauncher extends Application {
             HomeScreenHandler screen = new HomeScreenHandler(stage);
             SettingDetailsScreenHandler setting = new SettingDetailsScreenHandler(stage);
             fadeOut.setOnFinished((e) -> {
-                layout.addSessionContent(TabsLayout.TAB, nav);
-                nav.addMenuItem(Config.MSG_ICON_PATH, screen);
-                nav.addMenuItem(Config.SETTING_ICON_PATH, setting);
+                layout.addSessionContent(TabsLayout.Sessions.TAB, nav);
+                nav.addScreenHandler(Config.MSG_ICON_PATH, screen);
+                nav.addScreenHandler(Config.SETTING_ICON_PATH, setting);
                 layout.show();
             });
 

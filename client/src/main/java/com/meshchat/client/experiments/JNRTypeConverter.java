@@ -6,6 +6,9 @@ import jnr.ffi.Runtime;
 
 import java.util.Arrays;
 
+/**
+ * @deprecated
+ */
 public class JNRTypeConverter {
 
     private TypeMappingLib libC

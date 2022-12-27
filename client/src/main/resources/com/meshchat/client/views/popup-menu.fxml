@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="264.0" prefWidth="174.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="141.0" text="Add member" />
+      <Button layoutX="14.0" layoutY="54.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="141.0" text="Remove member" />
+      <Button layoutX="14.0" layoutY="221.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="141.0" text="Leave group" />
+      <Button layoutX="14.0" layoutY="136.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="141.0" text="Rename group" />
+      <Button layoutX="14.0" layoutY="95.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="141.0" text="See members" />
+      <Button layoutX="14.0" layoutY="178.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="141.0" text="Ban member" />
+   </children>
+</AnchorPane>
