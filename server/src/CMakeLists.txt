@@ -21,4 +21,6 @@ target_link_libraries(sql
 )
 
 add_library(request STATIC request.c)
-# target_link_libraries(request)
+target_link_libraries(request
+	PUBLIC util_string
+)
