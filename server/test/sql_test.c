@@ -1,3 +1,4 @@
+#include "test_common.h"
 #include "sql.h"
 #include "utils/random.h"
 #include "utils/string.h"
@@ -10,7 +11,6 @@
 #include <time.h>
 
 #define PRINT_RC(rc) printf("line: %d, rc=%d, msg: %s\n", __LINE__, rc, sqlite3_errstr(rc))
-#define SUCCESS(msg) printf("\033[0;32m%s\033[0m\n", msg)
 
 sqlite3* db;
 

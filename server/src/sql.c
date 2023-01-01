@@ -482,7 +482,7 @@ sllnode_t *msg_conv_get_all(sqlite3 *db, uint32_t conv_id, int offset, int limit
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT id FROM messages WHERE conv_id=%u LIMIT %d OFFSET %d", conv_id, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT id FROM messages WHERE conv_id=%u ORDER BY created_at DESC LIMIT %d OFFSET %d", conv_id, limit, offset);
 
 	return sql_get_list(db, query, lastrc);
 }
@@ -491,7 +491,7 @@ sllnode_t *msg_chat_get_all(sqlite3 *db, uint32_t chat_id, int offset, int limit
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT id FROM messages WHERE chat_id=%u LIMIT %d OFFSET %d", chat_id, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT id FROM messages WHERE chat_id=%u ORDER BY created_at DESC LIMIT %d OFFSET %d", chat_id, limit, offset);
 
 	return sql_get_list(db, query, lastrc);
 }
