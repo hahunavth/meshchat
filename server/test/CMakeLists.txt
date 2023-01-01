@@ -45,3 +45,12 @@ add_test(
 	NAME request_test
 	COMMAND $<TARGET_FILE:request_test>
 )
+
+add_executable(response_test response_test.c)
+target_link_libraries(response_test
+	PRIVATE response
+)
+add_test(
+	NAME response_test
+	COMMAND $<TARGET_FILE:response_test>
+)
