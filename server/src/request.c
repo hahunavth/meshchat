@@ -1,6 +1,5 @@
 #include "md5/md5.h"
 #include "request.h"
-#include "sql.h"
 #include "utils/string.h"
 
 #include <arpa/inet.h>
@@ -10,7 +9,11 @@
 #include <string.h>
 #include <strings.h>
 
-#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
+#define TOKEN_LEN		64
+#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
+						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
+						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
+						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
 #define BODY_DEMLIMITER	'\x1D'
 
 uint32_t parse_uint32_from_buf(char *buf)
@@ -44,16 +47,16 @@ request *request_parse(const char *buf)
 
 	header->group = buf[0];
 	header->action = buf[1];
-	header->multipart = buf[2];
+	header->content_type = buf[2];
 	header->content_len = parse_uint32_from_buf(buf+4);
 	header->body_len = parse_uint32_from_buf(buf+8);
-	header->offset0 = parse_uint32_from_buf(buf+12);
+	// header->offset0 = parse_uint32_from_buf(buf+12);
 
-	header->token = string_new_n(buf + 16, 16);
+	header->token = string_new_n(buf + 16, TOKEN_LEN);
 
-	header->user_id = parse_uint32_from_buf(buf+32);
-	header->limit = parse_uint32_from_buf(buf+36);
-	header->offset1 = parse_uint32_from_buf(buf+40);
+	header->user_id = parse_uint32_from_buf(buf+80);
+	header->limit = parse_uint32_from_buf(buf+84);
+	header->offset = parse_uint32_from_buf(buf+88);
 
 	switch (header->group)
 	{
@@ -311,17 +314,40 @@ static void make_request_header(request_header *header, char *res)
 
 	res[0] = header->group;
 	res[1] = header->action;
-	res[2] = header->multipart;
+	res[2] = header->content_type;
 
 	write_uint32_to_buf(res+4, header->content_len);
 	write_uint32_to_buf(res+8, header->body_len);
-	write_uint32_to_buf(res+12, header->offset0);
+	// write_uint32_to_buf(res+12, header->offset0);
 
-	memcpy(res+16, header->token, 16);
+	memcpy(res+16, header->token, TOKEN_LEN);
 
-	write_uint32_to_buf(res+32, header->user_id);
-	write_uint32_to_buf(res+36, header->limit);
-	write_uint32_to_buf(res+40, header->offset1);
+	write_uint32_to_buf(res+80, header->user_id);
+	write_uint32_to_buf(res+84, header->limit);
+	write_uint32_to_buf(res+88, header->offset);
+}
+
+static void make_request_string(const char* token, uint8_t group, uint8_t action, uint32_t user_id, const char *str, char *res)
+{
+	size_t len = strlen(str);
+	request_header header = {
+		.group = group,
+		.action = action,
+		.content_type = 0,
+		.content_len = len,
+		.body_len = len,
+		// .offset0 = 0,
+		.token = token,
+		.user_id = user_id,
+		.limit = -1,
+		.offset = -1
+	};
+	make_request_header(&header, res);
+	
+	char *body = res+REQUEST_HEADER_LEN;
+	memset(body, 0, REQUEST_BODY_LEN);
+
+	memcpy(body, str, len);
 }
 
 static void make_request_uint32(const char* token, uint8_t group, uint8_t action, uint32_t user_id, uint32_t num, char *res)
@@ -329,14 +355,14 @@ static void make_request_uint32(const char* token, uint8_t group, uint8_t action
 	request_header header = {
 		.group = group,
 		.action = action,
-		.multipart = 0,
+		.content_type = 0,
 		.content_len = 4,
 		.body_len = 4,
-		.offset0 = 0,
+		// .offset0 = 0,
 		.token = token,
 		.user_id = user_id,
 		.limit = -1,
-		.offset1 = -1
+		.offset = -1
 	};
 	make_request_header(&header, res);
 	
@@ -351,14 +377,14 @@ static void make_request_page(const char* token, uint8_t group, uint8_t action, 
 	request_header header = {
 		.group = group,
 		.action = action,
-		.multipart = 0,
+		.content_type = 0,
 		.content_len = 0,
 		.body_len = 0,
-		.offset0 = 0,
+		// .offset0 = 0,
 		.token = token,
 		.user_id = user_id,
 		.limit = limit,
-		.offset1 = offset
+		.offset = offset
 	};
 	make_request_header(&header, res);
 
@@ -376,14 +402,14 @@ void make_request_auth_register(const char *username, const char *password, cons
 	request_header header = {
 		.group = 0,
 		.action = 0,
-		.multipart = 0,
+		.content_type = 0,
 		.content_len = sum_len+3,
 		.body_len = sum_len+3,
-		.offset0 = 0,
+		// .offset0 = 0,
 		.token = EMPTY_TOKEN,
 		.user_id = 0,
 		.limit = -1,
-		.offset1 = -1
+		.offset = -1
 	};
 
 	make_request_header(&header, res);
@@ -412,14 +438,14 @@ void make_request_auth_login(const char *username, const char *password, char *r
 	request_header header = {
 		.group = 0,
 		.action = 1,
-		.multipart = 0,
+		.content_type = 0,
 		.content_len = sum_len+1,
 		.body_len = sum_len+1,
-		.offset0 = 0,
+		// .offset0 = 0,
 		.token = EMPTY_TOKEN,
 		.user_id = 0,
 		.limit = -1,
-		.offset1 = -1
+		.offset = -1
 	};
 
 	make_request_header(&header, res);
@@ -440,14 +466,14 @@ void make_request_user_logout(const char* token, uint32_t user_id, char *res)
 	request_header header = {
 		.group = 1,
 		.action = 0,
-		.multipart = 0,
+		.content_type = 0,
 		.content_len = 0,
 		.body_len = 0,
-		.offset0 = 0,
+		// .offset0 = 0,
 		.token = token,
 		.user_id = user_id,
 		.limit = -1,
-		.offset1 = -1
+		.offset = -1
 	};
 	make_request_header(&header, res);
 }
@@ -457,50 +483,14 @@ inline void make_request_user_get_info(const char* token, uint32_t user_id, uint
 	make_request_uint32(token, 1, 1, user_id, user_id2, res);
 }
 
-void make_request_user_search(const char* token, uint32_t user_id, const char *uname, char *res)
+inline void make_request_user_search(const char* token, uint32_t user_id, const char *uname, char *res)
 {
-	size_t uname_len = strlen(uname);
-	request_header header = {
-		.group = 1,
-		.action = 2,
-		.multipart = 0,
-		.content_len = uname_len,
-		.body_len = uname_len,
-		.offset0 = 0,
-		.token = token,
-		.user_id = user_id,
-		.limit = -1,
-		.offset1 = -1
-	};
-	make_request_header(&header, res);
-
-	char *body = res+REQUEST_HEADER_LEN;
-	memset(body, 0, REQUEST_BODY_LEN);
-	
-	memcpy(body, uname, uname_len);
+	make_request_string(token, 1, 2, user_id, uname, res);
 }
 
-void make_request_conv_create(const char* token, uint32_t user_id, const char* gname, char *res)
+inline void make_request_conv_create(const char* token, uint32_t user_id, const char* gname, char *res)
 {
-	size_t gname_len = strlen(gname);
-	request_header header = {
-		.group = 2,
-		.action = 0,
-		.multipart = 0,
-		.content_len = gname_len,
-		.body_len = gname_len,
-		.offset0 = 0,
-		.token = token,
-		.user_id = user_id,
-		.limit = -1,
-		.offset1 = -1
-	};
-	make_request_header(&header, res);
-
-	char *body = res+REQUEST_HEADER_LEN;
-	memset(body, 0, REQUEST_BODY_LEN);
-	
-	memcpy(body, gname, gname_len);
+	make_request_string(token, 2, 0, user_id, gname, res);
 }
 
 inline void make_request_conv_drop(const char* token, uint32_t user_id, uint32_t conv_id, char *res)
@@ -553,14 +543,14 @@ void make_request_msg_get_all(const char* token, uint32_t user_id, int limit, in
 	request_header header = {
 		.group = 4,
 		.action = 0,
-		.multipart = 0,
+		.content_type = 0,
 		.content_len = 8,
 		.body_len = 8,
-		.offset0 = 0,
+		// .offset0 = 0,
 		.token = token,
 		.user_id = user_id,
 		.limit = limit,
-		.offset1 = offset
+		.offset = offset
 	};
 	make_request_header(&header, res);
 
@@ -576,50 +566,56 @@ inline void make_request_msg_get_detail(const char* token, uint32_t user_id, uin
 	make_request_uint32(token, 4, 1, user_id, msg_id, res);
 }
 
-static void make_request_msg_send_part(const char* token, uint8_t multipart, uint32_t content_len, uint32_t part_len, uint32_t data_offset, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, uint32_t reply_to, const char* msg_part, char *res)
+void make_requests_msg_send_text(const char *token, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, uint32_t reply_to, const char *msg, char *res)
 {
+	size_t msg_len = strlen(msg);
 	request_header header = {
 		.group = 4,
 		.action = 2,
-		.multipart = multipart,
-		.content_len = content_len,
-		.body_len = 12+part_len,
-		.offset0 = data_offset,
+		.content_type = 0,
+		.content_len = 12+msg_len,
+		.body_len = 12+msg_len,
+		// .offset0 = 0,
 		.token = token,
 		.user_id = user_id,
 		.limit = -1,
-		.offset1 = -1
+		.offset = -1
 	};
 	make_request_header(&header, res);
-
+	
 	char *body = res+REQUEST_HEADER_LEN;
 	memset(body, 0, REQUEST_BODY_LEN);
-	
+
 	write_uint32_to_buf(body, conv_id);
 	write_uint32_to_buf(body+4, chat_id);
 	write_uint32_to_buf(body+8, reply_to);
-	memcpy(body+12, msg_part, part_len);
+	memcpy(body+12, msg, msg_len);
 }
 
-char *make_requests_msg_send(const char *token, uint32_t total_len, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, uint32_t reply_id, const char *msg, char **iter, char *res)
+void make_requests_msg_send_file(const char *token, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, uint32_t reply_to, uint32_t fsize, const char *fname, char *res)
 {
-	uint32_t n_requests = (total_len + (REQUEST_MSG_MAX_LEN/ 2)) / REQUEST_MSG_MAX_LEN;
-	uint32_t content_len = n_requests*12+total_len;
-	uint32_t msg_offset = *iter - msg;
-	uint32_t n_sent_requests = (msg_offset + (REQUEST_MSG_MAX_LEN/ 2)) / REQUEST_MSG_MAX_LEN;
-	uint32_t data_offset = n_sent_requests*12+msg_offset;
-	if(total_len <= msg_offset) return NULL;
-	if(total_len > REQUEST_MSG_MAX_LEN)
-	{
-		uint32_t remain_len = total_len - msg_offset;
-		uint32_t part_len = remain_len > REQUEST_MSG_MAX_LEN ? REQUEST_MSG_MAX_LEN : remain_len;
-		make_request_msg_send_part(token, 1, content_len, part_len, data_offset, user_id, conv_id, chat_id, reply_id, *iter, res);
-		*iter += part_len;
-		return res;
-	}
+	size_t fname_len = strlen(fname);
+	request_header header = {
+		.group = 4,
+		.action = 2,
+		.content_type = 1,
+		.content_len = fsize,
+		.body_len = 12+fname_len,
+		// .offset0 = 0,
+		.token = token,
+		.user_id = user_id,
+		.limit = -1,
+		.offset = -1
+	};
+	make_request_header(&header, res);
+	
+	char *body = res+REQUEST_HEADER_LEN;
+	memset(body, 0, REQUEST_BODY_LEN);
 
-	make_request_msg_send_part(token, 0, content_len, total_len, data_offset, user_id, conv_id, chat_id, reply_id, msg, res);
-	return NULL;
+	write_uint32_to_buf(body, conv_id);
+	write_uint32_to_buf(body+4, chat_id);
+	write_uint32_to_buf(body+8, reply_to);
+	memcpy(body+12, fname, fname_len);
 }
 
 inline void make_request_msg_delete(const char* token, uint32_t user_id, uint32_t msg_id, char *res)
@@ -632,14 +628,14 @@ void make_request_msg_notify_new(const char* token, uint32_t user_id, char *res)
 	request_header header = {
 		.group = 4,
 		.action = 4,
-		.multipart = 0,
+		.content_type = 0,
 		.content_len = 0,
 		.body_len = 0,
-		.offset0 = 0,
+		// .offset0 = 0,
 		.token = token,
 		.user_id = user_id,
 		.limit = -1,
-		.offset1 = -1
+		.offset = -1
 	};
 	make_request_header(&header, res);
 }
@@ -649,14 +645,14 @@ void make_request_msg_notify_del(const char* token, uint32_t user_id, char *res)
 	request_header header = {
 		.group = 4,
 		.action = 5,
-		.multipart = 0,
+		.content_type = 0,
 		.content_len = 0,
 		.body_len = 0,
-		.offset0 = 0,
+		// .offset0 = 0,
 		.token = token,
 		.user_id = user_id,
 		.limit = -1,
-		.offset1 = -1
+		.offset = -1
 	};
 	make_request_header(&header, res);
 }

@@ -24,3 +24,8 @@ add_library(request STATIC request.c)
 target_link_libraries(request
 	PUBLIC util_string
 )
+
+add_library(response STATIC response.c)
+target_link_libraries(response
+	PUBLIC util_string
+)

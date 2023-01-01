@@ -10,7 +10,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#define EMPTY_TOKEN "\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
+#define TOKEN_LEN		64
+#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
+						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
+						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
+						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
 
 char buf[BUFSIZ];
 request *req;
@@ -31,14 +35,14 @@ void test_request_auth()
 
 	assert(header->group == 0);
 	assert(header->action == 0);
-	assert(header->multipart == 0);
+	assert(header->content_type == 0);
 	assert(header->content_len == sum_len + 3);
 	assert(header->body_len == sum_len + 3);
-	assert(header->offset0 == 0);
-	assert(memcmp(header->token, EMPTY_TOKEN, 16) == 0);
+	// assert(header->offset0 == 0);
+	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
 	assert(header->user_id == 0);
 	assert(header->limit == -1);
-	assert(header->offset1 == -1);
+	assert(header->offset == -1);
 
 	request_auth ra = body->r_auth;
 	assert(strcmp(ra.username, username) == 0);
@@ -59,14 +63,14 @@ void test_request_auth()
 
 	assert(header->group == 0);
 	assert(header->action == 1);
-	assert(header->multipart == 0);
+	assert(header->content_type == 0);
 	assert(header->content_len == sum_len + 1);
 	assert(header->body_len == sum_len + 1);
-	assert(header->offset0 == 0);
-	assert(memcmp(header->token, EMPTY_TOKEN, 16) == 0);
+	// assert(header->offset0 == 0);
+	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
 	assert(header->user_id == 0);
 	assert(header->limit == -1);
-	assert(header->offset1 == -1);
+	assert(header->offset == -1);
 
 	ra = body->r_auth;
 	assert(strcmp(ra.username, username) == 0);
@@ -87,14 +91,14 @@ void test_request_user_id_only()
 
 	assert(header->group == 2);
 	assert(header->action == 6);
-	assert(header->multipart == 0);
+	assert(header->content_type == 0);
 	assert(header->content_len == 0);
 	assert(header->body_len == 0);
-	assert(header->offset0 == 0);
-	assert(memcmp(header->token, EMPTY_TOKEN, 16) == 0);
+	// assert(header->offset0 == 0);
+	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
 	assert(header->user_id == 1);
 	assert(header->limit == 10);
-	assert(header->offset1 == 3);
+	assert(header->offset == 3);
 
 	request_destroy(req);
 
@@ -115,14 +119,14 @@ void test_request_body_uint32()
 
 	assert(header->group == 2);
 	assert(header->action == 2);
-	assert(header->multipart == 0);
+	assert(header->content_type == 0);
 	assert(header->content_len == 4);
 	assert(header->body_len == 4);
-	assert(header->offset0 == 0);
-	assert(memcmp(header->token, EMPTY_TOKEN, 16) == 0);
+	// assert(header->offset0 == 0);
+	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
 	assert(header->user_id == 1);
 	assert(header->limit == -1);
-	assert(header->offset1 == -1);
+	assert(header->offset == -1);
 
 	assert((body->r_conv).conv_id == 10);
 
@@ -145,34 +149,63 @@ void test_request_msg_send()
 	uint32_t chat_id = 17;
 	uint32_t reply_to = 18;
 
-	char msg[(REQUEST_MSG_MAX_LEN << 1)];
-	memset(msg, 'A', REQUEST_MSG_MAX_LEN);
-	memset(msg + REQUEST_MSG_MAX_LEN, 'B', REQUEST_MSG_MAX_LEN);
+	const char *msg = "Hello world";
+	uint32_t msg_len = strlen(msg);
+	const char* fname = "smile.jpg";
+	uint32_t fsize = 1048576;
 
-	char *iter = msg;
-
-	uint32_t total_len = (REQUEST_MSG_MAX_LEN << 1);
-	assert(make_requests_msg_send(EMPTY_TOKEN, total_len, 1, conv_id, chat_id, reply_to, msg, &iter, buf));
+	make_requests_msg_send_text(EMPTY_TOKEN, 1, conv_id, chat_id, reply_to, msg, buf);
+	
 	req = request_parse(buf);
 	request_header *header = &(req->header);
 	request_body *body = req->body;
+
 	assert(header->group == 4);
 	assert(header->action == 2);
-	assert(header->multipart == 1);
-	assert(header->content_len == total_len+24);
-	assert(header->body_len == REQUEST_BODY_LEN);
-	assert(header->offset0 == 0);
-	assert(memcmp(header->token, EMPTY_TOKEN, 16) == 0);
+	assert(header->content_type == 0);
+	assert(header->content_len == 12+msg_len);
+	assert(header->body_len == 12+msg_len);
+	// assert(header->offset0 == 0);
+	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
 	assert(header->user_id == 1);
 	assert(header->limit == -1);
-	assert(header->offset1 == -1);
-	assert(memcmp((body->r_msg).msg_content, msg, REQUEST_MSG_MAX_LEN) == 0);
+	assert(header->offset == -1);
+
+	assert((body->r_msg).conv_id == conv_id);
+	assert((body->r_msg).chat_id == chat_id);
+	assert((body->r_msg).reply_id == reply_to);
+	assert(strcmp((body->r_msg).msg_content, msg) == 0);
+	
 	request_destroy(req);
 
-	assert(make_requests_msg_send(EMPTY_TOKEN, total_len, 1, conv_id, chat_id, reply_to, msg, &iter, buf));
-	assert(memcmp(buf+REQUEST_HEADER_LEN+12, msg+REQUEST_MSG_MAX_LEN, REQUEST_MSG_MAX_LEN) == 0);
+	SUCCESS("test_make_requests_msg_send_text pass");
 
-	SUCCESS("test_make_requests_msg_send pass");
+
+	make_requests_msg_send_file(EMPTY_TOKEN, 1, conv_id, chat_id, reply_to, fsize, fname, buf);
+	
+	req = request_parse(buf);
+	header = &(req->header);
+	body = req->body;
+
+	assert(header->group == 4);
+	assert(header->action == 2);
+	assert(header->content_type == 1);
+	assert(header->content_len == fsize);
+	assert(header->body_len == 12+strlen(fname));
+	// assert(header->offset0 == 0);
+	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
+	assert(header->user_id == 1);
+	assert(header->limit == -1);
+	assert(header->offset == -1);
+
+	assert((body->r_msg).conv_id == conv_id);
+	assert((body->r_msg).chat_id == chat_id);
+	assert((body->r_msg).reply_id == reply_to);
+	assert(strcmp((body->r_msg).msg_content, fname) == 0);
+
+	request_destroy(req);
+
+	SUCCESS("test_make_requests_msg_send_msg pass");
 
 }
 
@@ -193,7 +226,7 @@ int main(int argc, char **argv)
 	test_request_auth();
 	test_request_user_id_only();
 	test_request_body_uint32();
-	test_request_msg();
+	test_request_msg_send();
 
 	return 0;
 }

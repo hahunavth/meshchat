@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define REQUEST_LEN				BUFSIZ
-#define REQUEST_HEADER_LEN		64
+#define REQUEST_HEADER_LEN		128
 #define REQUEST_BODY_LEN		(REQUEST_LEN-REQUEST_HEADER_LEN)
 #define REQUEST_MSG_MAX_LEN		(REQUEST_BODY_LEN-12)
 
@@ -15,20 +15,20 @@ typedef struct
 	/* Common header fields */
 	int8_t group;		  /* byte 0 */
 	int8_t action;		  /* byte 1 */
-	uint8_t multipart;	  /* byte 2 */
+	uint8_t content_type; /* byte 2 */
 	uint32_t content_len; /* byte 4-8 */
 	uint32_t body_len;	  /* byte 8-12*/
-	uint32_t offset0;	  /* byte 12-16*/
+	// uint32_t offset0;	  /* byte 12-16*/
 
-	/* 16-byte token (byte 16-32) */
+	/* 64-byte token (byte 16-80) */
 	char *token;
 
-	/* 4-byte userid (byte 32-36) */
+	/* 4-byte userid (byte 80-84) */
 	uint32_t user_id;
 
 	/* params for list retrieval */
-	int32_t limit;	 /* byte 36-40 */
-	int32_t offset1; /* byte 40-44 */
+	int32_t limit;	 /* byte 84-88 */
+	int32_t offset; /* byte 88-92 */
 } request_header;
 
 
@@ -107,7 +107,8 @@ void make_request_chat_delete(const char* token, uint32_t user_id, uint32_t chat
 void make_request_chat_get_list(const char* token, uint32_t user_id, int limit, int offset, char *res);
 void make_request_msg_get_all(const char* token, uint32_t user_id, int limit, int offset, uint32_t conv_id, uint32_t chat_id, char *res);
 void make_request_msg_get_detail(const char* token, uint32_t user_id, uint32_t msg_id, char *res);
-char *make_requests_msg_send(const char *token, uint32_t total_len, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, uint32_t reply_to, const char *msg, char **iter, char *res);
+void make_requests_msg_send_text(const char *token, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, uint32_t reply_to, const char *msg, char *res);
+void make_requests_msg_send_file(const char *token, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, uint32_t reply_to, uint32_t fsize, const char *fname, char *res);
 void make_request_msg_delete(const char* token, uint32_t user_id, uint32_t msg_id, char *res);
 void make_request_msg_notify_new(const char* token, uint32_t user_id, char *res);
 void make_request_msg_notify_del(const char* token, uint32_t user_id, char *res);
