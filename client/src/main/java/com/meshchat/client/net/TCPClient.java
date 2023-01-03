@@ -1,7 +1,5 @@
 package com.meshchat.client.net;
 
-import com.meshchat.client.net.messages.BaseParser;
-
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -17,7 +15,8 @@ import java.util.concurrent.SubmissionPublisher;
  */
 public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, Flow.Publisher<char[]> {
     // constant
-    public final int BUFF_SIZE = 8192;
+    public final int DEFAULT_BUFF_SIZE = 8192;
+    private int buff_size = DEFAULT_BUFF_SIZE;
     // socket
     private Socket socket;
     // writer, reader
@@ -87,10 +86,9 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
     }
 
     private char[] receive () {
-        char[] buffer = new char[BUFF_SIZE + 1];
+        char[] buffer = new char[buff_size];
         try {
-            int recvBytes = reader.read(buffer, 0, BUFF_SIZE);
-            buffer[recvBytes] = '\0';
+            int recvBytes = reader.read(buffer, 0, buff_size);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -100,7 +98,6 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
     public void send(String s) {
         writer.println(s);
     }
-
     public void send(byte[] bytes) {
         writer.println(Arrays.toString(bytes));
     }
@@ -111,6 +108,14 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
 
     public void setConnected(boolean connected) {
         isConnected = connected;
+    }
+
+    public int getBuffSize() {
+        return buff_size;
+    }
+
+    public void setBuffSize(int buff_size) {
+        this.buff_size = buff_size;
     }
 
     public void close() {
