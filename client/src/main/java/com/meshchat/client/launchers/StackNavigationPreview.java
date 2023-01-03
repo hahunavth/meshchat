@@ -24,7 +24,7 @@ public class StackNavigationPreview extends PreviewLauncher{
         stackNavigation.navigate(StackNavigation.WINDOW_LIST.SETTING);
         stackNavigation.navigate(StackNavigation.WINDOW_LIST.SETTING);
         stackNavigation.navigate(StackNavigation.WINDOW_LIST.SETTING);
-        stackNavigation.lazyInitialize(stage);
+//        stackNavigation.lazyInitialize(stage);
 
         stackNavigation.show();
     }

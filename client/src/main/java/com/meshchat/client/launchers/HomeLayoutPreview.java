@@ -3,6 +3,7 @@ package com.meshchat.client.launchers;
 import com.meshchat.client.views.layout.HomeLayout;
 import com.meshchat.client.views.layout.TabsLayout;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -27,6 +28,6 @@ public class HomeLayoutPreview extends PreviewLauncher {
                 this.getBackground(5)
         );
 
-        layout.show();
+        Platform.runLater(layout::show);
     }
 }

@@ -94,4 +94,8 @@ public interface TypeMappingLib {
         void print_com_union_t_common_t(ComUnionJNR t, String type);
         CommonJNR com_union_t_get_common_t(ComUnionJNR in);
 
+        /**
+         * Socket
+         */
+        int run_echo_tcp_client();
 }

@@ -1,8 +1,8 @@
 package com.meshchat.client;
 
 import com.meshchat.client.model.DataSource;
-import com.meshchat.client.net.providers.ApiProvider;
 import com.meshchat.client.net.TCPClient;
+import com.meshchat.client.views.navigation.StackNavigation;
 
 /**
  * Singleton:
@@ -15,12 +15,11 @@ public class ModelSingleton {
 
     //
     public final DataSource dataSource = new DataSource();
-    public ApiProvider apiProvider;
     public TCPClient tcpClient;
+    public StackNavigation stackNavigation;;
 
     private ModelSingleton() {
         tcpClient = new TCPClient();
-        apiProvider = new ApiProvider(tcpClient);
         // close on exit
         Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
             tcpClient.close();

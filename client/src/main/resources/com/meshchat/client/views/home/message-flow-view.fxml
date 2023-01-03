@@ -66,7 +66,7 @@
       </AnchorPane>
       <HBox alignment="CENTER" prefHeight="61.0" style="-fx-background-color: white;">
          <children>
-            <TextField fx:id="input" onAction="#submit" promptText="Write a message" style="-fx-background-color: #f8f8fa; -fx-border-radius: 50px; -fx-border-width: 1px; -fx-border-color: white; -fx-background-radius: 50px;" HBox.hgrow="ALWAYS">
+            <TextField fx:id="input" promptText="Write a message" style="-fx-background-color: #f8f8fa; -fx-border-radius: 50px; -fx-border-width: 1px; -fx-border-color: white; -fx-background-radius: 50px;" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets left="12.0" />
                </HBox.margin>

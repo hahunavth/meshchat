@@ -15,18 +15,18 @@ import java.util.ResourceBundle;
  * @deprecated
  * - Show stage in constructor
  */
-public class SplashScreenHandler extends FXMLScreenHandler implements Initializable {
+public class SplashScreenHandler extends FXMLScreenHandler {
 
     @FXML
     private ProgressBar progressBar;
 
-    public static ProgressBar statProgressBar;
+//    private static ProgressBar statProgressBar;
     private Stage stage;
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        statProgressBar = progressBar;
-    }
+//    @Override
+//    public void initialize(URL url, ResourceBundle rb) {
+//        statProgressBar = progressBar;
+//    }
 
     public SplashScreenHandler(Stage stage) {
         super(Config.SPLASH_PATH);

@@ -19,28 +19,28 @@ public class MessageController extends BaseController<MessageScreenHandler> {
     public void setScreenHandler(MessageScreenHandler screenHandler) {
         super.setScreenHandler(screenHandler);
 
-        Long uid = ModelSingleton.getInstance().dataSource.getUserProfile().getId();
-        ChatGen room = null;
+        Long uid = ModelSingleton.getInstance().dataSource.getUserProfile().getEntity().getId();
+        ChatGen room;
         System.out.println(ModelSingleton.getInstance().dataSource.oChatMap);
         System.out.println(room_id.get());
         // add msg list
         if (type == Type.CHAT) room = ModelSingleton.getInstance().dataSource.oChatMap.get(room_id.get());
         else room = ModelSingleton.getInstance().dataSource.oConvMap.get(room_id.get());
         if (room != null) {
-            room.msgMap.forEach((id, msg) -> {
-                this.getScreenHandler().addMsg(msg.content, msg.from_user_id, uid, id);
+            room.getOMsgMap().forEach((id, msg) -> {
+                this.getScreenHandler().addMsg(msg.getEntity().getContent(), msg.getEntity().getFrom_user_id(), uid, id);
             });
 
             // add msg list listener
             newMsgListener = (MapChangeListener<Long, Message>) change -> {
                 // handle add new message here
                 if (change.wasAdded()) {
-                    this.getScreenHandler().addMsg(change.getValueAdded().content, change.getValueAdded().from_user_id, uid, change.getKey());
+                    this.getScreenHandler().addMsg(change.getValueAdded().getEntity().getContent(), change.getValueAdded().getEntity().getFrom_user_id(), uid, change.getKey());
                 } else if (change.wasRemoved()) {
                     this.getScreenHandler().disableMsg(change.getKey());
                 }
             };
-            room.oMsgMap.addListener((MapChangeListener<? super Long, ? super Message>) newMsgListener);
+            room.getOMsgMap().addListener(newMsgListener);
         } else {
             this.getScreenHandler().setName("");
         }
@@ -57,7 +57,7 @@ public class MessageController extends BaseController<MessageScreenHandler> {
 
                 // set name
                 if (room1 instanceof Conv) {
-                    this.getScreenHandler().setName(((Conv) room1).name);
+                    this.getScreenHandler().setName(((Conv) room1).getName());
                 } else {
                     this.getScreenHandler().setName(((Chat) room1).getUser2().getUsername());
                 }
@@ -65,13 +65,29 @@ public class MessageController extends BaseController<MessageScreenHandler> {
                 newMsgListener = change -> {
                     // handle add new message here
                     if (change.wasAdded()) {
-                        this.getScreenHandler().addMsg(change.getValueAdded().content, change.getValueAdded().from_user_id, uid, change.getKey());
+                        this.getScreenHandler().addMsg(change.getValueAdded().getEntity().getContent(), change.getValueAdded().getEntity().getFrom_user_id(), uid, change.getKey());
                     } else if (change.wasRemoved()) {
                         this.getScreenHandler().disableMsg(change.getKey());
                     }
                 };
-                room1.oMsgMap.addListener(newMsgListener);
+                room1.getOMsgMap().addListener(newMsgListener);
             }
+        });
+
+        // send message
+        screenHandler.setOnSubmit(event -> {
+            ModelSingleton.getInstance().tcpClient.send(screenHandler.getText());
+            long from_uid = ModelSingleton.getInstance().dataSource.getUserProfile().getEntity().getId();
+            String content = screenHandler.getText();
+            Message message = new Message(
+                    this.room_id.get(),
+                    from_uid,
+                    -1,
+                    content,
+                    100000000,
+                    false
+            );
+//            screenHandler.addMsg(content, from_uid, from_uid, );
         });
 
     }
@@ -82,7 +98,7 @@ public class MessageController extends BaseController<MessageScreenHandler> {
             // add msg list
             if (type == Type.CHAT) room = ModelSingleton.getInstance().dataSource.oChatMap.get(room_id.get());
             else room = ModelSingleton.getInstance().dataSource.oConvMap.get(room_id.get());
-            room.oMsgMap.removeListener(this.newMsgListener);
+            room.getOMsgMap().removeListener(this.newMsgListener);
         }
     }
 

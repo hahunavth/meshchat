@@ -1,8 +1,6 @@
 package com.meshchat.client.net;
 
-import com.meshchat.client.model.Message;
 import com.meshchat.client.net.messages.BaseParser;
-import javafx.beans.InvalidationListener;
 
 import java.io.*;
 import java.net.Socket;
@@ -85,7 +83,6 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
             this.subscriberList.forEach(subscriber -> {
                 subscriber.onNext(frame);
             });
-
         }
     }
 
@@ -106,10 +103,6 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
 
     public void send(byte[] bytes) {
         writer.println(Arrays.toString(bytes));
-    }
-
-    public void send(BaseParser m) {
-
     }
 
     public boolean isConnected() {
@@ -139,12 +132,12 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
         Flow.Subscription subscription = new Flow.Subscription() {
             @Override
             public void request(long n) {
-
+                System.out.println(n);
             }
 
             @Override
             public void cancel() {
-
+                System.out.println("Cancel");
             }
         };
 

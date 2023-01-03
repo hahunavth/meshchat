@@ -1,7 +1,9 @@
 package com.meshchat.client.views.login;
 
+import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.utils.Config;
 import com.meshchat.client.views.base.BaseScreenHandler;
+import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -19,7 +21,12 @@ public class LoginScreenHandler extends BaseScreenHandler {
     @FXML
     private Button signup;
 
-    public LoginScreenHandler(Stage stage) {
+    public LoginScreenHandler() {
         super(Config.LOGIN_PATH);
+
+        login.setOnAction((a) -> {
+            ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.HOME);
+            ModelSingleton.getInstance().stackNavigation.show();
+        });
     }
 }

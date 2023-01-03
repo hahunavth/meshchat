@@ -1,9 +1,9 @@
 package com.meshchat.client.controllers;
 
 import com.meshchat.client.ModelSingleton;
+import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.model.Chat;
-import com.meshchat.client.model.DataSource;
-import com.meshchat.client.model.User;
+import com.meshchat.client.model.UserProfile;
 import com.meshchat.client.views.home.ChatScreenHandler;
 import javafx.collections.MapChangeListener;
 
@@ -45,6 +45,6 @@ public class ChatController extends BaseController<ChatScreenHandler> {
             System.out.println(key);
         });
 
-        ModelSingleton.getInstance().dataSource.oChatMap.put(345L, new Chat(new User()));
+        ModelSingleton.getInstance().dataSource.oChatMap.put(345L, new Chat(new UserEntity()));
     }
 }

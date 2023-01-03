@@ -9,6 +9,8 @@ import com.meshchat.client.utils.Config;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.LazyInitialize;
 import com.meshchat.client.views.components.MsgItem;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -36,6 +38,10 @@ public class MessageScreenHandler extends BaseScreenHandler<MessageController> i
 
     public MessageScreenHandler(Stage stage) {
         super(Config.MSG_FLOW_PATH);
+    }
+
+    @FXML
+    public void initialize () {
         // if add msg -> scroll to bottom
         msgList.heightProperty().addListener(observable -> scroll.setVvalue(1D));
     }
@@ -54,13 +60,20 @@ public class MessageScreenHandler extends BaseScreenHandler<MessageController> i
         System.out.println("Todo");
     }
 
-    @FXML
-    public void submit() {
-        addMsg(new MsgItem(this.input.getText()));
-//        this.controller.sendMsg(this.input.getText());
-        ModelSingleton.getInstance().tcpClient.send(this.input.getText());
-        this.input.setText("");
+    public void setOnSubmit (EventHandler<ActionEvent> e) {
+        this.input.setOnAction(e);
     }
+
+    public String getText() {
+        return this.input.getText();
+    }
+//    @FXML
+//    public void submit() {
+//        addMsg(new MsgItem(this.input.getText()));
+////        this.controller.sendMsg(this.input.getText());
+//        ModelSingleton.getInstance().tcpClient.send(this.input.getText());
+//        this.input.setText("");
+//    }
 
     @Override
     public void setBaseController(MessageController controller) {

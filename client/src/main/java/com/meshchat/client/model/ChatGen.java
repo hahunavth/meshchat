@@ -9,19 +9,23 @@ import java.util.Map;
 /**
  * Chung cho conv và chat
  */
-public class ChatGen {
-    public Map<Long, Message> msgMap = new HashMap<>();
-    public ObservableMap<Long, Message> oMsgMap = FXCollections.observableMap(msgMap);
+public class ChatGen extends BaseSchema {
+    private final Map<Long, Message> msgMap = new HashMap<>();
+    private final ObservableMap<Long, Message> oMsgMap = FXCollections.observableMap(msgMap);
 
-    public void addMessage(long id, Message msg) {
-        this.msgMap.put(id, msg);
+    public void addMessage(long id, long from_uid, long reply_to, String content, long created_at, boolean isDeleted) {
+        this.msgMap.put(id, new Message(id, from_uid, reply_to, content, created_at, isDeleted));
     }
 
     public void deleteMessage(long id) {
         Message msg = this.msgMap.get(id);
         if (msg != null) {
-            msg.content = "";
-            msg.isDeleted = true;
+            msg.getEntity().setContent("");
+            msg.setIsDeleted(true);
         }
+    }
+
+    public ObservableMap<Long, Message> getOMsgMap() {
+        return oMsgMap;
     }
 }

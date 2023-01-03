@@ -1,6 +1,7 @@
 package com.meshchat.client.views.splash;
 
 import com.meshchat.client.utils.Config;
+import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,13 +23,6 @@ public class SplashPreloader extends Preloader {
     private ProgressBar progressBar;
     private Scene scene;
     boolean noLoadingProgress = true;
-
-//    private Scene createPreloaderScene() {
-//        bar = new ProgressBar(0);
-//        BorderPane p = new BorderPane();
-//        p.setCenter(bar);
-//        return new Scene(p, 300, 150);
-//    }
 
     public SplashPreloader() {
         try {
@@ -52,7 +46,9 @@ public class SplashPreloader extends Preloader {
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
         this.stage.setScene(this.scene);
         this.stage.initStyle(StageStyle.UNDECORATED);
-        this.stage.show();
+        Platform.runLater(() -> {
+            this.stage.show();
+        });
     }
 
     @Override
