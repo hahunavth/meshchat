@@ -1,8 +1,13 @@
 package com.meshchat.client;
 
+import com.meshchat.client.experiments.libs.TypeMappingLib;
 import com.meshchat.client.model.DataSource;
-import com.meshchat.client.net.TCPClient;
+import com.meshchat.client.net.client.TCPClient;
+import com.meshchat.client.net.client.TCPJavaClient;
+import com.meshchat.client.net.client.TCPSimpleCClient;
 import com.meshchat.client.views.navigation.StackNavigation;
+import jnr.ffi.LibraryLoader;
+import jnr.ffi.LibraryOption;
 
 /**
  * Singleton:
@@ -14,12 +19,21 @@ public class ModelSingleton {
     private static ModelSingleton instance;
 
     //
+    public TypeMappingLib lib;
     public final DataSource dataSource = new DataSource();
     public TCPClient tcpClient;
     public StackNavigation stackNavigation;;
 
     private ModelSingleton() {
-        tcpClient = new TCPClient();
+        lib = LibraryLoader
+                .create(TypeMappingLib.class)
+                .option(LibraryOption.LoadNow, true)
+                .option(LibraryOption.SaveError, true)
+                .failImmediately()
+                .search("/home/kryo/Desktop/meshchat/client/src/main/resources")
+                .load("typemapping");
+
+        tcpClient = new TCPSimpleCClient("127.0.0.1", 5500, lib);
         // close on exit
         Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
             tcpClient.close();
@@ -41,5 +55,11 @@ public class ModelSingleton {
             }
         }
         return instance;
+    }
+
+    public void close () {
+        if (this.tcpClient != null) {
+            this.tcpClient.close();
+        }
     }
 }

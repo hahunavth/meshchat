@@ -15,7 +15,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Launcher extends Application {
-
     BooleanProperty ready = new SimpleBooleanProperty(false);
 
     private void notifyProcess(double progress) {
@@ -75,16 +74,17 @@ public class Launcher extends Application {
 
         try {
             // close all on exit app
-            stage.setOnCloseRequest((event -> {
-                Platform.exit();
-                System.exit(0);
-            }));
+//            stage.setOnCloseRequest((event -> {
+//                Platform.exit();
+//                System.exit(0);
+//            }));
+            stage.close();
 
             // After the app is ready, show the stage
             ready.addListener((ov, t, t1) -> {
                 if (Boolean.TRUE.equals(t1)) {
                     Platform.runLater(() -> {
-                        ModelSingleton.getInstance().stackNavigation.lazyInitialize();
+                        ModelSingleton.getInstance().stackNavigation.lazyInitialize(stage);
                         // default screen: login
                         ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.LOGIN);
                         //

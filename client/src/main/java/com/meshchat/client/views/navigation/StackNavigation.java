@@ -1,5 +1,6 @@
 package com.meshchat.client.views.navigation;
 
+import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.base.LazyInitialize;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-public class StackNavigation implements INavigation<StackNavigation.WINDOW_LIST> {
+public class StackNavigation implements INavigation<StackNavigation.WINDOW_LIST>, LazyInitialize {
 
     public enum WINDOW_LIST {
         HOME,
@@ -98,12 +99,17 @@ public class StackNavigation implements INavigation<StackNavigation.WINDOW_LIST>
 
     private Stage setupNewStage () {
         Stage stage = new Stage();
+        return this.setupNewStage(stage);
+    }
 
+    private Stage setupNewStage (Stage stage) {
         // handle close
         stage.setOnCloseRequest((e) -> {
             if (this.windowStack.size() <= 1) {
                 stage.close();
+                ModelSingleton.getInstance().close();
                 Platform.exit();
+                System.exit(0);
             } else {
                 e.consume();
                 stage.hide();
@@ -114,7 +120,7 @@ public class StackNavigation implements INavigation<StackNavigation.WINDOW_LIST>
         return stage;
     }
 
-    public void lazyInitialize() {
+    public void lazyInitialize(Stage firstStage) {
         Platform.setImplicitExit(false);
 
         // init child

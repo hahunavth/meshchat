@@ -21,9 +21,6 @@ class JNRCSocketTest {
 
     @BeforeEach
     void setUp () {
-        Map<LibraryOption, Object> libraryOptions = new HashMap<>();
-        libraryOptions.put(LibraryOption.LoadNow, true); // load immediately instead of lazily (ie on first use)
-        libraryOptions.put(LibraryOption.IgnoreError, true); // calls shouldn't save last errno after call
         lib = LibraryLoader
                 .create(TypeMappingLib.class)
                 .option(LibraryOption.LoadNow, true)
@@ -38,5 +35,16 @@ class JNRCSocketTest {
         int client_fd = lib.run_echo_tcp_client();
 
         assertTrue(client_fd > 0);
+    }
+
+    @Test
+    void test_connect_server() throws InterruptedException {
+        int fd = lib.connect_server("127.0.0.1", 5500);
+
+        lib.simple_send("Hello");
+        lib.simple_recv();
+
+        for(int i = 0; i < 3; i++) Thread.sleep(1000);
+        System.out.println("client_fd=" + fd);
     }
 }

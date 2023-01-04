@@ -98,4 +98,13 @@ public interface TypeMappingLib {
          * Socket
          */
         int run_echo_tcp_client();
+
+        /**
+         * client test
+         */
+        int connect_server(String str, int port);
+        int simple_send(String str);
+        String simple_recv();
+        int get_sockfd();
+        void close_conn();
 }

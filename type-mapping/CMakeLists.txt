@@ -18,6 +18,8 @@ add_library(
   tcp.h
   debug.h
   color.h
+  client.h
+  client.c
 )
 
 add_executable(main main.c)

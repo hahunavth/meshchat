@@ -1,45 +1,25 @@
-package com.meshchat.client.net;
+package com.meshchat.client.net.client;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Flow;
-import java.util.concurrent.SubmissionPublisher;
 
-/**
- * Connection with server
- * @see com.meshchat.client.net.providers.ApiProvider
- * @see com.meshchat.client.model.DataSource
- */
-public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, Flow.Publisher<char[]> {
-    // constant
-    public final int DEFAULT_BUFF_SIZE = 8192;
-    private int buff_size = DEFAULT_BUFF_SIZE;
+public class TCPJavaClient extends TCPClient{
     // socket
     private Socket socket;
     // writer, reader
     private PrintWriter writer;
     private BufferedReader reader;
-    // address
-    private final String host;
-    private final int port;
-    // state
-    private boolean isConnected;
-    private List<Flow.Subscriber> subscriberList = new ArrayList<>();
 
-    public TCPClient() {
+    public TCPJavaClient() {
         this("127.0.0.1", 5500);
     }
 
-    public TCPClient(String host, int port) {
-        super();
-        this.host = host;
-        this.port = port;
+    public TCPJavaClient(String host, int port) {
+        super(host, port);
     }
 
-    private void connect () {
+    protected void connect () {
         // connect
         while (socket == null) {
             try {
@@ -85,7 +65,7 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
         }
     }
 
-    private char[] receive () {
+    protected char[] receive () {
         char[] buffer = new char[buff_size];
         try {
             int recvBytes = reader.read(buffer, 0, buff_size);
@@ -102,24 +82,7 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
         writer.println(Arrays.toString(bytes));
     }
 
-    public boolean isConnected() {
-        return isConnected;
-    }
-
-    public void setConnected(boolean connected) {
-        isConnected = connected;
-    }
-
-    public int getBuffSize() {
-        return buff_size;
-    }
-
-    public void setBuffSize(int buff_size) {
-        this.buff_size = buff_size;
-    }
-
     public void close() {
-        super.close();
         if(socket != null && socket.isConnected()) {
             try {
                 socket.close();
@@ -127,25 +90,5 @@ public class TCPClient extends SubmissionPublisher<char[]> implements Runnable, 
                 ex.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public void subscribe(Flow.Subscriber subscriber) {
-        super.subscribe(subscriber);
-        subscriberList.add(subscriber);
-
-        Flow.Subscription subscription = new Flow.Subscription() {
-            @Override
-            public void request(long n) {
-                System.out.println(n);
-            }
-
-            @Override
-            public void cancel() {
-                System.out.println("Cancel");
-            }
-        };
-
-        subscriber.onSubscribe(subscription);
     }
 }
