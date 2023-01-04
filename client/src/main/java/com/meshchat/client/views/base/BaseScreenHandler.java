@@ -3,6 +3,7 @@ package com.meshchat.client.views.base;
 import com.meshchat.client.controllers.BaseController;
 import com.meshchat.client.controllers.ChatController;
 import com.meshchat.client.utils.Config;
+import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -48,7 +49,13 @@ public abstract class BaseScreenHandler<T extends BaseController> extends FXMLSc
         scene.getStylesheets().add(Objects.requireNonNull(this.getClass().getResource(Config.SCROLL_BAR_STYLE_PATH)).toExternalForm());
         scene.getStylesheets().add(Objects.requireNonNull(this.getClass().getResource(Config.TAB_STYLE_PATH)).toExternalForm());
         this.stage.setScene(this.scene);
-        this.stage.show();
+        Platform.runLater(() -> {
+            this.stage.show();
+        });
+    }
+
+    public void hide() {
+        this.stage.hide();
     }
 
     public void setTitle(String title) {
@@ -61,7 +68,9 @@ public abstract class BaseScreenHandler<T extends BaseController> extends FXMLSc
 
     public void setBaseController(T controller) {
         this.controller = controller;
-        this.controller.setScreenHandler(this);
+        if (this.controller != null) {
+            this.controller.setScreenHandler(this);
+        }
     }
 
     @Override

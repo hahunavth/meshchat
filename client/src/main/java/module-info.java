@@ -11,6 +11,10 @@ module com.meshchat.client {
     requires org.objectweb.asm;
     requires org.jnrproject.ffi;
     requires org.jnrproject.jffi;
+
+//    requires java.sql;
+//    requires java.sql.rowset;
+//    requires ojdbc8;
 //    requires com.sun.jna;
 //    requires com.sun.xml.bind;
 //    requires com.sun.xml.bind.core;

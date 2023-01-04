@@ -1,6 +1,7 @@
 package com.meshchat.client.launchers;
 
 import com.meshchat.client.views.layout.TabsLayout;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -25,6 +26,6 @@ public class TabLayoutLaunch extends PreviewLauncher {
                 this.getBackground(4)
         );
 
-        layout.show();
+        Platform.runLater(layout::show);
     }
 }

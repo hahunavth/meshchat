@@ -1,8 +1,6 @@
 package com.meshchat.client.net;
 
-import com.meshchat.client.net.providers.IApiProvider;
-
-public enum OpSubGroup implements IApiProvider {
+public enum OpSubGroup {
     REGISTER,
     LOGIN,
     LOGOUT,

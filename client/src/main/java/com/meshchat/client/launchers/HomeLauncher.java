@@ -7,6 +7,7 @@ import com.meshchat.client.views.navigation.TabNavigation;
 import com.meshchat.client.views.settings.SettingDetailsScreenHandler;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
@@ -59,7 +60,7 @@ public class HomeLauncher extends Application {
             // After fade out, load actual content
             fadeOut.setOnFinished((e) -> {
                 layout.setTitle("Home Screen");
-                layout.show();
+                Platform.runLater(layout::show);
             });
             // init screen
             HomeScreenHandler screen = new HomeScreenHandler(stage);
@@ -68,7 +69,7 @@ public class HomeLauncher extends Application {
                 layout.addSessionContent(TabsLayout.Sessions.TAB, nav);
                 nav.addScreenHandler(Config.MSG_ICON_PATH, screen);
                 nav.addScreenHandler(Config.SETTING_ICON_PATH, setting);
-                layout.show();
+                Platform.runLater(layout::show);
             });
 
         } catch (Exception e) {

@@ -1,6 +1,7 @@
 package com.meshchat.client.launchers;
 
 import com.meshchat.client.views.login.LoginScreenHandler;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ public class LoginPreview extends PreviewLauncher{
 
     @Override
     public void start(Stage stage) throws IOException {
-        LoginScreenHandler screen = new LoginScreenHandler(stage);
-        screen.show();
+        LoginScreenHandler screen = new LoginScreenHandler();
+        Platform.runLater(screen::show);
     }
 }

@@ -1,23 +1,31 @@
 package com.meshchat.client.model;
 
-public class Message implements ISchema{
-    public long id;
-    public long from_user_id;
-    public long reply_to;
-    public String content;
-    public long created_at;
-    public boolean isDeleted;
+import com.meshchat.client.db.entities.MsgEntity;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
+public class Message extends BaseSchema{
+    private final MsgEntity entity = new MsgEntity();
+    private final BooleanProperty isDeleted = new SimpleBooleanProperty();
 
     public Message(long id, long from_user_id, long reply_to, String content, long created_at, boolean isDeleted) {
-        this.id = id;
-        this.from_user_id = from_user_id;
-        this.reply_to = reply_to;
-        this.content = content;
-        this.created_at = created_at;
-        this.isDeleted = isDeleted;
+        this.entity.setId(id);
+        this.entity.setFrom_user_id(from_user_id);
+        this.entity.setReply_to(reply_to);
+        this.entity.setContent(content);
+        this.entity.setCreated_at(created_at);
+        this.isDeleted.set(isDeleted);
     }
 
-    //    public long chat_id;
-//    public long conv_id;
-//    int	type;
+    public MsgEntity getEntity() {
+        return entity;
+    }
+
+    public boolean isIsDeleted() {
+        return isDeleted.get();
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted.set(isDeleted);
+    }
 }

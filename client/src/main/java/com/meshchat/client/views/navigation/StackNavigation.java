@@ -1,5 +1,6 @@
 package com.meshchat.client.views.navigation;
 
+import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.base.LazyInitialize;
@@ -20,35 +21,70 @@ public class StackNavigation implements INavigation<StackNavigation.WINDOW_LIST>
         SIGNUP
     }
 
-
     public INavigation nested;
-    public Stack<BaseScreenHandler> windowStack = new Stack<>();
-    public Map<WINDOW_LIST, ScreenFactory> screenMap = new HashMap<>();
+    private Stack<BaseScreenHandler> windowStack = new Stack<>();
+    private Map<WINDOW_LIST, BaseScreenHandler> preloadScreenHandlerMap = new HashMap<>();
+    private Map<WINDOW_LIST, ScreenFactory> screenMap = new HashMap<>();
 
     @Override
     public void addScreenHandler(WINDOW_LIST screenName, BaseScreenHandler screen) {
-//        screenMap.put(screenName, screen);
+        this.preloadScreenHandlerMap.put(screenName, screen);
     }
 
+    /**
+     * Add screen factory first
+     */
     @Override
     public void addScreenFactory(WINDOW_LIST screenName, ScreenFactory screen) {
         screenMap.put(screenName, screen);
         // create first screen
-        if (this.windowStack.isEmpty()) {
-            this.navigate(screenName);
-        }
+//        if (this.windowStack.isEmpty()) {
+//            this.navigate(screenName);
+//        }
     }
 
-    @Override
-    public BaseScreenHandler navigate(WINDOW_LIST screenName) {
+    /**
+     * Create screen handler from screen factory map
+     */
+    public BaseScreenHandler createScreenHandler (WINDOW_LIST screenName) {
         ScreenFactory screenFactory = screenMap.get(screenName);
 
         BaseScreenHandler screenHandler = screenFactory.getScreenHandler();
         screenHandler.setBaseController(screenFactory.getController());
+
+        return screenHandler;
+    }
+
+    /**
+     * Create screen handler and add to preload map
+     */
+    public void preloadScreenHandler(WINDOW_LIST screenName) {
+        BaseScreenHandler screenHandler = createScreenHandler(screenName);
+        preloadScreenHandlerMap.put(screenName, screenHandler);
+    }
+
+    /**
+     * Navigate to new screen
+     * - if preloaded, get from preloadScreenHandlerMap
+     * - if not, create new screen handler
+     */
+    @Override
+    public BaseScreenHandler navigate(WINDOW_LIST screenName) {
+        BaseScreenHandler screenHandler = null;
+
+        if (preloadScreenHandlerMap.containsKey(screenName)) {
+            screenHandler = preloadScreenHandlerMap.get(screenName);
+            preloadScreenHandlerMap.remove(screenName);
+        } else {
+            screenHandler = createScreenHandler(screenName);
+        }
+
+        // set prev screen
         if (!this.windowStack.isEmpty()) {
             screenHandler.setPreviousScreen(
                     this.windowStack.peek()
             );
+            this.windowStack.peek().hide();
         }
 
         this.windowStack.push(screenHandler);
@@ -58,48 +94,50 @@ public class StackNavigation implements INavigation<StackNavigation.WINDOW_LIST>
 
     public void goBack() {
         this.windowStack.pop();
-        this.show();
+        Platform.runLater(this::show);
     }
 
-    @Override
-    public void lazyInitialize(Stage stage) {
-        Platform.setImplicitExit(false);
+    private Stage setupNewStage () {
+        Stage stage = new Stage();
+        return this.setupNewStage(stage);
+    }
+
+    private Stage setupNewStage (Stage stage) {
         // handle close
+        stage.setOnCloseRequest((e) -> {
+            if (this.windowStack.size() <= 1) {
+                stage.close();
+                ModelSingleton.getInstance().close();
+                Platform.exit();
+                System.exit(0);
+            } else {
+                e.consume();
+                stage.hide();
+                this.goBack();
+            }
+        });
+
+        return stage;
+    }
+
+    public void lazyInitialize(Stage firstStage) {
+        Platform.setImplicitExit(false);
 
         // init child
         this.screenMap.forEach((i, j) -> {
-            if (j instanceof LazyInitialize) {
-                Stage stage1 = new Stage();
-                stage1.setOnCloseRequest((e) -> {
-                    if (this.windowStack.size() <= 1) {
-                        stage1.close();
-                    } else {
-                        e.consume();
-                        stage1.hide();
-                        this.goBack();
-                    }
-                });
-                ((LazyInitialize) j).lazyInitialize(stage1);
-            }
+            j.lazyInitialize(this.setupNewStage());
         });
         this.windowStack.forEach((i) -> {
-            if (i != null) {
-                Stage stage1 = new Stage();
-                stage1.setOnCloseRequest((e) -> {
-                    if (this.windowStack.size() <= 1) {
-                        stage1.close();
-                    } else {
-                        e.consume();
-                        stage1.hide();
-                        this.goBack();
-                    }
-                });
-                ((LazyInitialize) i).lazyInitialize(stage1);
-            }
+            i.lazyInitialize(this.setupNewStage());
+        });
+        this.preloadScreenHandlerMap.forEach((i, j) -> {
+            j.lazyInitialize(this.setupNewStage());
         });
     }
 
     public void show () {
-        this.windowStack.peek().show();
+        Platform.runLater(() -> {
+            this.windowStack.peek().show();
+        });
     }
 }

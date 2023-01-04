@@ -1,19 +1,18 @@
 package com.meshchat.client.model;
 
+import com.meshchat.client.db.entities.UserEntity;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Chat extends ChatGen {
-//    private long id;
-//    public long member1;
-//    public long member2;
-    private User user2 = new User();
+    private final UserEntity user2;
 
-    public Chat(User user2) {
+    public Chat(UserEntity user2) {
         this.user2 = user2;
     }
 
-    public User getUser2() {
+    public UserEntity getUser2() {
         return user2;
     }
 }

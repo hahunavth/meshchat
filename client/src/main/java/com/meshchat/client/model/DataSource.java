@@ -1,5 +1,7 @@
 package com.meshchat.client.model;
 
+import com.meshchat.client.db.entities.UserEntity;
+import com.meshchat.client.net.client.TCPClient;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -9,7 +11,7 @@ import java.util.concurrent.Flow;
 /**
  * Reactive programming:
  * @see com.meshchat.client.net.providers.ApiProvider
- * @see com.meshchat.client.net.TCPClient
+ * @see TCPClient
  *
  * @see <a href="https://blog.avenuecode.com/reactive-streams-and-microservices-a-case-study">reactive-streams</a>
  * @see <a href="https://dzone.com/articles/reactive-streams-in-java-9">reactive-streams</a>
@@ -22,7 +24,7 @@ public class DataSource implements Flow.Subscriber<char[]> {
     private Flow.Subscription subscription;
 
     // data
-    private final User user = new User();
+    private final UserProfile userProfile = new UserProfile();
     private final Map<Long, Conv> convMap = new HashMap<>();
     private final Map<Long, Chat> chatMap = new HashMap<>();
 
@@ -34,16 +36,18 @@ public class DataSource implements Flow.Subscriber<char[]> {
         /**
          * Fake data
          */
-        this.getUserProfile().setId(10);
-        this.getUserProfile().setEmail("a@b.c");
-        this.getUserProfile().setUsername("uname");
-        this.getUserProfile().setPassword("pwd");
-        this.getUserProfile().setPhone_number("0987654321");
-        User user1 = new User(20, "afdsaf", "fjfjfjfjf", "dfjksdjkd", "fjfjfjfjfjfjfjf");
-        User user2 = new User(23, "User 2", "fjfjfjfjf", "dfjksdjkd", "fjfjfjfjfjfjfjf");
+        this.getUserProfile().getEntity().setId(10);
+        this.getUserProfile().getEntity().setEmail("a@b.c");
+        this.getUserProfile().getEntity().setUsername("uname");
+        this.getUserProfile().getEntity().setPassword("pwd");
+        this.getUserProfile().getEntity().setPhone_number("0987654321");
+        //  user
+        UserEntity user1 = new UserEntity(20, "afdsaf", "fjfjfjfjf", "fjfjfjfjfjfjfjf");
+        UserEntity user2 = new UserEntity(23, "User 2",  "dfjksdjkd", "fjfjfjfjfjfjfjf");
+        // chat
         Chat chat1 = new Chat(user1);
         Chat chat2 = new Chat(user2);
-        chat1.addMessage(3, new Message(343, 10, -1, "contentntntntn", 8765432, false));
+        chat1.addMessage(3, 343, -1, "contentntntntn", 8765432, false);
         this.chatMap.put(
                 100L, chat1
         );
@@ -52,8 +56,8 @@ public class DataSource implements Flow.Subscriber<char[]> {
         );
     }
 
-    public User getUserProfile() {
-        return user;
+    public UserProfile getUserProfile() {
+        return userProfile;
     }
 
     public Map<Long, Conv> getConvMap() {

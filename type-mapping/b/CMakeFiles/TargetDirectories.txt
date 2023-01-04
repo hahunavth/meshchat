@@ -1,4 +1,0 @@
-/home/kryo/Desktop/meshchat/type-mapping/b/CMakeFiles/typemapping.dir
-/home/kryo/Desktop/meshchat/type-mapping/b/CMakeFiles/main.dir
-/home/kryo/Desktop/meshchat/type-mapping/b/CMakeFiles/edit_cache.dir
-/home/kryo/Desktop/meshchat/type-mapping/b/CMakeFiles/rebuild_cache.dir
