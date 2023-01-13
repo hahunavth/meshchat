@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define REQUEST_LEN				BUFSIZ
-#define REQUEST_HEADER_LEN		128
+#define REQUEST_HEADER_LEN		64
 #define REQUEST_BODY_LEN		(REQUEST_LEN-REQUEST_HEADER_LEN)
 #define REQUEST_MSG_MAX_LEN		(REQUEST_BODY_LEN-12)
 
@@ -20,15 +20,15 @@ typedef struct
 	uint32_t body_len;	  /* byte 8-12*/
 	// uint32_t offset0;	  /* byte 12-16*/
 
-	/* 64-byte token (byte 16-80) */
+	/* 16-byte token (byte 16-32) */
 	char *token;
 
-	/* 4-byte userid (byte 80-84) */
+	/* 4-byte userid (byte 32-36) */
 	uint32_t user_id;
 
 	/* params for list retrieval */
-	int32_t limit;	 /* byte 84-88 */
-	int32_t offset; /* byte 88-92 */
+	int32_t limit;	/* byte 36-40 */
+	int32_t offset;	/* byte 40-44 */
 } request_header;
 
 
@@ -36,7 +36,7 @@ typedef struct
 
 typedef struct
 {
-	char *username;
+	char *uname;
 	char *password;
 	char *phone;
 	char *email;
@@ -45,17 +45,19 @@ typedef struct
 typedef struct
 {
 	uint32_t user_id;
-	char *username;
+	char *uname;
 } request_user;
 
 typedef struct
 {
 	uint32_t conv_id;
+	uint32_t user_id;
 	char *gname;
 } request_conv;
 
 typedef struct
 {
+	uint32_t chat_id;
 	uint32_t user_id2;
 } request_chat;
 
@@ -82,22 +84,16 @@ typedef struct
 	request_body *body;
 } request;
 
-request_auth request_get_auth_body(request *req);
-request_user request_get_user_body(request *req);
-request_conv request_get_conv_body(request *req);
-request_chat request_get_chat_body(request *req);
-request_msg request_get_msg_body(request *req);
-
 request *request_parse(const char *buf);
 
-void make_request_auth_register(const char *username, const char *password, const char *phone, const char *email, char *res);
-void make_request_auth_login(const char *username, const char *password, char *res);
+void make_request_auth_register(const char *uname, const char *password, const char *phone, const char *email, char *res);
+void make_request_auth_login(const char *uname, const char *password, char *res);
 void make_request_user_logout(const char* token, uint32_t user_id, char *res);
 void make_request_user_get_info(const char* token, uint32_t user_id, uint32_t user_id2, char *res);
 void make_request_user_search(const char* token, uint32_t user_id, const char *uname, char *res);
 void make_request_conv_create(const char* token, uint32_t user_id, const char* gname, char *res);
 void make_request_conv_drop(const char* token, uint32_t user_id, uint32_t conv_id, char *res);
-void make_request_conv_join(const char* token, uint32_t user_id, uint32_t conv_id, char *res);
+void make_request_conv_join(const char* token, uint32_t user_id, uint32_t conv_id, uint32_t user_id2, char *res);
 void make_request_conv_quit(const char* token, uint32_t user_id, uint32_t conv_id, char *res);
 void make_request_conv_get_info(const char* token, uint32_t user_id, uint32_t conv_id, char *res);
 void make_request_conv_get_members(const char* token, uint32_t user_id, uint32_t conv_id, char *res);

@@ -10,24 +10,21 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TOKEN_LEN		64
-#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
+#define TOKEN_LEN		16
+#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
 
 char buf[BUFSIZ];
 request *req;
 
 void test_request_auth()
 {
-	const char *username = "user123";
+	const char *uname = "user123";
 	const char *pass = "Pass@1234";
 	const char *phone = "0123456789";
 	const char *email = "myemail@mail.com";
-	size_t sum_len = strlen(username) + strlen(pass) + strlen(phone) + strlen(email);
+	size_t sum_len = strlen(uname) + strlen(pass) + strlen(phone) + strlen(email);
 
-	make_request_auth_register(username, pass, phone, email, buf);
+	make_request_auth_register(uname, pass, phone, email, buf);
 
 	req = request_parse(buf);
 	request_header *header = &(req->header);
@@ -45,7 +42,7 @@ void test_request_auth()
 	assert(header->offset == -1);
 
 	request_auth ra = body->r_auth;
-	assert(strcmp(ra.username, username) == 0);
+	assert(strcmp(ra.uname, uname) == 0);
 	assert(strcmp(ra.password, pass) == 0);
 	assert(strcmp(ra.phone, phone) == 0);
 	assert(strcmp(ra.email, email) == 0);
@@ -54,12 +51,12 @@ void test_request_auth()
 
 	SUCCESS("test_request_auth_register pass");
 
-	make_request_auth_login(username, pass, buf);
+	make_request_auth_login(uname, pass, buf);
 
 	req = request_parse(buf);
 	header = &(req->header);
 	body = req->body;
-	sum_len = strlen(username) + strlen(pass);
+	sum_len = strlen(uname) + strlen(pass);
 
 	assert(header->group == 0);
 	assert(header->action == 1);
@@ -73,7 +70,7 @@ void test_request_auth()
 	assert(header->offset == -1);
 
 	ra = body->r_auth;
-	assert(strcmp(ra.username, username) == 0);
+	assert(strcmp(ra.uname, uname) == 0);
 	assert(strcmp(ra.password, pass) == 0);
 
 	request_destroy(req);
@@ -111,7 +108,7 @@ void test_request_user_id_only()
 
 void test_request_body_uint32()
 {
-	make_request_conv_join(EMPTY_TOKEN, 1, 10, buf);
+	make_request_conv_join(EMPTY_TOKEN, 1, 10, 2, buf);
 
 	req = request_parse(buf);
 	request_header *header = &(req->header);
@@ -129,6 +126,7 @@ void test_request_body_uint32()
 	assert(header->offset == -1);
 
 	assert((body->r_conv).conv_id == 10);
+	assert((body->r_conv).user_id == 2);
 
 	request_destroy(req);
 

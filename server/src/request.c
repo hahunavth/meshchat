@@ -6,13 +6,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
+#include <stdlib.h>
 
-#define TOKEN_LEN		64
-#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
+#define TOKEN_LEN		16
+#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
 #define BODY_DEMLIMITER	'\x1D'
 
 uint32_t parse_uint32_from_buf(char *buf)
@@ -53,9 +50,9 @@ request *request_parse(const char *buf)
 
 	header->token = string_new_n(buf + 16, TOKEN_LEN);
 
-	header->user_id = parse_uint32_from_buf(buf+80);
-	header->limit = parse_uint32_from_buf(buf+84);
-	header->offset = parse_uint32_from_buf(buf+88);
+	header->user_id = parse_uint32_from_buf(buf+32);
+	header->limit = parse_uint32_from_buf(buf+36);
+	header->offset = parse_uint32_from_buf(buf+40);
 
 	switch (header->group)
 	{
@@ -109,11 +106,11 @@ void request_parse_auth(request *req, const char *body)
 	_body[bodylen] = '\0';
 
 	char *rest = _body;
-	char *username = field_tokenizer(rest, &rest);
+	char *uname = field_tokenizer(rest, &rest);
 	char *password = field_tokenizer(rest, &rest);
 	char *phone, *email;
 
-	(rb->r_auth).username = string_new(username);
+	(rb->r_auth).uname = string_new(uname);
 	(rb->r_auth).password = string_new(password);
 	(rb->r_auth).phone = NULL;
 	(rb->r_auth).email = NULL;
@@ -122,7 +119,7 @@ void request_parse_auth(request *req, const char *body)
 	{
 		phone = field_tokenizer(rest, &rest);
 		email = field_tokenizer(rest, &rest);
-		int email_len = header->body_len - strlen(username) - strlen(password) - strlen(phone) - 3;
+		int email_len = header->body_len - strlen(uname) - strlen(password) - strlen(phone) - 3;
 		if (email_len < 0)
 		{
 			request_body_destroy(rb, header->group);
@@ -150,7 +147,7 @@ void request_parse_user(request *req, const char *body)
 	assert(rb);
 
 	(rb->r_user).user_id = 0;
-	(rb->r_user).username = NULL;
+	(rb->r_user).uname = NULL;
 
 	switch (header->action)
 	{
@@ -160,7 +157,7 @@ void request_parse_user(request *req, const char *body)
 		(rb->r_user).user_id = parse_uint32_from_buf(body);
 		break;
 	case 2:
-		(rb->r_user).username = string_new_n(body, header->body_len);
+		(rb->r_user).uname = string_new_n(body, header->body_len);
 		break;
 	default:
 		request_body_destroy(rb, header->group);
@@ -183,11 +180,14 @@ void request_parse_conv(request *req, const char *body)
 		(rb->r_conv).gname = string_new_n(body, header->body_len);
 		break;
 	case 1:
-	case 2:
 	case 3:
 	case 4:
 	case 5:
 		(rb->r_conv).conv_id = parse_uint32_from_buf(body);
+		break;
+	case 2:
+		(rb->r_conv).conv_id = parse_uint32_from_buf(body);
+		(rb->r_conv).user_id = parse_uint32_from_buf(body+4);
 		break;
 	default:
 		request_body_destroy(rb, header->group);
@@ -204,12 +204,17 @@ void request_parse_chat(request *req, const char *body)
 	request_body *rb = (request_body *)calloc(1, sizeof(request_body));
 	assert(rb);
 
-	if (header->action == 0 || header->action == 1)
-		(rb->r_chat).user_id2 = parse_uint32_from_buf(body);
-	else
+	switch(header->action)
 	{
-		request_body_destroy(rb, header->group);
-		return;
+		case 0:
+			(rb->r_chat).user_id2 = parse_uint32_from_buf(body);
+			break;
+		case 1:
+			(rb->r_chat).chat_id = parse_uint32_from_buf(body);
+			break;
+		default:
+			request_body_destroy(rb, header->group);
+			return;
 	}
 
 	req->body = rb;
@@ -254,8 +259,8 @@ void request_body_destroy(request_body *body, int8_t group)
 	case 0:
 	{
 		request_auth ra = body->r_auth;
-		if (ra.username)
-			string_remove(ra.username);
+		if (ra.uname)
+			string_remove(ra.uname);
 		if (ra.password)
 			string_remove(ra.password);
 		if (ra.phone)
@@ -267,8 +272,8 @@ void request_body_destroy(request_body *body, int8_t group)
 	case 1:
 	{
 		request_user ru = body->r_user;
-		if (ru.username)
-			string_remove(ru.username);
+		if (ru.uname)
+			string_remove(ru.uname);
 	}
 	break;
 	case 2:
@@ -299,14 +304,6 @@ void request_destroy(request* req)
 
 //////////////////////////////////////////////////
 
-inline request_auth request_get_auth_body(request *req) { return req->body->r_auth; }
-inline request_user request_get_user_body(request *req) { return req->body->r_user; }
-inline request_conv request_get_conv_body(request *req) { return req->body->r_conv; }
-inline request_chat request_get_chat_body(request *req) { return req->body->r_chat; }
-inline request_msg request_get_msg_body(request *req) { return req->body->r_msg; }
-
-//////////////////////////////////////////////////
-
 static void make_request_header(request_header *header, char *res)
 {
 	memset(res, 0, REQUEST_HEADER_LEN);
@@ -321,9 +318,9 @@ static void make_request_header(request_header *header, char *res)
 
 	memcpy(res+16, header->token, TOKEN_LEN);
 
-	write_uint32_to_buf(res+80, header->user_id);
-	write_uint32_to_buf(res+84, header->limit);
-	write_uint32_to_buf(res+88, header->offset);
+	write_uint32_to_buf(res+32, header->user_id);
+	write_uint32_to_buf(res+36, header->limit);
+	write_uint32_to_buf(res+40, header->offset);
 }
 
 static void make_request_string(const char* token, uint8_t group, uint8_t action, uint32_t user_id, const char *str, char *res)
@@ -390,9 +387,9 @@ static void make_request_page(const char* token, uint8_t group, uint8_t action, 
 	char* body = res + REQUEST_HEADER_LEN;
 }
 
-void make_request_auth_register(const char *username, const char *password, const char *phone, const char *email, char *res)
+void make_request_auth_register(const char *uname, const char *password, const char *phone, const char *email, char *res)
 {
-	size_t uname_len = strlen(username);
+	size_t uname_len = strlen(uname);
 	size_t pass_len = strlen(password);
 	size_t phone_len = strlen(phone);
 	size_t email_len = strlen(email);
@@ -416,7 +413,7 @@ void make_request_auth_register(const char *username, const char *password, cons
 	char *body = res+REQUEST_HEADER_LEN;
 	memset(body, 0, REQUEST_BODY_LEN);
 	
-	memcpy(body, username, uname_len);
+	memcpy(body, uname, uname_len);
 	body[uname_len] = BODY_DEMLIMITER;
 	body += (uname_len+1);
 	memcpy(body, password, pass_len);
@@ -428,9 +425,9 @@ void make_request_auth_register(const char *username, const char *password, cons
 	memcpy(body, email, email_len);
 }
 
-void make_request_auth_login(const char *username, const char *password, char *res)
+void make_request_auth_login(const char *uname, const char *password, char *res)
 {
-	size_t uname_len = strlen(username);
+	size_t uname_len = strlen(uname);
 	size_t pass_len = strlen(password);
 	size_t sum_len = uname_len + pass_len;
 
@@ -452,7 +449,7 @@ void make_request_auth_login(const char *username, const char *password, char *r
 	char *body = res+REQUEST_HEADER_LEN;
 	memset(body, 0, REQUEST_BODY_LEN);
 	
-	memcpy(body, username, uname_len);
+	memcpy(body, uname, uname_len);
 	body[uname_len] = BODY_DEMLIMITER;
 	body += (uname_len+1);
 	memcpy(body, password, pass_len);
@@ -497,9 +494,10 @@ inline void make_request_conv_drop(const char* token, uint32_t user_id, uint32_t
 	make_request_uint32(token, 2, 1, user_id, conv_id, res);
 }
 
-inline void make_request_conv_join(const char* token, uint32_t user_id, uint32_t conv_id, char *res)
+void make_request_conv_join(const char* token, uint32_t user_id, uint32_t conv_id, uint32_t user_id2, char *res)
 {
 	make_request_uint32(token, 2, 2, user_id, conv_id, res);
+	write_uint32_to_buf(res+REQUEST_HEADER_LEN+4, user_id2);
 }
 
 inline void make_request_conv_quit(const char* token, uint32_t user_id, uint32_t conv_id, char *res)
