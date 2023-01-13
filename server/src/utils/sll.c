@@ -14,6 +14,17 @@ void sll_insert_node(sllnode_t** head, Jval val)
 	*head = node;
 }
 
+size_t sll_length(sllnode_t *head)
+{
+	size_t cnt = 0;
+	while(head) 
+	{
+		head = head->next;
+		cnt++;
+	}
+	return cnt;
+}
+
 sllnode_t *sll_find_node(sllnode_t* head, Jval val, sllnode_t **prev)
 {
 	struct sllnode_t *node = head;
