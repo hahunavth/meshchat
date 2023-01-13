@@ -7,6 +7,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+/**
+ * TabsLayout
+ * - Chứa tabbar và phần content
+ */
 public class TabsLayout extends BaseLayout<TabsLayout.Sessions> {
 
     @FXML

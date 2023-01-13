@@ -2,14 +2,16 @@ package com.meshchat.client.net.client;
 
 import com.meshchat.client.controllers.MessageController;
 import com.meshchat.client.experiments.libs.TypeMappingLib;
+import javafx.beans.Observable;
 
 import java.util.Arrays;
 
-public class TCPSimpleCClient extends TCPClient{
+public class TCPSimpleCClient extends TCPClient {
     private final TypeMappingLib lib;
     public TCPSimpleCClient(String host, int port, TypeMappingLib lib) {
         super(host, port);
         this.lib = lib;
+//        this.lib.init();
     }
 
     @Override

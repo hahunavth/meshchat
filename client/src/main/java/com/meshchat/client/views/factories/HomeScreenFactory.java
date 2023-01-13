@@ -1,6 +1,7 @@
 package com.meshchat.client.views.factories;
 
 import com.meshchat.client.controllers.BaseController;
+import com.meshchat.client.controllers.ChatController;
 import com.meshchat.client.controllers.MessageController;
 import com.meshchat.client.views.base.LazyInitialize;
 import com.meshchat.client.views.home.ChatScreenHandler;
@@ -31,15 +32,15 @@ public class HomeScreenFactory extends ScreenFactory implements LazyInitialize {
         ChatScreenHandler chatScreenHandler = chat.getScreenHandler();
         MessageScreenHandler messageScreenHandler = msg.getScreenHandler();
         // set routing
-        chatScreenHandler.setPreviousScreen(home);
-        messageScreenHandler.setPreviousScreen(chatScreenHandler);
-        //
-        // add controller
-        chatScreenHandler.setBaseController(chat.getController());
+//
+//        chatScreenHandler.setBaseController(chat.getController());
         MessageController messageController = msg.getController();
-//        messageController.setRoomInfo(MessageController.Type.CHAT, -1L);
-        messageScreenHandler.setBaseController(messageController);
+        messageController.setRoomInfo(MessageController.Type.CHAT, -1L);
+        messageController.setScreenHandler(messageScreenHandler);
 //        //
+        ChatController chatController = chat.getController();
+        chatController.setScreenHandler(chatScreenHandler);
+
         chatScreenHandler.setMessageScreenHandler(messageScreenHandler, msg);
 //        // add to screen
         home.addSessionContent(HomeLayout.Sessions.SIDEBAR, chatScreenHandler);

@@ -87,7 +87,7 @@ public class MessageController extends BaseController<MessageScreenHandler> {
                     100000000,
                     false
             );
-//            screenHandler.addMsg(content, from_uid, from_uid, );
+            screenHandler.addMsg(content, from_uid, from_uid, 0L );
         });
 
     }

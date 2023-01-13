@@ -25,6 +25,7 @@ public abstract class BaseLayout<T> extends BaseScreenHandler{
     public void initialize() {
         this.sessionMap = new HashMap<>();
     }
+
     /**
      * Add all session on init subclass
      * @param key define enum key in subclass
@@ -42,10 +43,20 @@ public abstract class BaseLayout<T> extends BaseScreenHandler{
         this.getSessionContainer(key).getChildren().clear();
     }
 
+    /**
+     * Thêm component vào 1 sesion
+     * @param key
+     * @param screenHandler
+     */
     public void addSessionContent(T key, FXMLScreenHandler screenHandler) {
         this.getSessionContainer(key).getChildren().add(screenHandler.getContent());
     }
 
+    /**
+     * set giá trị component vào 1 session
+     * @param key
+     * @param screenHandler
+     */
     public void setSessionContent(T key, FXMLScreenHandler screenHandler) {
         this.clearSessionContent(key);
         this.addSessionContent(key, screenHandler);

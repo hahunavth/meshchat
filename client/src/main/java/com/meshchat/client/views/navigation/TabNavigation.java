@@ -59,7 +59,6 @@ public class TabNavigation extends BaseComponent implements INavigation<TabButto
     public void addScreenFactory(String imgPath, ScreenFactory screenFactory) {
         BaseScreenHandler screenHandler = screenFactory.getScreenHandler();
         this.addScreenHandler(imgPath, screenHandler);
-        screenHandler.setBaseController(screenFactory.getController());
     }
 
     @Override

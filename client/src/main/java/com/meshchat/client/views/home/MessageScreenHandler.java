@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class MessageScreenHandler extends BaseScreenHandler<MessageController> implements LazyInitialize {
+public class MessageScreenHandler extends BaseScreenHandler implements LazyInitialize {
 
     @FXML
     private VBox msgList;
@@ -67,36 +67,10 @@ public class MessageScreenHandler extends BaseScreenHandler<MessageController> i
     public String getText() {
         return this.input.getText();
     }
-//    @FXML
-//    public void submit() {
-//        addMsg(new MsgItem(this.input.getText()));
-////        this.controller.sendMsg(this.input.getText());
-//        ModelSingleton.getInstance().tcpClient.send(this.input.getText());
-//        this.input.setText("");
-//    }
-
-    @Override
-    public void setBaseController(MessageController controller) {
-        super.setBaseController( (MessageController) controller);
-
-//        if (this.getBaseController().getType() == MessageController.Type.CHAT) {
-//
-//            this.username.setText(this.getBaseController().getUserName());
-//
-//            long uid = this.getBaseController().getUserId();
-//            List<Message> msgList = this.getBaseController().getMsgList();
-//            if (msgList != null) {
-//                for (Message msg : msgList) {
-//                    addMsg(new MsgItem(msg.content, msg.from_user_id != uid));
-//                }
-//            }
-//        }
-    }
 
     public void setName (String name) {
         this.username.setText(name);
     }
-
 
     @Override
     public void lazyInitialize(Stage stage) {

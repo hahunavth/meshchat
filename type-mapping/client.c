@@ -1,5 +1,5 @@
 #include "client.h"
-
+// #include "request.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/types.h>
@@ -8,10 +8,33 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 
 #define BACKLOG 100
 
 static int sockfd = -1;
+// create token array here
+
+// int register(char *username, )
+// {
+//   char buf[BUFSIZ];
+//   make_reques();
+//   int rc = write(sockfd, buf, BUFSIZ);
+
+//   read(sockfd, buf);
+//   response_parse();
+// }
+// void init()
+// {
+//   printf("init!\n");
+//   __sighandler_t ret = signal(SIGPIPE, SIG_IGN);
+
+//   if (ret == SIG_ERR)
+//   {
+//     perror("signal");
+//     exit(1);
+//   }
+// }
 
 int connect_server(const char *addr, uint16_t port)
 {
@@ -36,7 +59,14 @@ int connect_server(const char *addr, uint16_t port)
 int simple_send(char *str)
 {
   int c = send(sockfd, str, strlen(str), 0);
-  if (c <= 0)
+  // = 0 close
+  if (c == 0)
+  {
+    puts("Server closed connection");
+    close_conn();
+  }
+  // < 0 error
+  if (c < 0)
   {
     perror("\nError: ");
     close_conn();
@@ -45,18 +75,33 @@ int simple_send(char *str)
 
 char *simple_recv()
 {
+  if (sockfd == -1)
+    return NULL;
+
   char *buff = (char *)calloc(1024, sizeof(char));
   int bytes_recv = recv(sockfd, buff, 1024, 0);
-  if (bytes_recv <= 0)
+  if (bytes_recv == 0)
   {
     free(buff);
-    // perror("\nError: ");
+    close_conn();
+  }
+
+  if (bytes_recv < 0)
+  {
+    free(buff);
+    perror("\nError: ");
     close_conn();
     exit(1);
   }
 
   buff[bytes_recv] = '\0';
   return buff;
+}
+
+char *send_and_recv(char *str)
+{
+  simple_send(str);
+  return simple_recv();
 }
 
 int get_sockfd()

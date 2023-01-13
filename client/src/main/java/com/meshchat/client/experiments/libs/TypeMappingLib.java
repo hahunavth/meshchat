@@ -107,4 +107,5 @@ public interface TypeMappingLib {
         String simple_recv();
         int get_sockfd();
         void close_conn();
+//        void init();
 }

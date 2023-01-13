@@ -6,6 +6,13 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+/**
+ * HomeLayout
+ * Gồm 3 phàn:
+ * - Sidebar
+ * - Content
+ * - Info
+ */
 public class HomeLayout extends BaseLayout<HomeLayout.Sessions> {
     @FXML
     private Pane sidebar;
@@ -24,6 +31,9 @@ public class HomeLayout extends BaseLayout<HomeLayout.Sessions> {
         super(Config.HOME_LAYOUT_PATH);
     }
 
+    /**
+     * Thêm các pane vào layout
+     */
     @FXML
     public void initialize() {
         super.initialize();

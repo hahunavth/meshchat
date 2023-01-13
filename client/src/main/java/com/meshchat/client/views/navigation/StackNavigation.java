@@ -50,7 +50,7 @@ public class StackNavigation implements INavigation<StackNavigation.WINDOW_LIST>
         ScreenFactory screenFactory = screenMap.get(screenName);
 
         BaseScreenHandler screenHandler = screenFactory.getScreenHandler();
-        screenHandler.setBaseController(screenFactory.getController());
+//        screenHandler.setBaseController(screenFactory.getController());
 
         return screenHandler;
     }
@@ -81,9 +81,10 @@ public class StackNavigation implements INavigation<StackNavigation.WINDOW_LIST>
 
         // set prev screen
         if (!this.windowStack.isEmpty()) {
-            screenHandler.setPreviousScreen(
-                    this.windowStack.peek()
-            );
+            // todo: implement goback
+//            screenHandler.setPreviousScreen(
+//                    this.windowStack.peek()
+//            );
             this.windowStack.peek().hide();
         }
 

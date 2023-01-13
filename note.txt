@@ -1,0 +1,48 @@
+# UI
+- Chinh ttin ng dung
+- Xoa typing msg screen
+- Nhap port, addr in login
+- Xoa timestamp moi nhat chat scr
+- Nut bam len, xuong trong msg screen. Gioi ham 12 msg
+- File de sau khi lam msg
+- Gioi han do dai.
+  - All: 64
+  - Message: -12 + 8192 -64 -1
+  - List:   Server lam
+    + limit: 
+    + offset:
+  - Search chat: create chat or go to chat btn
+- Nhom:
+  + Them ng vao nhom: Admin, JOIN request: them member_id
+  + Search ng dung va them vao nhom
+  + Admin: Drop nhom
+  + Mem: Leave 
+- Doi mk: de sau
+- Token:
+  + OP: Doc, ghi, xoa
+- Timeout: de sau
+- Logout
+  + Server chi ngat ket noi
+  + Client phai xoa token da luu
+- Them nut gui file
+
+# code C
+- Lay file response, request, string, sll, jval
+  De cung cau truc thu muc
+
+# Deadline
+- Chinh:  
+    13/1 23h59 res, req
+    14/1 server compile OK
+
+- Ha:
+    17/1 23h59: hoan thanh code client C, thong bao neu co failed, test naive
+    
+- useDebounce()
+
+React Query
+useQuery(['get-book'], QueryFn);
+useMutation(
+  mutationFn,
+  qyeryClient.invalidateCache(["get-book"])
+);

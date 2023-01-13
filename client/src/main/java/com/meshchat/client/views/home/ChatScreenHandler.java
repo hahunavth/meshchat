@@ -17,7 +17,11 @@ import javafx.scene.layout.VBox;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChatScreenHandler extends BaseScreenHandler<ChatController> {
+/**
+ * ChatScreenHandler:
+ * Danh sách các chat.
+ */
+public class ChatScreenHandler extends BaseScreenHandler {
     @FXML
     private VBox chatList;
 
@@ -32,11 +36,6 @@ public class ChatScreenHandler extends BaseScreenHandler<ChatController> {
     public void initialize() {
     }
 
-    @Override
-    public void setBaseController(ChatController controller) {
-        super.setBaseController(controller);
-    }
-
     public void setMessageScreenHandler(MessageScreenHandler messageScreenHandler, MessageScreenFactory factory) {
         this.messageScreenHandler = messageScreenHandler;
     }
@@ -47,10 +46,11 @@ public class ChatScreenHandler extends BaseScreenHandler<ChatController> {
         chatItem.setLastmsg(lastMsg);
         chatItem.setId(room_id);
         chatItem.setType(type);
-        chatItem.setOnClick((e) -> {
-            messageScreenHandler.getBaseController().setRoomInfo(type, room_id);
-            System.out.println("Set " + room_id);
-        });
+        // TODO: implement this event
+//        chatItem.setOnClick((e) -> {
+//            messageScreenHandler.getBaseController().setRoomInfo(type, room_id);
+//            System.out.println("Set " + room_id);
+//        });
         addChatItem(chatItem);
     }
 

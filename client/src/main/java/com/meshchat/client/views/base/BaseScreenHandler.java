@@ -20,25 +20,19 @@ import java.util.ResourceBundle;
  * or
  * - 1 window
  */
-public abstract class BaseScreenHandler<T extends BaseController> extends FXMLScreenHandler implements LazyInitialize {
+public abstract class BaseScreenHandler extends FXMLScreenHandler implements LazyInitialize, IShowable {
 
     protected Stage stage;            // if not exists -> create new, exists -> pass through constructor on init
     private Scene scene;                    // if not exists -> create new when show screen
-    private BaseScreenHandler prev;         // prev screen
-    private T controller;      // current controller
 
     public BaseScreenHandler(String screenPath) {
         super(screenPath);
     }
 
-    public void setPreviousScreen(BaseScreenHandler prev) {
-        this.prev = prev;
-    }
-
-    public BaseScreenHandler getPreviousScreen() {
-        return this.prev;
-    }
-
+    /**
+     * show
+     * Load css and display screen in current stage
+     */
     public void show() {
         if (this.scene == null) {
             this.scene = new Scene(this.content);
@@ -60,17 +54,6 @@ public abstract class BaseScreenHandler<T extends BaseController> extends FXMLSc
 
     public void setTitle(String title) {
         this.stage.setTitle(title);
-    }
-
-    public T getBaseController() {
-        return controller;
-    }
-
-    public void setBaseController(T controller) {
-        this.controller = controller;
-        if (this.controller != null) {
-            this.controller.setScreenHandler(this);
-        }
     }
 
     @Override
