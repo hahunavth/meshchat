@@ -27,18 +27,18 @@ void test_user_create()
 
 	srand(time(NULL));
 
-	char username[10] = {0};
-	rand_str(username, 9);
+	char uname[10] = {0};
+	rand_str(uname, 9);
 	char password[10] = {0};
 	rand_str(password, 9);
 	char email[19] = {0};
 	rand_email(email, 10);
 
 	user_schema u = {
-		.username = username,
+		.uname = uname,
 		.password = password,
 		.email = email,
-		.phone_number = "0123456789"		
+		.phone = "0123456789"		
 	};
 	uint32_t newuserid = user_create(db, &u, &rc);
 	printf("new user id: %u\n", newuserid);
@@ -50,10 +50,10 @@ void test_user_create()
 	user_schema* user = user_get_by_id(db, newuserid, &rc);
 	PRINT_RC(rc);
 	if(user){
-		printf("%lu | %s | %s | %s | %s\n", user->id, user->username, user->password, user->phone_number, user->email);
-		assert(strcmp(user->username, u.username)==0);
+		printf("%lu | %s | %s | %s | %s\n", user->id, user->uname, user->password, user->phone, user->email);
+		assert(strcmp(user->uname, u.uname)==0);
 		assert(strcmp(user->password, u.password)==0);
-		assert(strcmp(user->phone_number, u.phone_number)==0);
+		assert(strcmp(user->phone, u.phone)==0);
 		assert(strcmp(user->email, u.email)==0);
 		user_free(user);
 		SUCCESS("test_user_get_by_id passed");
@@ -76,7 +76,7 @@ void test_get_user_by_uname()
 	srand(time(NULL));
 
 	const int ucount = 4;
-	const char* usernames[] = {"auser1", "buser2", "cuser3", "duser4"};
+	const char* unames[] = {"auser1", "buser2", "cuser3", "duser4"};
 	uint32_t ids[ucount];
 
 	char password[10] = {0};
@@ -86,20 +86,20 @@ void test_get_user_by_uname()
 
 	user_schema user = {
 		.password = password,
-		.phone_number = "0123456789",
+		.phone = "0123456789",
 		.email = email
 	};
 
 	for(int i=0; i<ucount; i++)
 	{
-		user.username = usernames[i];
+		user.uname = unames[i];
 		ids[i] = user_create(db, &user, &rc);
 		printf("new user id: %u\n", ids[i]);
 		PRINT_RC(rc);
 		assert(sql_is_ok(rc));
 	}
 
-	sllnode_t* list = user_get_by_uname(db, "user", 4, 0, &rc);
+	sllnode_t* list = user_search_by_uname(db, "user", 4, 0, &rc);
 	PRINT_RC(rc);
 
 	sllnode_t* iter = list;
@@ -161,18 +161,18 @@ void test_conv()
 	SUCCESS("test_conv_get_info passed");
 	
 	/* test conv_join */
-	char username[10] = {0};
-	rand_str(username, 9);
+	char uname[10] = {0};
+	rand_str(uname, 9);
 	char password[10] = {0};
 	rand_str(password, 9);
 	char email[19] = {0};
 	rand_email(email, 10);
 
 	user_schema u = {
-		.username = username,
+		.uname = uname,
 		.password = password,
 		.email = email,
-		.phone_number = "0123456789"		
+		.phone = "0123456789"		
 	};
 	uint32_t newuser = user_create(db, &u, &rc);
 	PRINT_RC(rc);
@@ -220,21 +220,35 @@ void test_conv()
 
 void test_chat()
 {
-	uint32_t user1 = 1;
-	uint32_t user2 = 2;
 	int rc = SQLITE_OK;
+	char uname[12];
+	user_schema user = {
+		.uname = uname,
+		.password = "abcde123",
+		.phone = "0123456789",
+		.email = "abc@gmail.com"
+	};
+	/* TODO: randomize uname */
+	rand_str(uname, 11);
+	uint32_t user1 = user_create(db, &user, &rc);
+	PRINT_RC(rc);
+	assert(sql_is_ok(rc));
+	rand_str(uname, 11);
+	uint32_t user2 = user_create(db, &user, &rc);
+	PRINT_RC(rc);
+	assert(sql_is_ok(rc));
 
 	uint32_t newchat = chat_create(db, user1, user2, &rc);
 	printf("newchat = %u\n", newchat);
 	PRINT_RC(rc);
 	assert(sql_is_ok(rc));
-	
-	SUCCESS("test_chat_create passed");
 
 	uint32_t newchat1 = chat_create(db, user1, user2, &rc);
 	printf("newchat = %u\n", newchat1);
 	PRINT_RC(rc);
 	assert(sql_is_err(rc));
+	
+	SUCCESS("test_chat_create passed");
 
 	/* test chat_is_member */
 	int test = chat_is_member(db, newchat, user1, &rc);
@@ -261,8 +275,23 @@ void test_msg()
 	int rc = SQLITE_OK;
 	const char* name = "socket programming";
 	
-	uint32_t user1 = 1;
-	uint32_t user2 = 2;
+	char uname[12];
+	user_schema user = {
+		.uname = uname,
+		.password = "abcde123",
+		.phone = "0123456789",
+		.email = "abc@gmail.com"
+	};
+	/* TODO: randomize uname */
+	rand_str(uname, 11);
+	uint32_t user1 = user_create(db, &user, &rc);
+	PRINT_RC(rc);
+	assert(sql_is_ok(rc));
+	rand_str(uname, 11);
+	uint32_t user2 = user_create(db, &user, &rc);
+	PRINT_RC(rc);
+	assert(sql_is_ok(rc));
+
 
 	uint32_t newconv = conv_create(db, user1, name, &rc);
 	printf("newconv = %u\n", newconv);
@@ -275,10 +304,13 @@ void test_msg()
 	assert(sql_is_ok(rc));
 
 	/* send a message to a conversation */
+	char *text = "Hello from user 1";
 	msg_schema msg = {
-		.from_user_id = user1,
+		.from_uid = user1,
 		.reply_to = 0,
-		.content = "Hello from user 1",
+		.content_type = 0,
+		.content_length = strlen(text),
+		.content = text,
 		.chat_id = 0,
 		.conv_id = newconv,
 	};
@@ -291,7 +323,7 @@ void test_msg()
 	msg_schema* res = msg_get_detail(db, newmsg, &rc);
 	PRINT_RC(rc);
 	assert(sql_is_ok(rc));
-	assert(msg.from_user_id == res->from_user_id);
+	assert(msg.from_uid == res->from_uid);
 	assert(msg.reply_to == res->reply_to);
 	assert(strcmp(msg.content, res->content) == 0);
 	assert(msg.chat_id == res->chat_id);
@@ -300,7 +332,7 @@ void test_msg()
 	msg_free(res);
 
 	/* test msg_conv_get_all */
-	sllnode_t* list = msg_conv_get_all(db, newconv, 0, 1, &rc);
+	sllnode_t* list = msg_conv_get_all(db, newconv, 1, 0, &rc);
 	PRINT_RC(rc);
 	assert(sql_is_ok(rc));
 	assert(newmsg == (list->val).l);
@@ -309,7 +341,7 @@ void test_msg()
 	SUCCESS("test_msg_conv_get_all passed");
 
 	/* send a message to a chat */
-	msg.from_user_id = user2;
+	msg.from_uid = user2;
 	msg.reply_to = newmsg;
 	msg.chat_id = newchat;
 	msg.conv_id = 0;
@@ -323,7 +355,7 @@ void test_msg()
 	SUCCESS("test_msg_send passed");
 
 	/* test msg_chat_get_all */
-	list = msg_chat_get_all(db, newchat, 0, 1, &rc);
+	list = msg_chat_get_all(db, newchat, 1, 0, &rc);
 	PRINT_RC(rc);
 	assert(sql_is_ok(rc));
 	assert(newmsg == (list->val).l);
@@ -338,7 +370,7 @@ void test_msg()
 	res = msg_get_detail(db, newmsg, &rc);
 	PRINT_RC(rc);
 	assert(sql_is_ok(rc));
-	assert(msg.from_user_id == res->from_user_id);
+	assert(msg.from_uid == res->from_uid);
 	assert(msg.reply_to == res->reply_to);
 	assert(strlen(res->content) == 0);
 	assert(msg.chat_id == res->chat_id);

@@ -11,7 +11,7 @@
 #define QUERY_SMALL 512
 #define QUERY_LARGE BUFSIZ
 
-inline int sql_is_ok(int rc) { return (rc == SQLITE_OK) || (rc == SQLITE_ROW) || (rc == SQLITE_DONE); }
+inline int sql_is_ok(int rc) { return (rc == SQLITE_OK) || (rc == SQLITE_ROW) || (rc == SQLITE_DONE) || (rc == SQLITE_EMPTY); }
 inline int sql_is_err(int rc) { return !sql_is_ok(rc); }
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -97,6 +97,51 @@ user_schema *user_get_by_id(sqlite3 *db, uint32_t id, int *lastrc)
 	if (rc != SQLITE_OK)
 	{
 		*lastrc = rc;
+		free(res);
+		return NULL;
+	}
+
+	if ((rc = sqlite3_step(stmt)) != SQLITE_ROW)
+	{
+		if (rc == SQLITE_DONE)
+			*lastrc = SQLITE_EMPTY;
+		else
+			*lastrc = rc;
+		sqlite3_finalize(stmt);
+		free(res);
+		return NULL;
+	}
+
+	res->id = id;
+	res->uname = string_new(sqlite3_column_text(stmt, 1));
+	res->password = string_new(sqlite3_column_text(stmt, 2));
+	res->phone = string_new(sqlite3_column_text(stmt, 3));
+	res->email = string_new(sqlite3_column_text(stmt, 4));
+
+	sqlite3_finalize(stmt);
+	*lastrc = SQLITE_OK;
+	return res;
+}
+
+uint32_t user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc)
+{
+	user_schema *res = (user_schema *)malloc(sizeof(user_schema));
+	if (!res)
+	{
+		*lastrc = SQLITE_NOMEM;
+		return NULL;
+	}
+	memset(res, 0, sizeof(user_schema));
+
+	char query[QUERY_SMALL];
+	memset(query, 0, QUERY_SMALL);
+	snprintf(query, QUERY_SMALL, "SELECT * FROM users WHERE uname='%s'", uname);
+
+	sqlite3_stmt *stmt;
+	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+	if (rc != SQLITE_OK)
+	{
+		*lastrc = rc;
 		return NULL;
 	}
 
@@ -110,10 +155,10 @@ user_schema *user_get_by_id(sqlite3 *db, uint32_t id, int *lastrc)
 		return NULL;
 	}
 
-	res->id = id;
-	res->username = string_new(sqlite3_column_text(stmt, 1));
+	res->id = sqlite3_column_int(stmt, 0);
+	res->uname = string_new(uname);
 	res->password = string_new(sqlite3_column_text(stmt, 2));
-	res->phone_number = string_new(sqlite3_column_text(stmt, 3));
+	res->phone = string_new(sqlite3_column_text(stmt, 3));
 	res->email = string_new(sqlite3_column_text(stmt, 4));
 
 	sqlite3_finalize(stmt);
@@ -121,13 +166,13 @@ user_schema *user_get_by_id(sqlite3 *db, uint32_t id, int *lastrc)
 	return res;
 }
 
-sllnode_t *user_get_by_uname(sqlite3 *db, const char *username, int limit, int offset, int *lastrc)
+sllnode_t *user_search_by_uname(sqlite3* db, const char* uname, int limit, int offset, int* lastrc)
 {
 	sllnode_t *list = NULL;
 
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT id FROM users WHERE username LIKE '%%%s%%' LIMIT %d OFFSET %d", username, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT id FROM users WHERE uname LIKE '%%%s%%' LIMIT %d OFFSET %d", uname, limit, offset);
 
 	sqlite3_stmt *stmt;
 	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
@@ -154,8 +199,8 @@ uint32_t user_create(sqlite3 *db, const user_schema *info, int *lastrc)
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
 	snprintf(query, QUERY_SMALL,
-			 "INSERT INTO users(username, password, phone_number, email) VALUES ('%s', '%s', '%s', '%s');",
-			 info->username, info->password, info->phone_number, info->email);
+			 "INSERT INTO users(uname, password, phone, email) VALUES ('%s', '%s', '%s', '%s');",
+			 info->uname, info->password, info->phone, info->email);
 
 	return sql_insert(db, query, lastrc);
 }
@@ -206,9 +251,9 @@ sllnode_t *user_get_chat_list(sqlite3 *db, uint32_t user_id, int limit, int offs
 void user_free(user_schema *user)
 {
 	if (!user) return;
-	string_remove(user->username);
+	string_remove(user->uname);
 	string_remove(user->password);
-	string_remove(user->phone_number);
+	string_remove(user->phone);
 	string_remove(user->email);
 	free(user);
 }
@@ -375,6 +420,7 @@ conv_schema *conv_get_info(sqlite3 *db, uint32_t conv_id, int *lastrc)
 	if (rc != SQLITE_OK)
 	{
 		*lastrc = rc;
+		free(res);
 		return NULL;
 	}
 
@@ -385,6 +431,7 @@ conv_schema *conv_get_info(sqlite3 *db, uint32_t conv_id, int *lastrc)
 		else
 			*lastrc = rc;
 		sqlite3_finalize(stmt);
+		free(res);
 		return NULL;
 	}
 
@@ -478,7 +525,7 @@ void chat_free(chat_schema *chat)
 
 //////////////////////////////////////////////////
 
-sllnode_t *msg_conv_get_all(sqlite3 *db, uint32_t conv_id, int offset, int limit, int *lastrc)
+sllnode_t *msg_conv_get_all(sqlite3 *db, uint32_t conv_id, int limit, int offset, int *lastrc)
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
@@ -487,7 +534,7 @@ sllnode_t *msg_conv_get_all(sqlite3 *db, uint32_t conv_id, int offset, int limit
 	return sql_get_list(db, query, lastrc);
 }
 
-sllnode_t *msg_chat_get_all(sqlite3 *db, uint32_t chat_id, int offset, int limit, int *lastrc)
+sllnode_t *msg_chat_get_all(sqlite3 *db, uint32_t chat_id, int limit, int offset, int *lastrc)
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
@@ -529,13 +576,15 @@ msg_schema *msg_get_detail(sqlite3 *db, uint32_t msg_id, int *lastrc)
 	}
 
 	res->id = msg_id;
-	res->from_user_id = sqlite3_column_int(stmt, 1);
+	res->from_uid = sqlite3_column_int(stmt, 1);
 	res->reply_to = sqlite3_column_int(stmt, 2);
-	res->content = string_new(sqlite3_column_text(stmt, 3));
-	res->created_at = sqlite3_column_int(stmt, 4);
-	res->chat_id = sqlite3_column_int(stmt, 5);
-	res->conv_id = sqlite3_column_int(stmt, 6);
-	res->type = sqlite3_column_int(stmt, 7);
+	res->content_type = sqlite3_column_int(stmt, 3);
+	res->content_length = sqlite3_column_int(stmt, 4);
+	res->content = string_new(sqlite3_column_text(stmt, 5));
+	res->created_at = sqlite3_column_int(stmt, 6);
+	res->chat_id = sqlite3_column_int(stmt, 7);
+	res->conv_id = sqlite3_column_int(stmt, 8);
+	res->type = sqlite3_column_int(stmt, 9);
 
 	sqlite3_finalize(stmt);
 
@@ -578,8 +627,8 @@ uint32_t msg_send(sqlite3 *db, const msg_schema *msg, int *lastrc)
 
 	memset(query, 0, QUERY_LARGE);
 	snprintf(query, QUERY_LARGE, 
-		"INSERT INTO messages(from_user_id, reply_to, content, created_at, chat_id, conv_id, type) VALUES (%u, %s, '%s', %ld, %s, %s, %d);",
-		msg->from_user_id, reply_str, msg->content, time(NULL), chat_str, conv_str, MSG_SENT);
+		"INSERT INTO messages(from_uid, reply_to, content_type, content_length, content, created_at, chat_id, conv_id, type) VALUES (%u, %s, %d, %u, '%s', %ld, %s, %s, %d);",
+		msg->from_uid, reply_str, msg->content_type, msg->content_length, msg->content, time(NULL), chat_str, conv_str, MSG_SENT);
 	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	uint32_t newmsg = sqlite3_last_insert_rowid(db);
 	if (rc != SQLITE_OK)
