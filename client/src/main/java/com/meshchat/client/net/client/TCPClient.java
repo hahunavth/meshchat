@@ -19,15 +19,20 @@ public abstract class TCPClient extends SubmissionPublisher<char[]> implements R
     protected int buff_size = DEFAULT_BUFF_SIZE;
 
     // address
-    protected final String host;
-    protected final int port;
+    protected String host;
+    protected int port;
     // state
     private boolean isConnected;
+    private boolean closeFlag = false;
+
     protected List<Flow.Subscriber> subscriberList = new ArrayList<>();
 
     public TCPClient(String host, int port) {
         this.host = host;
         this.port = port;
+    }
+
+    public TCPClient() {
     }
 
     // getter, setter
@@ -74,4 +79,25 @@ public abstract class TCPClient extends SubmissionPublisher<char[]> implements R
     public abstract void send(byte[] bytes);
     protected abstract char[] receive ();
     public abstract void close();
+
+    public void setHost(String host) {
+        if(this.isConnected) {
+            throw new Error("Cannot set host when connecting");
+        }
+        this.host = host;
+    }
+
+    public void setPort (int port) {
+        if (this.isConnected) {
+            throw new Error("Cannot set port when connecting");
+        }
+    }
+
+    public boolean isCloseFlag() {
+        return closeFlag;
+    }
+
+    public void setCloseFlag(boolean closeFlag) {
+        this.closeFlag = closeFlag;
+    }
 }

@@ -1,6 +1,6 @@
 package com.meshchat.client.views.base;
 
-import com.meshchat.client.views.factories.ScreenFactory;
+import javafx.stage.Stage;
 
 /**
  * INavigation:
@@ -8,7 +8,15 @@ import com.meshchat.client.views.factories.ScreenFactory;
  * @param <T>
  */
 public interface INavigation<T> {
-    void addScreenHandler(T screenName, BaseScreenHandler screen);
-    void addScreenFactory(T screenName, ScreenFactory screenFactory);
     BaseScreenHandler navigate(T screenName);
+    BaseScreenHandler navigate(T screenName, Stage stage);
+
+    BaseScreenHandler goBack();
+}
+
+interface ILazyNavigation<K, V> {
+    void addScreenFactory(K screenName, ScreenFactory<? extends BaseScreenHandler> screen);
+    void preloadScreenHandler(K screenName);
+
+    void lazyInitialize();
 }

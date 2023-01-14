@@ -1,18 +1,14 @@
 package com.meshchat.client.views.base;
 
-import com.meshchat.client.controllers.BaseController;
-import com.meshchat.client.controllers.ChatController;
+import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.utils.Config;
+import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.application.Platform;
-import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.kordamp.bootstrapfx.BootstrapFX;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.Objects;
-import java.util.ResourceBundle;
 
 /**
  * BaseScreenHandler:
@@ -24,6 +20,7 @@ public abstract class BaseScreenHandler extends FXMLScreenHandler implements Laz
 
     protected Stage stage;            // if not exists -> create new, exists -> pass through constructor on init
     private Scene scene;                    // if not exists -> create new when show screen
+    private final INavigation<StackNavigation.WINDOW_LIST> navigation = ModelSingleton.getInstance().stackNavigation;
 
     public BaseScreenHandler(String screenPath) {
         super(screenPath);
@@ -59,5 +56,13 @@ public abstract class BaseScreenHandler extends FXMLScreenHandler implements Laz
     @Override
     public void lazyInitialize(Stage stage) {
         this.stage = stage;
+    }
+
+    public INavigation<StackNavigation.WINDOW_LIST> getNavigation() {
+        return navigation;
+    }
+
+    public Stage getStage() {
+        return this.stage;
     }
 }

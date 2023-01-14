@@ -1,6 +1,8 @@
 package com.meshchat.client.model;
 
 import com.meshchat.client.db.entities.UserEntity;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +15,7 @@ public class Conv extends ChatGen {
     //
     private UserEntity admin = new UserEntity();
     //
-    private String name;
+    private SimpleStringProperty name = new SimpleStringProperty();
 
     public Conv() {
     }
@@ -36,11 +38,11 @@ public class Conv extends ChatGen {
         this.members.remove(id);
     }
 
-    public String getName() {
-        return name;
+    public StringProperty getName() {
+        return this.name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name.set(name);
     }
 }

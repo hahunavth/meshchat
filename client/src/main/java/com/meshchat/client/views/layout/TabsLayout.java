@@ -7,6 +7,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 /**
  * TabsLayout
  * - Chứa tabbar và phần content

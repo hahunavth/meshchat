@@ -1,8 +1,6 @@
 package com.meshchat.client.net.client;
 
-import com.meshchat.client.controllers.MessageController;
 import com.meshchat.client.experiments.libs.TypeMappingLib;
-import javafx.beans.Observable;
 
 import java.util.Arrays;
 
@@ -14,10 +12,18 @@ public class TCPSimpleCClient extends TCPClient {
 //        this.lib.init();
     }
 
+    public TCPSimpleCClient(TypeMappingLib lib) {
+        this.lib = lib;
+    }
+
     @Override
     protected void connect() {
         int fd;
         do {
+            if (this.isCloseFlag()) {
+                this.setCloseFlag(false);
+                return;
+            }
             fd = lib.connect_server(this.host, this.port);
             if (fd == -1) {
                 System.out.println("Try reconnect in 3 second!");
@@ -29,6 +35,7 @@ public class TCPSimpleCClient extends TCPClient {
                 }
             }
         } while (fd == -1);
+        this.setConnected(true);
         System.out.println("Connect successfully!");
     }
 
@@ -50,18 +57,25 @@ public class TCPSimpleCClient extends TCPClient {
     @Override
     public void close() {
         this.lib.close_conn();
+        if(this.isConnected()) {
+            this.setConnected(false);
+        } else {
+            this.setCloseFlag(true);
+        }
     }
 
     @Override
     public void run() {
         try {
             connect();
-            while(true) {
-                if(this.lib.get_sockfd() == -1) {
-                    System.out.println("reconnect");
-                    connect();
-                } else {
-                    System.out.println(receive());
+            if (isConnected()) {
+                while(true) {
+                    if(this.lib.get_sockfd() == -1) {
+                        System.out.println("reconnect");
+                        connect();
+                    } else {
+                        System.out.println(receive());
+                    }
                 }
             }
         } catch (Exception e) {

@@ -46,13 +46,15 @@ public class DataSource implements Flow.Subscriber<char[]> {
         UserEntity user2 = new UserEntity(23, "User 2",  "dfjksdjkd", "fjfjfjfjfjfjfjf");
         // chat
         Chat chat1 = new Chat(user1);
+        chat1.id = 100L;
         Chat chat2 = new Chat(user2);
+        chat2.id = 120L;
         chat1.addMessage(3, 343, -1, "contentntntntn", 8765432, false);
         this.chatMap.put(
-                100L, chat1
+                chat1.id, chat1
         );
         this.chatMap.put(
-                120L, chat2
+                chat2.id, chat2
         );
     }
 

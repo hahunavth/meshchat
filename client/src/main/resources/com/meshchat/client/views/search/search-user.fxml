@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="513.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TableView layoutX="21.0" layoutY="60.0" prefHeight="400.0" prefWidth="661.0">
+        <columns>
+          <TableColumn prefWidth="110.66665649414062" text="ID" />
+          <TableColumn prefWidth="549.3333129882812" text="Name" />
+        </columns>
+      </TableView>
+      <Label layoutX="36.0" layoutY="14.0" text="Search user">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <TextField layoutX="212.0" layoutY="12.0" prefHeight="25.0" prefWidth="434.0" promptText="Tên người dùng" text="Name ..." />
+   </children>
+</Pane>

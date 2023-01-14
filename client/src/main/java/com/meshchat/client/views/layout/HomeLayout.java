@@ -7,11 +7,11 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 /**
- * HomeLayout
- * Gồm 3 phàn:
- * - Sidebar
- * - Content
- * - Info
+ * HomeLayout <br>
+ * Gồm 3 phàn: <br>
+ * - Sidebar <br>
+ * - Content <br>
+ * - Info <br>
  */
 public class HomeLayout extends BaseLayout<HomeLayout.Sessions> {
     @FXML

@@ -11,7 +11,7 @@
          <children>
             <ImageView fx:id="appName" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../assets/logo.png" />
+                  <Image url="@../../assets/logo.png" />
                </image>
             </ImageView>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Mesh Chat">

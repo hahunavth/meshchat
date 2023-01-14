@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<HBox alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<HBox alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <AnchorPane style="-fx-background-color: #fcfbfe; -fx-background-radius: 8px; -fx-border-color: #e3e6ea; -fx-border-width: 1px; -fx-border-radius: 8px;">
          <children>

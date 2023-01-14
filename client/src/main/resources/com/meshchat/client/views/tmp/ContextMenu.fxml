@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane fx:id="miGroupName" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="259.0" layoutY="90.0" prefHeight="63.0" prefWidth="97.0" text="Group chat name">
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" text="Tên nhóm" />
+                  <MenuItem fx:id="miMemberName" mnemonicParsing="false" text="Thành viên nhóm" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
+      </Label>
+      <Label layoutX="268.0" layoutY="200.0" text="2 client chat">
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" text="Thông tin" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
+      </Label>
+      <Label layoutX="268.0" layoutY="276.0" text="message">
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                <MenuItem mnemonicParsing="false" text="Trả lời" />
+                  <MenuItem mnemonicParsing="false" text="Xoá" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
+      </Label>
+   </children>
+</AnchorPane>

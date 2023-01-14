@@ -21,8 +21,8 @@ module com.meshchat.client {
 //    requires org.testfx.api;
 
     opens com.meshchat.client to javafx.fxml;
-    opens com.meshchat.client.controllers to javafx.fxml;
-    opens com.meshchat.client.launchers to javafx.fxml;
+    opens com.meshchat.client.viewmodels to javafx.fxml;
+//    opens com.meshchat.client.launchers to javafx.fxml;
     opens com.meshchat.client.views.layout to javafx.fxml;
     opens com.meshchat.client.views.home to javafx.fxml;
     opens com.meshchat.client.views.settings to javafx.fxml;
@@ -31,11 +31,12 @@ module com.meshchat.client {
     opens com.meshchat.client.views.base to javafx.fxml;
     opens com.meshchat.client.views.components to javafx.fxml;
     opens com.meshchat.client.views.login to javafx.fxml;
+    opens com.meshchat.client.views.signup to javafx.fxml;
 
     exports com.meshchat.client;
     exports com.meshchat.client.experiments;
-    exports com.meshchat.client.controllers;
-    exports com.meshchat.client.launchers;
+    exports com.meshchat.client.viewmodels;
+//    exports com.meshchat.client.launchers;
     exports com.meshchat.client.views.layout;
     exports com.meshchat.client.views.home;
     exports com.meshchat.client.views.settings;

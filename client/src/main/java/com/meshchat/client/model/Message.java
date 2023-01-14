@@ -4,7 +4,7 @@ import com.meshchat.client.db.entities.MsgEntity;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-public class Message extends BaseSchema{
+public class Message extends BaseSchema {
     private final MsgEntity entity = new MsgEntity();
     private final BooleanProperty isDeleted = new SimpleBooleanProperty();
 

@@ -1,7 +1,6 @@
 package com.meshchat.client;
 
-import com.meshchat.client.views.factories.HomeWindowFactory;
-import com.meshchat.client.views.factories.LoginScreenFactory;
+import com.meshchat.client.views.factories.*;
 import com.meshchat.client.views.navigation.StackNavigation;
 import com.meshchat.client.views.splash.SplashPreloader;
 import javafx.application.Application;
@@ -34,8 +33,16 @@ public class Launcher extends Application {
                         // add navigation option
                         notifyProcess(0.2);
                         ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.HOME, new HomeWindowFactory());
+                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.LOGIN, new LoginWindowFactory());
+                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.SIGNUP, new SignUpScreenFactory());
+                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.SEARCH_USER, new SearchUserWindowFactory());
+                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.CREATE_CONV, new CreateConvFormScreenFactory());
+                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.CONV_INFO, new ConvInfoWindowFactory());
+                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.USER_INFO, new UserProfileScreenFactory());
                         notifyProcess(0.3);
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.LOGIN, new LoginScreenFactory());
+                        ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SEARCH_USER);
+                        notifyProcess(0.4);
+                        ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SIGNUP);
                         // preload screen
                         notifyProcess(0.6);
                         ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.LOGIN);
@@ -84,11 +91,10 @@ public class Launcher extends Application {
             ready.addListener((ov, t, t1) -> {
                 if (Boolean.TRUE.equals(t1)) {
                     Platform.runLater(() -> {
-                        ModelSingleton.getInstance().stackNavigation.lazyInitialize(stage);
+                        ModelSingleton.getInstance().stackNavigation.lazyInitialize();
                         // default screen: login
-                        ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.LOGIN);
+                        ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.LOGIN).show();
                         //
-                        ModelSingleton.getInstance().stackNavigation.show();
                     });
                 }
             });

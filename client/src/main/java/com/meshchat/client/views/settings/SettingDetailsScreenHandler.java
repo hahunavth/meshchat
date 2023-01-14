@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class SettingDetailsScreenHandler extends BaseScreenHandler implements LazyInitialize {
 
-    public SettingDetailsScreenHandler(Stage stage) {
+    public SettingDetailsScreenHandler() {
         super(Config.SETTING_DETAILS_PATH);
     }
 }

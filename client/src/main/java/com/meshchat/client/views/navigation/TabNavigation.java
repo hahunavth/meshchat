@@ -6,22 +6,22 @@ import com.meshchat.client.views.base.BaseLayout;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.components.TabButton;
-import com.meshchat.client.views.factories.ScreenFactory;
 import com.meshchat.client.views.layout.TabsLayout;
 import javafx.fxml.FXML;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 import java.util.*;
 
 public class TabNavigation extends BaseComponent implements INavigation<TabButton> {
     @FXML
     private VBox menuItems;
-    private final BaseLayout layout;
+    private final BaseLayout<TabsLayout.Sessions> layout;
     private TabButton selectedBtn;
 //    private final List<TabButton> tabButtonList = new ArrayList<>();
     private final Map<TabButton, BaseScreenHandler> screenHandlerMap = new HashMap<>();
 
-    public TabNavigation(BaseLayout layout) {
+    public TabNavigation(BaseLayout<TabsLayout.Sessions> layout) {
         super(Config.TAB_NAV);
         this.layout = layout;
         // Add style
@@ -33,7 +33,6 @@ public class TabNavigation extends BaseComponent implements INavigation<TabButto
         this.addScreenHandler(tabButton, screenHandler);
     }
 
-    @Override
     public void addScreenHandler(TabButton tabButton, BaseScreenHandler screenHandler) {
         screenHandlerMap.put(tabButton, screenHandler);
 
@@ -49,16 +48,6 @@ public class TabNavigation extends BaseComponent implements INavigation<TabButto
 
         // add to tab bar
         this.menuItems.getChildren().add(tabButton.getContent());
-    }
-
-    public void addScreenFactory(TabButton tabButton, ScreenFactory screenFactory) {
-        BaseScreenHandler screenHandler = screenFactory.getScreenHandler();
-        this.addScreenHandler(tabButton, screenHandler);
-    }
-
-    public void addScreenFactory(String imgPath, ScreenFactory screenFactory) {
-        BaseScreenHandler screenHandler = screenFactory.getScreenHandler();
-        this.addScreenHandler(imgPath, screenHandler);
     }
 
     @Override
@@ -78,6 +67,16 @@ public class TabNavigation extends BaseComponent implements INavigation<TabButto
         layout.setSessionContent(TabsLayout.Sessions.SCREEN, screenHandler);
 
         return screenHandler;
+    }
+
+    @Override
+    public BaseScreenHandler navigate(TabButton screenName, Stage stage) {
+        return null;
+    }
+
+    @Override
+    public BaseScreenHandler goBack() {
+        return null;
     }
 
 }

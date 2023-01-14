@@ -28,7 +28,7 @@
                      </HBox.margin>
                   </Text>
                   <Pane prefHeight="200.0" prefWidth="200.0" />
-                  <Text fill="#5b5b5b" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-weight: bold; -fx-font-size: 10px;" text="10:42PM">
+                  <Text fill="#5b5b5b" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-weight: bold; -fx-font-size: 10px;">
                      <font>
                         <Font name="Arial" size="11.0" />
                      </font>
@@ -38,7 +38,7 @@
                   </Text>
                </children>
             </HBox>
-            <Text fx:id="lastmsg" fill="#5b5b5b" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 12px;" text="Message !!">
+            <Text fx:id="lastmsg" fill="#5b5b5b" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 12px;">
                <font>
                   <Font size="12.0" />
                </font>

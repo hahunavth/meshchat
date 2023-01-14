@@ -33,7 +33,7 @@ public class ModelSingleton {
                 .search("/home/kryo/Desktop/meshchat/client/src/main/resources")
                 .load("typemapping");
 
-        tcpClient = new TCPSimpleCClient("127.0.0.1", 5500, lib);
+        tcpClient = new TCPSimpleCClient(lib);
         // close on exit
         Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
             tcpClient.close();
@@ -41,7 +41,12 @@ public class ModelSingleton {
         }});
 
         tcpClient.subscribe(dataSource);
+    }
 
+    public void initClient(String host, int port) {
+        this.tcpClient.setCloseFlag(false);
+        this.tcpClient.setHost(host);
+        this.tcpClient.setPort(port);
         Thread clientThread = new Thread(tcpClient);
         clientThread.start();
     }

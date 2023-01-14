@@ -5,12 +5,25 @@ import com.meshchat.client.utils.Config;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
 
-public class LoginScreenHandler extends BaseScreenHandler {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class LoginScreenHandler extends BaseScreenHandler implements Initializable {
+
+    @FXML
+    private Accordion accord;
+    @FXML
+    private TitledPane acc_tiled_pane;
+
+    @FXML
+    private TextField address;
+    @FXML
+    private TextField port;
 
     @FXML
     private TextField username;
@@ -23,10 +36,26 @@ public class LoginScreenHandler extends BaseScreenHandler {
 
     public LoginScreenHandler() {
         super(Config.LOGIN_PATH);
+    }
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        this.accord.setExpandedPane(this.acc_tiled_pane);
         login.setOnAction((a) -> {
-            ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.HOME);
-            ModelSingleton.getInstance().stackNavigation.show();
+            ModelSingleton.getInstance().initClient(this.address.getText(), Integer.parseInt(this.port.getText()));
+            System.out.println(this.port.getText());
+
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
         });
+
+        signup.setOnAction((a) -> {
+            ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.SIGNUP).show();
+        });
+    }
+
+    @Override
+    public void show() {
+        ModelSingleton.getInstance().tcpClient.close();
+        super.show();
     }
 }

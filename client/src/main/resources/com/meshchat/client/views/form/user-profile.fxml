@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <left>
+      <AnchorPane prefHeight="383.0" prefWidth="605.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="36.0" layoutY="35.0" />
+            <Label layoutX="36.0" layoutY="69.0" text="User name" />
+            <TextField layoutX="138.0" layoutY="65.0" prefHeight="25.0" prefWidth="416.0" />
+            <Label layoutX="36.0" layoutY="107.0" text="Password" />
+            <TextField layoutX="140.0" layoutY="103.0" prefHeight="25.0" prefWidth="414.0" />
+            <Label layoutX="36.0" layoutY="176.0" text="My owner groups" />
+            <ListView layoutX="36.0" layoutY="202.0" prefHeight="127.0" prefWidth="520.0" />
+            <Button layoutX="493.0" layoutY="342.0" mnemonicParsing="false" text="Sign out" />
+            <Label layoutX="36.0" layoutY="146.0" text="Phone number" />
+            <TextField layoutX="139.0" layoutY="142.0" prefHeight="25.0" prefWidth="415.0" />
+            <Label layoutX="36.0" layoutY="35.0" text="User Profile" />
+            <Button layoutX="35.0" layoutY="342.0" mnemonicParsing="false" text="Return home" />
+         </children>
+      </AnchorPane>
+   </left>
+</BorderPane>

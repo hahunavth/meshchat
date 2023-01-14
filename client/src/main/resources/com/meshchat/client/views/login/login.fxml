@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <AnchorPane prefHeight="183.0" prefWidth="360.0" BorderPane.alignment="CENTER" />
+   </top>
+   <center>
+      <VBox alignment="CENTER" prefHeight="177.0" prefWidth="364.0" BorderPane.alignment="CENTER">
+         <children>
+            <Accordion fx:id="accord">
+              <panes>
+                <TitledPane animated="false" prefHeight="97.0" prefWidth="350.0" text="Server info">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <GridPane layoutX="-57.0" layoutY="4.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.3999999999999773" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="167.0" minWidth="10.0" prefWidth="122.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="257.0" minWidth="10.0" prefWidth="228.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label fx:id="username_lb1" text="Address">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="pass_lb1" text="Port" GridPane.rowIndex="1">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <TextField fx:id="address" prefHeight="25.0" prefWidth="175.0" promptText="Ex: 127.0.0.1" text="127.0.0.1" GridPane.columnIndex="1" />
+                                    <TextField fx:id="port" prefHeight="25.0" prefWidth="175.0" promptText="Ex: 5432" text="5432" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                 </children>
+                              </GridPane>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </TitledPane>
+                <TitledPane fx:id="acc_tiled_pane" animated="false" text="Account">
+                     <content>
+                        <GridPane prefWidth="370.0">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="167.0" minWidth="10.0" prefWidth="122.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="257.0" minWidth="10.0" prefWidth="228.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <Label fx:id="username_lb" text="Username">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="pass_lb" text="Password" GridPane.rowIndex="1">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="username" prefHeight="25.0" prefWidth="175.0" promptText="Username" GridPane.columnIndex="1" />
+                              <TextField fx:id="password" prefHeight="25.0" prefWidth="175.0" promptText="Password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                           </children>
+                        </GridPane>
+                     </content>
+                  </TitledPane>
+              </panes>
+            </Accordion>
+            <HBox alignment="CENTER" prefHeight="40.0" prefWidth="350.0" VBox.vgrow="NEVER">
+               <children>
+                  <Label fx:id="not_have_acc" text="Don't have an account ?">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="signup" mnemonicParsing="false" style="-fx-background-color: transparent;" text="Sign up" textFill="#7c2fed" />
+               </children>
+            </HBox>
+            <Button fx:id="login" mnemonicParsing="false" prefHeight="36.0" prefWidth="80.0" style="-fx-background-color: #6c3dd9;" text="Sign in" textFill="WHITE">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Button>
+         </children>
+         <BorderPane.margin>
+            <Insets bottom="24.0" top="24.0" />
+         </BorderPane.margin>
+      </VBox>
+   </center>
+</BorderPane>

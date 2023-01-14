@@ -1,5 +1,6 @@
 package com.meshchat.client.model;
 
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -9,7 +10,7 @@ import java.util.Map;
 /**
  * Chung cho conv và chat
  */
-public class ChatGen extends BaseSchema {
+public abstract class ChatGen extends BaseSchema {
     private final Map<Long, Message> msgMap = new HashMap<>();
     private final ObservableMap<Long, Message> oMsgMap = FXCollections.observableMap(msgMap);
 
@@ -28,4 +29,6 @@ public class ChatGen extends BaseSchema {
     public ObservableMap<Long, Message> getOMsgMap() {
         return oMsgMap;
     }
+
+    public abstract StringProperty getName();
 }
