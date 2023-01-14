@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC -shared -Wl,-soname,libtypemapping.so -o /home/kryo/Desktop/meshchat/client/src/main/resources/libtypemapping.so CMakeFiles/typemapping.dir/int.c.o CMakeFiles/typemapping.dir/arr.c.o CMakeFiles/typemapping.dir/struct.c.o CMakeFiles/typemapping.dir/union.c.o "CMakeFiles/typemapping.dir/tcp-glob.c.o" CMakeFiles/typemapping.dir/client.c.o 
