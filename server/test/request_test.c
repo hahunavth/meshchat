@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TOKEN_LEN 16
-#define EMPTY_TOKEN "\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
+#define TOKEN_LEN		16
+#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
 
 char buf[BUFSIZ];
 request *req;
@@ -149,11 +149,11 @@ void test_request_msg_send()
 
 	const char *msg = "Hello world";
 	uint32_t msg_len = strlen(msg);
-	const char *fname = "smile.jpg";
+	const char* fname = "smile.jpg";
 	uint32_t fsize = 1048576;
 
 	make_requests_msg_send_text(EMPTY_TOKEN, 1, conv_id, chat_id, reply_to, msg, buf);
-
+	
 	req = request_parse(buf);
 	request_header *header = &(req->header);
 	request_body *body = req->body;
@@ -161,8 +161,8 @@ void test_request_msg_send()
 	assert(header->group == 4);
 	assert(header->action == 2);
 	assert(header->content_type == 0);
-	assert(header->content_len == 12 + msg_len);
-	assert(header->body_len == 12 + msg_len);
+	assert(header->content_len == 12+msg_len);
+	assert(header->body_len == 12+msg_len);
 	// assert(header->offset0 == 0);
 	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
 	assert(header->user_id == 1);
@@ -173,13 +173,14 @@ void test_request_msg_send()
 	assert((body->r_msg).chat_id == chat_id);
 	assert((body->r_msg).reply_id == reply_to);
 	assert(strcmp((body->r_msg).msg_content, msg) == 0);
-
+	
 	request_destroy(req);
 
 	SUCCESS("test_make_requests_msg_send_text pass");
 
-	make_requests_msg_send_file(EMPTY_TOKEN, 1, conv_id, chat_id, reply_to, fsize, fname, buf);
 
+	make_requests_msg_send_file(EMPTY_TOKEN, 1, conv_id, chat_id, reply_to, fsize, fname, buf);
+	
 	req = request_parse(buf);
 	header = &(req->header);
 	body = req->body;
@@ -188,7 +189,7 @@ void test_request_msg_send()
 	assert(header->action == 2);
 	assert(header->content_type == 1);
 	assert(header->content_len == fsize);
-	assert(header->body_len == 12 + strlen(fname));
+	assert(header->body_len == 12+strlen(fname));
 	// assert(header->offset0 == 0);
 	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
 	assert(header->user_id == 1);
@@ -203,6 +204,7 @@ void test_request_msg_send()
 	request_destroy(req);
 
 	SUCCESS("test_make_requests_msg_send_msg pass");
+
 }
 
 void abort_handler(int signo)
