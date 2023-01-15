@@ -11,58 +11,59 @@
 #include <assert.h>
 #include <inttypes.h>
 
-#define USER_TABLE_CURRENT_MAX_ID 0
+uint32_t USER_TABLE_CURRENT_MAX_ID = 0;
 
 int test_register()
 {
-  char username[32] = "user000";
 
-  char token[17];
-  uint32_t user_id = -1;
+  request_auth req;
+  req.email = "abc@def.com";
+  req.uname = "user000";
+  req.password = "pass";
+  req.phone = "12345678";
 
-  int res = _register(username, "pass", "12345678", "abc@def.com", token, &user_id);
+  response_auth res;
 
-  if (res == 0)
+  int stt = __register(&req, &res);
+
+  PRINT_STATUS_CODE(stt);
+  switch (stt)
   {
+  case 201:
     puts("Register success");
-    PRINT_USER_ID(user_id);
-    PRINT_TOKEN(token);
-
-    assert(user_id == USER_TABLE_CURRENT_MAX_ID + 1);
-
-    return 0;
+    PRINT_USER_ID(res.user_id);
+    PRINT_TOKEN(res.token);
+    assert(res.user_id == USER_TABLE_CURRENT_MAX_ID + 1);
+    USER_TABLE_CURRENT_MAX_ID += 1;
+    break;
+  case 244:
+    printf("User exists\n");
+    break;
   }
-  else
-  {
-    printf("Register failed\n");
-    return 1;
-  }
+
+  return stt;
 }
 
-int test_login()
+int test_login(char *username, char *password)
 {
-  char username[32] = "user000";
+  response_auth res;
 
-  char token[17];
-  uint32_t user_id;
+  int stt = __login(username, password, &res);
 
-  int res = _login(username, "pass", token, &user_id);
-
-  if (res == 0)
+  PRINT_STATUS_CODE(stt);
+  switch (stt)
   {
+  case 200:
     puts("Login success");
-    PRINT_USER_ID(user_id);
-    PRINT_TOKEN(token);
+    PRINT_USER_ID(res.user_id);
+    PRINT_TOKEN(res.token);
+    break;
 
-    assert(user_id == USER_TABLE_CURRENT_MAX_ID + 1);
-
-    return 0;
+  default:
+    printf("Login failed: %d\n", res.user_id);
+    break;
   }
-  else
-  {
-    printf("Login failed: %d\n", res);
-    return 1;
-  }
+  return stt;
 }
 
 int main()
@@ -73,9 +74,20 @@ int main()
     printf("Connect to server failed\n");
     return 1;
   }
+  puts("=====");
+  assert(test_register() == 201);
+  puts("=====");
+  assert(test_register() == 244);
+  puts("=====");
+  assert(test_login("user000", "pass") == 200);
+  puts("=====");
+  assert(test_login("user000", "12345678987") == 403);
+  puts("=====");
+  assert(test_login("user999", "12345678987") == 404);
 
-  assert(test_register() == 0);
-  assert(test_login() == 0);
+  /**
+   * result: 403, 404 failed
+   */
 
   return 0;
 }

@@ -30,6 +30,7 @@
         printf("%02hhX ", token[i]);    \
     }                                   \
     puts("");
+#define PRINT_STATUS_CODE(status_code) printf("status_code: %d\n", status_code);
 
 /**
  * External API
@@ -38,11 +39,16 @@ extern int connect_server(const char *addr, uint16_t port);
 extern int get_sockfd();
 extern void close_conn();
 
-extern int _login(const char *username, const char *password,
-                  char *_token, uint32_t *_user_id);
+extern int __login(
+    const char *username, const char *password,
+    response_auth *_res);
+extern int _login(const char *username, const char *password);
 
-extern int _register(
-    const char *username, const char *password, const char *phone, const char *email,
-    char *_token, uint32_t *_user_id);
+extern int __register(
+    const request_auth *req,
+    response_auth *_res);
+extern int _register(const request_auth *req);
+
+extern int _logout(const char *token, const char *user_id);
 
 #endif
