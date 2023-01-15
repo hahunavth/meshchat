@@ -18,30 +18,20 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static uint32_t sql_insert(sqlite3 *db, const char *query, int *lastrc)
 {
-	printf("Insert query: %s\n", query);
-
-	sqlite3_stmt *stmt;
-	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
-	if (rc != SQLITE_OK)
-	{
-		*lastrc = rc;
-		return 0;
-	}
-
+	/* printf("Insert query: %s\n", query); */
+	int rc;
 	uint32_t newid;
 
 	pthread_mutex_lock(&mutex);
-	if ((rc = sqlite3_step(stmt)) != SQLITE_DONE)
+	if ((rc = sqlite3_exec(db, query, NULL, NULL, NULL)) != SQLITE_OK)
 	{
 		*lastrc = rc;
 		pthread_mutex_unlock(&mutex);
-		sqlite3_finalize(stmt);
 		return 0;
 	}
 	newid = sqlite3_last_insert_rowid(db);
 	pthread_mutex_unlock(&mutex);
 
-	sqlite3_finalize(stmt);
 	*lastrc = SQLITE_OK;
 	return newid;
 }
@@ -67,13 +57,6 @@ static sllnode_t *sql_get_list(sqlite3 *db, const char *query, int *lastrc)
 	sqlite3_finalize(stmt);
 	*lastrc = SQLITE_OK;
 	return list;
-}
-
-static void rollback(sqlite3 *db)
-{
-	int rc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
-	if (rc != SQLITE_OK)
-		abort();
 }
 
 //////////////////////////////////////////////////
@@ -123,7 +106,7 @@ user_schema *user_get_by_id(sqlite3 *db, uint32_t id, int *lastrc)
 	return res;
 }
 
-uint32_t user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc)
+user_schema *user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc)
 {
 	user_schema *res = (user_schema *)malloc(sizeof(user_schema));
 	if (!res)
@@ -135,7 +118,7 @@ uint32_t user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc)
 
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT * FROM users WHERE uname='%s'", uname);
+	snprintf(query, QUERY_SMALL, "SELECT id, uname, password FROM users WHERE uname='%s'", uname);
 
 	sqlite3_stmt *stmt;
 	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
@@ -158,8 +141,6 @@ uint32_t user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc)
 	res->id = sqlite3_column_int(stmt, 0);
 	res->uname = string_new(uname);
 	res->password = string_new(sqlite3_column_text(stmt, 2));
-	res->phone = string_new(sqlite3_column_text(stmt, 3));
-	res->email = string_new(sqlite3_column_text(stmt, 4));
 
 	sqlite3_finalize(stmt);
 	*lastrc = SQLITE_OK;
@@ -273,22 +254,23 @@ uint32_t conv_create(sqlite3 *db, uint32_t admin_id, const char *name, int *last
 
 	memset(query, 0, QUERY_SMALL);
 	snprintf(query, QUERY_SMALL, "INSERT INTO conversations(admin_id,name) VALUES(%u, '%s');", admin_id, name);
+
+	pthread_mutex_lock(&mutex);
 	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	uint32_t newid = sqlite3_last_insert_rowid(db);
 	if (rc != SQLITE_OK)
 	{
-		*lastrc = rc;
-		rollback(db);
+		*lastrc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
 		return 0;
 	}
+	pthread_mutex_unlock(&mutex);
 
 	memset(query, 0, QUERY_SMALL);
 	snprintf(query, QUERY_SMALL, "INSERT INTO members(conv_id, user_id) VALUES(last_insert_rowid(), %u);", admin_id);
 	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	if (rc != SQLITE_OK)
 	{
-		*lastrc = rc;
-		rollback(db);
+		*lastrc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
 		return 0;
 	}
 
@@ -319,8 +301,11 @@ int conv_is_admin(sqlite3 *db, uint32_t conv_id, uint32_t user_id, int *lastrc)
 
 	if ((rc = sqlite3_step(stmt)) != SQLITE_ROW)
 	{
-		if (rc != SQLITE_DONE)
+		if (rc == SQLITE_DONE)
+			*lastrc = SQLITE_EMPTY;
+		else
 			*lastrc = rc;
+		sqlite3_finalize(stmt);
 		return 0;
 	}
 
@@ -346,8 +331,11 @@ int conv_is_member(sqlite3 *db, uint32_t conv_id, uint32_t user_id, int *lastrc)
 
 	if ((rc = sqlite3_step(stmt)) != SQLITE_ROW)
 	{
-		if (rc != SQLITE_DONE)
+		if (rc == SQLITE_DONE)
+			*lastrc = SQLITE_EMPTY;
+		else
 			*lastrc = rc;
+		sqlite3_finalize(stmt);
 		return 0;
 	}
 
@@ -488,8 +476,11 @@ int chat_is_member(sqlite3 *db, uint32_t chat_id, uint32_t user_id, int *lastrc)
 
 	if ((rc = sqlite3_step(stmt)) != SQLITE_ROW)
 	{
-		if (rc != SQLITE_DONE)
+		if (rc == SQLITE_DONE)
+			*lastrc = SQLITE_EMPTY;
+		else
 			*lastrc = rc;
+		sqlite3_finalize(stmt);
 		return 0;
 	}
 
@@ -501,18 +492,40 @@ int chat_is_member(sqlite3 *db, uint32_t chat_id, uint32_t user_id, int *lastrc)
 
 void chat_drop(sqlite3 *db, uint32_t chat_id, int *lastrc)
 {
+	int rc;
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL,
-			 "BEGIN TRANSACTION;"
-			 "DELETE FROM messages WHERE chat_id=%u;"
-			 "DELETE FROM chats WHERE id=%u;"
-			 "COMMIT TRANSACTION;",
-			 chat_id, chat_id);
-
-	int rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	snprintf(query, QUERY_SMALL, "BEGIN TRANSACTION;");
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	if (rc != SQLITE_OK)
-		*lastrc = rc;
+	{
+		*lastrc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
+		return;
+	}
+
+	snprintf(query, QUERY_SMALL, "DELETE FROM messages WHERE chat_id=%u;", chat_id);
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK)
+	{
+		*lastrc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
+		return;
+	}
+
+	snprintf(query, QUERY_SMALL, "DELETE FROM chats WHERE id=%u;", chat_id);
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK)
+	{
+		*lastrc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
+		return;
+	}
+
+	snprintf(query, QUERY_SMALL, "COMMIT TRANSACTION;", chat_id);
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK)
+	{
+		*lastrc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
+		return;
+	}
 
 	*lastrc = SQLITE_OK;
 }
@@ -594,6 +607,7 @@ msg_schema *msg_get_detail(sqlite3 *db, uint32_t msg_id, int *lastrc)
 
 uint32_t msg_send(sqlite3 *db, const msg_schema *msg, int *lastrc)
 {
+	int rc;
 	char reply_str[12];
 	char conv_str[12];
 	char chat_str[12];
@@ -617,8 +631,8 @@ uint32_t msg_send(sqlite3 *db, const msg_schema *msg, int *lastrc)
 	char query[QUERY_LARGE];
 
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "PRAGMA foreign_keys=OFF; BEGIN TRANSACTION;");
-	int rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	snprintf(query, QUERY_SMALL, "PRAGMA foreign_keys=ON;");
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	if (rc != SQLITE_OK)
 	{
 		*lastrc = rc;
@@ -629,24 +643,16 @@ uint32_t msg_send(sqlite3 *db, const msg_schema *msg, int *lastrc)
 	snprintf(query, QUERY_LARGE, 
 		"INSERT INTO messages(from_uid, reply_to, content_type, content_length, content, created_at, chat_id, conv_id, type) VALUES (%u, %s, %d, %u, '%s', %ld, %s, %s, %d);",
 		msg->from_uid, reply_str, msg->content_type, msg->content_length, msg->content, time(NULL), chat_str, conv_str, MSG_SENT);
+	
+	pthread_mutex_lock(&mutex);
 	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	uint32_t newmsg = sqlite3_last_insert_rowid(db);
 	if (rc != SQLITE_OK)
 	{
 		*lastrc = rc;
-		rollback(db);
 		return 0;
 	}
-
-	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "COMMIT TRANSACTION; PRAGMA foreign_keys=ON;");
-	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
-	if (rc != SQLITE_OK)
-	{
-		*lastrc = rc;
-		rollback(db);
-		return 0;
-	}
+	pthread_mutex_unlock(&mutex);
 
 	*lastrc = SQLITE_OK;
 	return newmsg;
