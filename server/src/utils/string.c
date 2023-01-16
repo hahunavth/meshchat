@@ -33,6 +33,17 @@ char *string_new_n(const char *str, size_t n)
 	return newstr;
 }
 
+char *string_mem_n(const char *str, size_t n)
+{
+	char *newstr = (char *)malloc(n);
+	memcpy(newstr, str, n);
+
+	pthread_mutex_lock(&mutex);
+	sll_insert_node(&head, new_jval_s(newstr));
+	pthread_mutex_unlock(&mutex);
+	return newstr;
+}
+
 char *string_append(const char *str1, const char *str2)
 {
 	size_t str1_len = strlen(str1);
