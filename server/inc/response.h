@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-#define RESPONSE_LEN			BUFSIZ
-#define RESPONSE_HEADER_LEN		32
-#define RESPONSE_BODY_LEN		(RESPONSE_LEN - RESPONSE_HEADER_LEN)
-#define RESPONSE_MSG_MAX_LEN	(RESPONSE_BODY_LEN - 12)
+#define RESPONSE_LEN BUFSIZ
+#define RESPONSE_HEADER_LEN 32
+#define RESPONSE_BODY_LEN (RESPONSE_LEN - RESPONSE_HEADER_LEN)
+#define RESPONSE_MSG_MAX_LEN (RESPONSE_BODY_LEN - 12)
 
 /* parsed response header*/
 
@@ -16,13 +16,11 @@ typedef struct
 	int8_t group;		  /* byte 0 */
 	int8_t action;		  /* byte 1 */
 	uint8_t content_type; /* byte 2 */
-	uint8_t status_code;  /* byte 3*/
+	// uint32_t status_code;  /* byte 3*/
 	uint32_t content_len; /* byte 4-8 */
 	uint32_t body_len;	  /* byte 8-12*/
-	// uint32_t offset;	  /* byte 12-16*/
-
-	/* 4-byte userid (byte 16-20) */
-	uint32_t count;
+	uint32_t status_code; /* byte 12-16*/
+	uint32_t count;		  /* byte 16-20*/
 } response_header;
 
 /* parsed response body */
@@ -86,29 +84,29 @@ typedef struct
 
 response *response_parse(const char *buf);
 
-void make_err_response(uint8_t status, uint8_t group, uint8_t action, char* res);
+void make_err_response(uint32_t status, uint8_t group, uint8_t action, char *res);
 
-void make_response_auth_register(uint8_t status, const char *token, uint32_t user_id, char *res);
-void make_response_auth_login(uint8_t status, const char *token, uint32_t user_id, char *res);
-void make_response_user_logout(uint8_t status, char *res);
-void make_response_user_get_info(uint8_t status, const char *uname, const char *phone, const char *email, char *res);
-void make_response_user_search(uint8_t status, uint32_t count, const uint32_t *ls, char *res);
-void make_response_conv_create(uint8_t status, uint32_t conv_id, char *res);
-void make_response_conv_drop(uint8_t status, char *res);
-void make_response_conv_join(uint8_t status, char *res);
-void make_response_conv_quit(uint8_t status, char *res);
-void make_response_conv_get_info(uint8_t status, uint32_t admin_id, const char *gname, char *res);
-void make_response_conv_get_members(uint8_t status, uint32_t count, const uint32_t *ls, char *res);
-void make_response_conv_get_list(uint8_t status, uint32_t count, const uint32_t *ls, char *res);
-void make_response_chat_create(uint8_t status, uint32_t chat_id, char *res);
-void make_response_chat_delete(uint8_t status, char *res);
-void make_response_chat_get_list(uint8_t status, uint32_t count, const uint32_t *ls, char *res);
-void make_response_msg_get_all(uint8_t status, uint32_t count, const uint32_t *ls, char *res);
-void make_response_msg_get_detail(uint8_t status, const response_msg *msg, char *res);
-void make_responses_msg_send(uint8_t status, uint32_t msg_id, char *res);
-void make_response_msg_delete(uint8_t status, char *res);
-void make_response_msg_notify_new(uint8_t status, uint32_t count, const uint32_t *ls, char *res);
-void make_response_msg_notify_del(uint8_t status, uint32_t count, const uint32_t *ls, char *res);
+void make_response_auth_register(uint32_t status, const char *token, uint32_t user_id, char *res);
+void make_response_auth_login(uint32_t status, const char *token, uint32_t user_id, char *res);
+void make_response_user_logout(uint32_t status, char *res);
+void make_response_user_get_info(uint32_t status, const char *uname, const char *phone, const char *email, char *res);
+void make_response_user_search(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
+void make_response_conv_create(uint32_t status, uint32_t conv_id, char *res);
+void make_response_conv_drop(uint32_t status, char *res);
+void make_response_conv_join(uint32_t status, char *res);
+void make_response_conv_quit(uint32_t status, char *res);
+void make_response_conv_get_info(uint32_t status, uint32_t admin_id, const char *gname, char *res);
+void make_response_conv_get_members(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
+void make_response_conv_get_list(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
+void make_response_chat_create(uint32_t status, uint32_t chat_id, char *res);
+void make_response_chat_delete(uint32_t status, char *res);
+void make_response_chat_get_list(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
+void make_response_msg_get_all(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
+void make_response_msg_get_detail(uint32_t status, const response_msg *msg, char *res);
+void make_responses_msg_send(uint32_t status, uint32_t msg_id, char *res);
+void make_response_msg_delete(uint32_t status, char *res);
+void make_response_msg_notify_new(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
+void make_response_msg_notify_del(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
 
 void response_destroy(response *res);
 

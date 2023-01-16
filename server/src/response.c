@@ -12,7 +12,7 @@
 #define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
 #define BODY_DEMLIMITER	'\x1D'
 
-static uint32_t parse_uint32_from_buf(char *buf)
+static uint32_t parse_uint32_from_buf(const char *buf)
 {
 	uint32_t num;
 	memcpy(&num, buf, 4);
@@ -58,10 +58,10 @@ response *response_parse(const char *buf)
 	header->group = buf[0];
 	header->action = buf[1];
 	header->content_type = buf[2];
-	header->status_code = buf[3];
+	// header->status_code = buf[3];
 	header->content_len = parse_uint32_from_buf(buf+4);
 	header->body_len = parse_uint32_from_buf(buf+8);
-	// header->offset = parse_uint32_from_buf(buf+12);
+	header->status_code = parse_uint32_from_buf(buf+12);
 	header->count = parse_uint32_from_buf(buf+16);
 
 	switch (header->group)
@@ -293,13 +293,13 @@ void response_destroy(response* req)
 
 //////////////////////////////////////////////////
 
-void make_err_response(uint8_t status, uint8_t group, uint8_t action, char* res)
+void make_err_response(uint32_t status, uint8_t group, uint8_t action, char* res)
 {
 	memset(res, 0, RESPONSE_HEADER_LEN);
 
 	res[0] = group;
 	res[1] = action;
-	res[3] = status;
+	write_uint32_to_buf(res+12, status);
 }
 
 static void make_response_header(response_header *header, char *res)
@@ -309,15 +309,15 @@ static void make_response_header(response_header *header, char *res)
 	res[0] = header->group;
 	res[1] = header->action;
 	res[2] = header->content_type;
-	res[3] = header->status_code;
+	// res[3] = header->status_code;
 
 	write_uint32_to_buf(res+4, header->content_len);
 	write_uint32_to_buf(res+8, header->body_len);
-	// write_uint32_to_buf(res+12, header->offset);
+	write_uint32_to_buf(res+12, header->status_code);
 	write_uint32_to_buf(res+16, header->count);
 }
 
-static void make_response_empty_body(uint8_t group, uint8_t action, uint8_t status_code, char *res)
+static void make_response_empty_body(uint8_t group, uint8_t action, uint32_t status_code, char *res)
 {
 	response_header header = {
 		.group = group,
@@ -332,7 +332,7 @@ static void make_response_empty_body(uint8_t group, uint8_t action, uint8_t stat
 	make_response_header(&header, res);
 }
 
-static void make_response_id_list(uint8_t group, uint8_t action, uint8_t status_code, uint32_t *ls, uint32_t count, char *res)
+static void make_response_id_list(uint8_t group, uint8_t action, uint32_t status_code, uint32_t *ls, uint32_t count, char *res)
 {
 	uint32_t sz = (count << 2);
 	response_header header = {
@@ -357,7 +357,7 @@ static void make_response_id_list(uint8_t group, uint8_t action, uint8_t status_
 	}
 }
 
-static void make_response_uint32(uint8_t group, uint8_t action, uint8_t status_code, uint32_t num, char *res)
+static void make_response_uint32(uint8_t group, uint8_t action, uint32_t status_code, uint32_t num, char *res)
 {
 	response_header header = {
 		.group = group,
@@ -377,7 +377,7 @@ static void make_response_uint32(uint8_t group, uint8_t action, uint8_t status_c
 	write_uint32_to_buf(body, num);
 }
 
-void make_response_auth_register(uint8_t status_code, const char *token, uint32_t user_id, char *res)
+void make_response_auth_register(uint32_t status_code, const char *token, uint32_t user_id, char *res)
 {
 	response_header header = {
 		.group = 0,
@@ -398,7 +398,7 @@ void make_response_auth_register(uint8_t status_code, const char *token, uint32_
 	write_uint32_to_buf(body+TOKEN_LEN, user_id);
 }
 
-void make_response_auth_login(uint8_t status_code, const char *token, uint32_t user_id, char *res)
+void make_response_auth_login(uint32_t status_code, const char *token, uint32_t user_id, char *res)
 {
 	response_header header = {
 		.group = 0,
@@ -419,12 +419,12 @@ void make_response_auth_login(uint8_t status_code, const char *token, uint32_t u
 	write_uint32_to_buf(body+TOKEN_LEN, user_id);
 }
 
-inline void make_response_user_logout(uint8_t status_code, char *res)
+inline void make_response_user_logout(uint32_t status_code, char *res)
 {
 	make_response_empty_body(1, 0, status_code, res);
 }
 
-void make_response_user_get_info(uint8_t status_code, const char *uname, const char *phone, const char *email, char *res)
+void make_response_user_get_info(uint32_t status_code, const char *uname, const char *phone, const char *email, char *res)
 {
 	size_t uname_len = strlen(uname);
 	size_t phone_len = strlen(phone);
@@ -455,32 +455,32 @@ void make_response_user_get_info(uint8_t status_code, const char *uname, const c
 	memcpy(body, email, email_len);
 }
 
-inline void make_response_user_search(uint8_t status_code, uint32_t count, const uint32_t *ls, char *res)
+inline void make_response_user_search(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(1, 2, status_code, ls, count, res);
 }
 
-inline void make_response_conv_create(uint8_t status_code, uint32_t conv_id, char *res)
+inline void make_response_conv_create(uint32_t status_code, uint32_t conv_id, char *res)
 {
 	make_response_uint32(2, 0, status_code, conv_id, res);
 }
 
-inline void make_response_conv_drop(uint8_t status_code, char *res)
+inline void make_response_conv_drop(uint32_t status_code, char *res)
 {
 	make_response_empty_body(2, 1, status_code, res);
 }
 
-inline void make_response_conv_join(uint8_t status_code, char *res)
+inline void make_response_conv_join(uint32_t status_code, char *res)
 {
 	make_response_empty_body(2, 2, status_code, res);
 }
 
-inline void make_response_conv_quit(uint8_t status_code, char *res)
+inline void make_response_conv_quit(uint32_t status_code, char *res)
 {
 	make_response_empty_body(2, 3, status_code, res);
 }
 
-void make_response_conv_get_info(uint8_t status_code, uint32_t admin_id, const char *gname, char *res)
+void make_response_conv_get_info(uint32_t status_code, uint32_t admin_id, const char *gname, char *res)
 {
 	size_t gname_len = strlen(gname);
 	response_header header = {
@@ -502,37 +502,37 @@ void make_response_conv_get_info(uint8_t status_code, uint32_t admin_id, const c
 	memcpy(body+4, gname, gname_len);
 }
 
-inline void make_response_conv_get_members(uint8_t status_code, uint32_t count, const uint32_t *ls, char *res)
+inline void make_response_conv_get_members(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(2, 5, status_code, ls, count, res);
 }
 
-inline void make_response_conv_get_list(uint8_t status_code, uint32_t count, const uint32_t *ls, char *res)
+inline void make_response_conv_get_list(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(2, 6, status_code, ls, count, res);
 }
 
-inline void make_response_chat_create(uint8_t status_code, uint32_t chat_id, char *res)
+inline void make_response_chat_create(uint32_t status_code, uint32_t chat_id, char *res)
 {
 	make_response_uint32(3, 0, status_code, chat_id, res);
 }
 
-inline void make_response_chat_delete(uint8_t status_code, char *res)
+inline void make_response_chat_delete(uint32_t status_code, char *res)
 {
 	make_response_empty_body(3, 1, status_code, res);
 }
 
-inline void make_response_chat_get_list(uint8_t status_code, uint32_t count, const uint32_t *ls, char *res)
+inline void make_response_chat_get_list(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(3, 2, status_code, ls, count, res);
 }
 
-inline void make_response_msg_get_all(uint8_t status_code, uint32_t count, const uint32_t *ls, char *res)
+inline void make_response_msg_get_all(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(4, 0, status_code, ls, count, res);
 }
 
-void make_response_msg_get_detail(uint8_t status, const response_msg *msg, char *res)
+void make_response_msg_get_detail(uint32_t status, const response_msg *msg, char *res)
 {
 	response_header header = {
 		.group = 4,
@@ -561,22 +561,22 @@ void make_response_msg_get_detail(uint8_t status, const response_msg *msg, char 
 	memcpy(body+30, msg->msg_content, strlen(msg->msg_content));
 }
 
-inline void make_responses_msg_send(uint8_t status_code, uint32_t msg_id, char *res)
+inline void make_responses_msg_send(uint32_t status_code, uint32_t msg_id, char *res)
 {
 	make_response_uint32(4, 2, status_code, msg_id, res);
 }
 
-inline void make_response_msg_delete(uint8_t status_code, char *res)
+inline void make_response_msg_delete(uint32_t status_code, char *res)
 {
 	make_response_empty_body(4, 3, status_code, res);
 }
 
-inline void make_response_msg_notify_new(uint8_t status_code, uint32_t count, const uint32_t *ls, char *res)
+inline void make_response_msg_notify_new(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(4, 4, status_code, ls, count, res);
 }
 
-inline void make_response_msg_notify_del(uint8_t status_code, uint32_t count, const uint32_t *ls, char *res)
+inline void make_response_msg_notify_del(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(4, 5, status_code, ls, count, res);
 }
