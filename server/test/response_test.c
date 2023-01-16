@@ -43,7 +43,7 @@ void test_response_auth()
 
 void test_response_empty_body()
 {
-	make_response_user_logout(200, buf);
+	make_response_user_logout(500, buf);
 
 	res = response_parse(buf);
 	response_header *header = &(res->header);
@@ -52,7 +52,7 @@ void test_response_empty_body()
 	assert(header->group == 1);
 	assert(header->action == 0);
 	assert(header->content_type == 0);
-	assert(header->status_code == 200);
+	assert(header->status_code == 500);
 	assert(header->content_len == 0);
 	assert(header->body_len == 0);
 	assert(header->count == 0);
