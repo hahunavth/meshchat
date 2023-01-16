@@ -107,7 +107,7 @@ int __recv(char *buff)
   }
   if (bytes_recv == 0)
   {
-    // free(buff);
+    printf(YELLOW "Connection closed\n" RESET);
     close_conn();
   }
 
@@ -237,7 +237,7 @@ int _register(const request_auth *req)
     __set_auth(&res->body->r_auth);
     break;
     // 204: user already exists
-  case 244:
+  case 409:
     break;
     // 400: bad request
   case 400:
@@ -258,7 +258,7 @@ int _login(const char *username, const char *password)
   SWITCH_STT(res)
   {
   case 0:
-    __set_auth(&res->body->r_auth);
+    // error
     break;
   case 200:
     __set_auth(&res->body->r_auth);
@@ -266,10 +266,10 @@ int _login(const char *username, const char *password)
   case 409:
     break;
 
-    // UNHANDLE_OTHER_STT_CODE(res);
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
-  // FREE_AND_RETURN_STT(res);
+  FREE_AND_RETURN_STT(res);
 }
 
 int __logout(const char *token, const char *user_id)
@@ -331,25 +331,17 @@ int _get_user_info(const uint32_t user2_id,
     strcpy(_res->uname, res->body->r_user.uname);
     break;
 
-    // fixme: unknow stt code
-  case 147:
-    // memcpy(_res, &res->body->r_user, sizeof(request_user));
-    // _res->email = calloc(1, strlen(res->body->r_user.email));
-    // printf("%s\n\n", res->body->r_user.phone);
-    // strcpy(_res->email, res->body->r_user.email);
-    break;
-
     UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_user_search(const char *uname,
-                     uint32_t *_idls, int *_len)
+int _get_user_search(const char *uname, const int32_t offset, int32_t limit,
+                     uint32_t *_idls, uint32_t *_len)
 {
 
-  make_request_user_search(__token, __uid, uname, buf);
+  make_request_user_search(__token, __uid, uname, limit, offset, buf);
 
   response *res = api_call(buf);
 
@@ -453,8 +445,10 @@ int _get_conv_info(const uint32_t conv_id,
   {
   case 200:
     // use admin_id and gname
-    *_admin_id = res->body->r_conv.admin_id;
-    strcpy(_gname, res->body->r_conv.gname);
+    *_admin_id = ((res->body)->r_conv).admin_id;
+    strcpy(_gname, ((res->body)->r_conv).gname);
+    break;
+  case 404:
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -464,7 +458,7 @@ int _get_conv_info(const uint32_t conv_id,
 }
 
 int _get_conv_members(const uint32_t conv_id,
-                      uint32_t *_res)
+                      uint32_t *_res, uint32_t *_len)
 {
   make_request_conv_get_members(__token, __uid, conv_id, buf);
 
@@ -473,7 +467,9 @@ int _get_conv_members(const uint32_t conv_id,
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_res, &res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_res, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
+    *_len = res->header.count;
+    printf("%d", res->header.count);
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -491,7 +487,7 @@ int _get_conv_list(const int limit, const int offset, uint32_t *_res)
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_res, &res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_res, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -500,7 +496,7 @@ int _get_conv_list(const int limit, const int offset, uint32_t *_res)
   FREE_AND_RETURN_STT(res);
 }
 
-int _create_chat(const uint32_t user2_id, uint32_t *chat_id)
+int _create_chat(const uint32_t user2_id, uint32_t *_chat_id)
 {
   make_request_chat_create(__token, __uid, user2_id, buf);
 
@@ -509,7 +505,14 @@ int _create_chat(const uint32_t user2_id, uint32_t *chat_id)
   SWITCH_STT(res)
   {
   case 201:
-    *chat_id = parse_uint32_from_buf((res->body->r_chat).idls);
+    *_chat_id = (res->body->r_chat).chat_id;
+    break;
+  case 409:
+    // da co chat
+    break;
+  case 403:
+    // khong the chat voi chinh minh
+    // chua co quyen
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -535,16 +538,18 @@ int _delete_chat(const uint32_t chat_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_chat_list(const int limit, const int offset, uint32_t *_res)
+int _get_chat_list(const int limit, const int offset, uint32_t *_idls, uint32_t *_len)
 {
   make_request_chat_get_list(__token, __uid, limit, offset, buf);
 
   response *res = api_call(buf);
+  printf("lennnnnnnnnnnnnnnnnnnnn %d\n", res->header.count);
 
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_res, &res->body->r_chat.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_idls, res->body->r_chat.idls, sizeof(uint32_t) * (res->header.count));
+    *_len = res->header.count;
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -564,7 +569,7 @@ int _get_msg_all(const int limit, const int offset,
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_msg_idls, &res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_msg_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -582,7 +587,7 @@ int _get_msg_detail(const uint32_t msg_id, response_msg *_msg)
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_msg, &res->body->r_msg, sizeof(response_msg));
+    memcpy(_msg, res->body->r_msg.msg_content, sizeof(response_msg));
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -638,7 +643,7 @@ int _notify_new_msg(const uint32_t user_id, uint32_t *_idls)
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_idls, &res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -656,7 +661,7 @@ int _notify_del_msg(uint32_t *_idls)
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_idls, &res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_idls, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);

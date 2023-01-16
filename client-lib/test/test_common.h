@@ -30,12 +30,29 @@
   close_conn();      \
   SUCCESS("after_all close_conn pass");
 
-#define LOGIN_AS_USER_1()                        \
-  {                                              \
-    int stt = 0;                                 \
-    stt = _login("user000", "pass");             \
-    PRINT_STATUS_CODE(stt);                      \
-    SUCCESS("before_each login_as_user_1 pass"); \
+// using before each test -> do not check status code
+#define CREATE_USER_X(x)                                               \
+  {                                                                    \
+    char user[20] = "user00x";                                         \
+    user[6] = x + '0';                                                 \
+    request_auth auth = {                                              \
+        .uname = user,                                                 \
+        .password = "pass",                                            \
+        .email = "abc@def.com",                                        \
+        .phone = "123456789",                                          \
+    };                                                                 \
+    _register(&auth);                                                  \
+    printf("\033[0;32mbefore_each create_user user_00%d\033[0m\n", x); \
+  }
+
+#define LOGIN_AS_USER_X(x)                                          \
+  {                                                                 \
+    int stt = 0;                                                    \
+    char user[20] = "user00x";                                      \
+    user[6] = x + '0';                                              \
+    stt = _login(user, "pass");                                     \
+    assert(stt == 200);                                             \
+    printf("\033[0;32mbefore_each login_as user_00%d\033[0m\n", x); \
   }
 
 #define LOGOUT()                       \
@@ -44,12 +61,20 @@
     SUCCESS("after_each logout pass"); \
   }
 
-#define LOGIN_AS_USER_2()                        \
-  {                                              \
-    int stt = 0;                                 \
-    stt = _login("user001", "pass");             \
-    PRINT_STATUS_CODE(stt);                      \
-    SUCCESS("before_each login_as_user_2 pass"); \
-  }
+extern void before_each();
+
+void before_each()
+{
+  CREATE_USER_X(0);
+  CREATE_USER_X(1);
+  CREATE_USER_X(2);
+  CREATE_USER_X(3);
+  CREATE_USER_X(4);
+  CREATE_USER_X(5);
+  CREATE_USER_X(6);
+  CREATE_USER_X(7);
+  CREATE_USER_X(8);
+  CREATE_USER_X(9);
+}
 
 #endif

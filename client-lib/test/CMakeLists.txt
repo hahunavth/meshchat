@@ -20,3 +20,10 @@ add_test(
 	NAME conv_test
 	COMMAND $<TARGET_FILE:conv_test>
 )
+
+add_executable(chat_test chat_test.c)
+target_link_libraries(chat_test PUBLIC cli_service)
+add_test(
+	NAME chat_test
+	COMMAND $<TARGET_FILE:chat_test>
+)

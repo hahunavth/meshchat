@@ -7,4 +7,6 @@
 #include "../../server/inc/utils/sll.h"
 #include "../../server/lib/libfdr/jval.h"
 
+#include "./color.h"
+
 #endif
