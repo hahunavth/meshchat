@@ -371,15 +371,15 @@ void *th_func(void *arg)
 	return NULL;
 }
 
-#define RESPONSE_ERR(status, group, action)                     \
-	{                                                           \
-		make_err_response((uint8_t)status, group, action, buf); \
-		if (write(cfd, buf, BUFSIZ) < 0)                        \
-		{                                                       \
-			perror("write() failed");                           \
-			close_sock(cfd);                                    \
-		}                                                       \
-		return;                                                 \
+#define RESPONSE_ERR(status, group, action)                      \
+	{                                                            \
+		make_err_response((uint32_t)status, group, action, buf); \
+		if (write(cfd, buf, BUFSIZ) < 0)                         \
+		{                                                        \
+			perror("write() failed");                            \
+			close_sock(cfd);                                     \
+		}                                                        \
+		return;                                                  \
 	}
 
 #define RESPONSE_ERR_FREE(status, group, action, resource, freefn) \
@@ -389,11 +389,11 @@ void *th_func(void *arg)
 	}
 
 /* Handler routines */
-void handle_auth_register(int cfd, in_addr_t addr, request* req, char *buf);
+void handle_auth_register(int cfd, in_addr_t addr, request *req, char *buf);
 void handle_auth_login(int cfd, in_addr_t addr, request *req, char *buf);
 /****************/
-void handle_user_get_info(int cfd, request* req, char *buf);
-void handle_user_search(int cfd, request* req, char *buf);
+void handle_user_get_info(int cfd, request *req, char *buf);
+void handle_user_search(int cfd, request *req, char *buf);
 /****************/
 void handle_conv_create(int cfd, request *req, char *buf);
 void handle_conv_drop(int cfd, request *req, char *buf);
