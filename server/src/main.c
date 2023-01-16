@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 	puts("Connected to database");
 
 	/* Set up secret key */
-	BF_set_key(&key, strlen(SECRETE_KEY), SECRETE_KEY);
+	BF_set_key(&key, strlen(SECRETE_KEY), (const unsigned char *)SECRETE_KEY);
 
 	/* Create a stream socket */
 	listen_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -371,17 +371,47 @@ void *th_func(void *arg)
 	return NULL;
 }
 
-#define RESPONSE_ERR(status, group, action)            \
-	{                                                  \
-		make_err_response(status, group, action, buf); \
-		if (write(cfd, buf, BUFSIZ) < 0)               \
-		{                                              \
-			perror("write() failed");                  \
-			close_sock(cfd);                           \
-		}                                              \
-		return;                                        \
+#define RESPONSE_ERR(status, group, action)                     \
+	{                                                           \
+		make_err_response((uint8_t)status, group, action, buf); \
+		if (write(cfd, buf, BUFSIZ) < 0)                        \
+		{                                                       \
+			perror("write() failed");                           \
+			close_sock(cfd);                                    \
+		}                                                       \
+		return;                                                 \
 	}
 
+#define RESPONSE_ERR_FREE(status, group, action, resource, freefn) \
+	{                                                              \
+		freefn(resource);                                          \
+		RESPONSE_ERR(status, group, action);                       \
+	}
+
+/* Handler routines */
+void handle_auth_register(int cfd, in_addr_t addr, request* req, char *buf);
+void handle_auth_login(int cfd, in_addr_t addr, request *req, char *buf);
+/****************/
+void handle_user_get_info(int cfd, request* req, char *buf);
+void handle_user_search(int cfd, request* req, char *buf);
+/****************/
+void handle_conv_create(int cfd, request *req, char *buf);
+void handle_conv_drop(int cfd, request *req, char *buf);
+void handle_conv_join(int cfd, request *req, char *buf);
+void handle_conv_quit(int cfd, request *req, char *buf);
+void handle_conv_get_info(int cfd, request *req, char *buf);
+void handle_conv_get_members(int cfd, request *req, char *buf);
+void handle_conv_get_list(int cfd, request *req, char *buf);
+/****************/
+void handle_chat_create(int cfd, request *req, char *buf);
+void handle_chat_drop(int cfd, request *req, char *buf);
+void handle_chat_get_list(int cfd, request *req, char *buf);
+/****************/
+void handle_msg_get_all(int cfd, request *req, char *buf);
+void handle_msg_get_detail(int cfd, request *req, char *buf);
+void handle_msg_send(int cfd, request *req, char *buf);
+void handle_msg_delete(int cfd, request *req, char *buf);
+/****************/
 void handle_req(int cfd)
 {
 	int rc;
@@ -511,7 +541,7 @@ void handle_req(int cfd)
 				handle_msg_send(cfd, req, buf);
 				break;
 			case 0x03:
-				handle_msg_drop(cfd, req, buf);
+				handle_msg_delete(cfd, req, buf);
 				break;
 			case 0x04:
 				// handle_msg_get_all(cfd, req, buf);
@@ -564,23 +594,31 @@ void handle_auth_login(int cfd, in_addr_t addr, request *req, char *buf)
 {
 	int rc;
 	char token[TOKEN_LEN];
+	char hashed_password[(HASHED_LEN << 1) + 1];
 
 	request_auth *ra = &((req->body)->r_auth);
 
-	uint32_t id = user_get_by_uname(db, ra->uname, &rc);
+	user_schema *user = user_get_by_uname(db, ra->uname, &rc);
+
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 0, 1);
+		RESPONSE_ERR_FREE(500, 0, 1, user, user_free);
 
 	if (rc == SQLITE_EMPTY)
-		RESPONSE_ERR(404, 0, 1);
+		RESPONSE_ERR_FREE(404, 0, 1, user, user_free);
 
-	make_token(addr, id, token);
-	make_response_auth_login(200, token, id, buf);
+	hash_str(ra->password, hashed_password);
+	if (strcmp(hashed_password, user->password) != 0)
+		RESPONSE_ERR_FREE(403, 0, 1, user, user_free);
+
+	make_token(addr, user->id, token);
+	make_response_auth_login(200, token, user->id, buf);
 	if (write(cfd, buf, BUFSIZ) < 0)
 	{
 		perror("write() failed");
 		close_sock(cfd);
 	}
+
+	user_free(user);
 }
 
 /****************/
@@ -589,12 +627,12 @@ void handle_user_get_info(int cfd, request *req, char *buf)
 {
 	int rc;
 	request_user *ru = &(req->body->r_user);
-	user_schema *user = user_get_by_id(db, ru->uname, &rc);
+	user_schema *user = user_get_by_id(db, ru->user_id, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 1, 1);
+		RESPONSE_ERR_FREE(500, 1, 1, user, user_free);
 
 	if (rc == SQLITE_EMPTY)
-		RESPONSE_ERR(404, 1, 1);
+		RESPONSE_ERR_FREE(404, 1, 1, user, user_free);
 
 	make_response_user_get_info(200, user->uname, user->phone, user->email, buf);
 	if (write(cfd, buf, BUFSIZ) < 0)
@@ -602,6 +640,7 @@ void handle_user_get_info(int cfd, request *req, char *buf)
 		perror("write() failed");
 		close_sock(cfd);
 	}
+
 	user_free(user);
 }
 
@@ -613,7 +652,7 @@ void handle_user_search(int cfd, request *req, char *buf)
 	request_user *ru = &(req->body->r_user);
 	sllnode_t *ls = user_search_by_uname(db, ru->uname, limit, offset, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 1, 2);
+		RESPONSE_ERR_FREE(500, 1, 2, &ls, sll_remove);
 
 	size_t len = sll_length(ls);
 	uint32_t idls[len];
@@ -654,7 +693,14 @@ void handle_conv_create(int cfd, request *req, char *buf)
 void handle_conv_drop(int cfd, request *req, char *buf)
 {
 	int rc;
-	conv_drop(db, (req->body->r_conv).conv_id, &rc);
+	request_conv *rconv = &(req->body->r_conv);
+	int is_member = conv_is_admin(db, rconv->conv_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR(500, 2, 4);
+	if (!is_member)
+		RESPONSE_ERR(403, 2, 4);
+
+	conv_drop(db, rconv->conv_id, &rc);
 	if (sql_is_err(rc))
 		RESPONSE_ERR(500, 2, 1);
 
@@ -669,7 +715,14 @@ void handle_conv_drop(int cfd, request *req, char *buf)
 void handle_conv_join(int cfd, request *req, char *buf)
 {
 	int rc;
-	conv_join(db, (req->header).user_id, (req->body->r_conv).conv_id, &rc);
+	request_conv *rconv = &(req->body->r_conv);
+	int is_member = conv_is_admin(db, rconv->conv_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR(500, 2, 4);
+	if (!is_member)
+		RESPONSE_ERR(403, 2, 4);
+
+	conv_join(db, rconv->user_id, rconv->conv_id, &rc);
 	if (sql_is_err(rc))
 		RESPONSE_ERR(500, 2, 2);
 
@@ -684,6 +737,13 @@ void handle_conv_join(int cfd, request *req, char *buf)
 void handle_conv_quit(int cfd, request *req, char *buf)
 {
 	int rc;
+	request_conv *rconv = &(req->body->r_conv);
+	int is_member = conv_is_member(db, rconv->conv_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR(500, 2, 4);
+	if (!is_member)
+		RESPONSE_ERR(403, 2, 4);
+
 	conv_quit(db, (req->header).user_id, (req->body->r_conv).conv_id, &rc);
 	if (sql_is_err(rc))
 		RESPONSE_ERR(500, 2, 3);
@@ -701,12 +761,12 @@ void handle_conv_get_info(int cfd, request *req, char *buf)
 	int rc;
 	conv_schema *conv = conv_get_info(db, (req->body->r_conv).conv_id, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 2, 4);
+		RESPONSE_ERR_FREE(500, 2, 4, conv, conv_free);
 
 	if (rc == SQLITE_EMPTY)
-		RESPONSE_ERR(404, 2, 4);
+		RESPONSE_ERR_FREE(404, 2, 4, conv, conv_free);
 
-	make_response_conv_get_info(db, conv->admin_id, conv->name, buf);
+	make_response_conv_get_info(200, conv->admin_id, conv->name, buf);
 	if (write(cfd, buf, BUFSIZ) < 0)
 	{
 		perror("write() failed");
@@ -717,9 +777,16 @@ void handle_conv_get_info(int cfd, request *req, char *buf)
 void handle_conv_get_members(int cfd, request *req, char *buf)
 {
 	int rc;
-	sllnode_t *ls = conv_get_members(db, (req->body->r_conv).conv_id, &rc);
+	request_conv *rconv = &(req->body->r_conv);
+	int is_member = conv_is_member(db, rconv->conv_id, (req->header).user_id, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 2, 5);
+		RESPONSE_ERR(500, 2, 4);
+	if (!is_member)
+		RESPONSE_ERR(403, 2, 4);
+
+	sllnode_t *ls = conv_get_members(db, rconv->conv_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR_FREE(500, 2, 4, &ls, sll_remove);
 
 	size_t len = sll_length(ls);
 	uint32_t idls[len];
@@ -747,7 +814,7 @@ void handle_conv_get_list(int cfd, request *req, char *buf)
 	int offset = (req->header).offset > 0 ? (req->header).offset : 0;
 	sllnode_t *ls = user_get_conv_list(db, (req->header).user_id, limit, offset, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 2, 6);
+		RESPONSE_ERR_FREE(500, 2, 6, &ls, sll_remove);
 
 	size_t len = sll_length(ls);
 	uint32_t idls[len];
@@ -788,7 +855,14 @@ void handle_chat_create(int cfd, request *req, char *buf)
 void handle_chat_drop(int cfd, request *req, char *buf)
 {
 	int rc;
-	chat_drop(db, (req->body->r_chat).chat_id, &rc);
+	request_chat *rchat = &(req->body->r_chat);
+	int is_member = chat_is_member(db, rchat->chat_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR(500, 3, 1);
+	if (!is_member)
+		RESPONSE_ERR(403, 3, 1);
+
+	chat_drop(db, rchat->chat_id, &rc);
 	if (sql_is_err(rc))
 		RESPONSE_ERR(500, 3, 1);
 
@@ -807,7 +881,7 @@ void handle_chat_get_list(int cfd, request *req, char *buf)
 	int offset = (req->header).offset > 0 ? (req->header).offset : 0;
 	sllnode_t *ls = user_get_chat_list(db, (req->header).user_id, limit, offset, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 3, 2);
+		RESPONSE_ERR_FREE(500, 3, 2, &ls, sll_remove);
 
 	size_t len = sll_length(ls);
 	uint32_t idls[len];
@@ -838,6 +912,18 @@ void handle_msg_get_all(int cfd, request *req, char *buf)
 	uint32_t chat_id = (req->body->r_msg).chat_id;
 	uint32_t conv_id = (req->body->r_msg).conv_id;
 
+	int is_member = conv_is_member(db, conv_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR(500, 4, 0);
+
+	if (!is_member)
+	{
+		if (sql_is_err(rc))
+			RESPONSE_ERR(500, 4, 0);
+		if (!is_member)
+			RESPONSE_ERR(403, 4, 0);
+	}
+
 	sllnode_t *ls;
 	if (chat_id > 0)
 		ls = msg_chat_get_all(db, chat_id, limit, offset, &rc);
@@ -845,10 +931,10 @@ void handle_msg_get_all(int cfd, request *req, char *buf)
 		ls = msg_conv_get_all(db, conv_id, limit, offset, &rc);
 
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 4, 0);
+		RESPONSE_ERR_FREE(500, 4, 0, &ls, sll_remove);
 
 	if (rc == SQLITE_EMPTY)
-		RESPONSE_ERR(404, 4, 0);
+		RESPONSE_ERR_FREE(404, 4, 0, &ls, sll_remove);
 
 	size_t len = sll_length(ls);
 	uint32_t idls[len];
@@ -872,12 +958,25 @@ void handle_msg_get_all(int cfd, request *req, char *buf)
 void handle_msg_get_detail(int cfd, request *req, char *buf)
 {
 	int rc;
+
 	msg_schema *msg = msg_get_detail(db, (req->body->r_msg).msg_id, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 4, 1);
+		RESPONSE_ERR_FREE(500, 4, 1, msg, msg_free);
 
 	if (rc == SQLITE_EMPTY)
-		RESPONSE_ERR(404, 4, 1);
+		RESPONSE_ERR_FREE(404, 4, 1, msg, msg_free);
+
+	int is_member = conv_is_member(db, msg->conv_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR_FREE(500, 4, 1, msg, msg_free);
+
+	if (!is_member)
+	{
+		if (sql_is_err(rc))
+			RESPONSE_ERR_FREE(500, 4, 1, msg, msg_free);
+		if (!is_member)
+			RESPONSE_ERR_FREE(404, 4, 1, msg, msg_free);
+	}
 
 	response_msg rm = {
 		.msg_id = msg->id, .from_uid = msg->from_uid, .reply_to = msg->reply_to, .conv_id = msg->conv_id, .chat_id = msg->chat_id, .created_at = msg->created_at, .msg_type = msg->type, .content_type = msg->content_type, .msg_content = msg->content};
@@ -894,6 +993,20 @@ void handle_msg_send(int cfd, request *req, char *buf)
 {
 	int rc;
 	request_msg *rm = &(req->body->r_msg);
+
+	int is_member = conv_is_member(db, rm->conv_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR(500, 4, 3);
+
+	if (!is_member)
+	{
+		is_member = chat_is_member(db, rm->chat_id, (req->header).user_id, &rc);
+		if (sql_is_err(rc))
+			RESPONSE_ERR(500, 4, 3);
+		if (!is_member)
+			RESPONSE_ERR(403, 4, 3);
+	}
+
 	msg_schema msg = {
 		.from_uid = (req->header).user_id, .reply_to = rm->reply_id, .conv_id = rm->conv_id, .chat_id = rm->chat_id, .content_length = (req->header).content_len, .content_type = (req->header).content_type, .content = rm->msg_content};
 	uint32_t id = msg_send(db, &msg, &rc);
@@ -910,68 +1023,32 @@ void handle_msg_send(int cfd, request *req, char *buf)
 	/* TODO: implement sending file ft */
 }
 
-void handle_msg_drop(int cfd, request *req, char *buf)
+void handle_msg_delete(int cfd, request *req, char *buf)
 {
 	int rc;
 	msg_schema *msg = msg_get_detail(db, (req->body->r_msg).msg_id, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 4, 3);
+		RESPONSE_ERR_FREE(500, 4, 3, msg, msg_free);
 
 	if (rc == SQLITE_EMPTY)
-		RESPONSE_ERR(404, 4, 3);
+		RESPONSE_ERR_FREE(404, 4, 3, msg, msg_free);
 
 	int is_member = conv_is_member(db, msg->conv_id, (req->header).user_id, &rc);
 	if (sql_is_err(rc))
-	{
-		make_err_response(500, 4, 3, buf);
-		if (write(cfd, buf, BUFSIZ) < 0)
-		{
-			perror("write() failed");
-			close_sock(cfd);
-		}
-		msg_free(msg);
-		return;
-	}
+		RESPONSE_ERR_FREE(500, 4, 3, msg, msg_free);
 
 	if (!is_member)
 	{
 		is_member = chat_is_member(db, msg->chat_id, (req->header).user_id, &rc);
 		if (sql_is_err(rc))
-		{
-			make_err_response(500, 4, 3, buf);
-			if (write(cfd, buf, BUFSIZ) < 0)
-			{
-				perror("write() failed");
-				close_sock(cfd);
-			}
-			msg_free(msg);
-			return;
-		}
+			RESPONSE_ERR_FREE(500, 4, 3, msg, msg_free);
 		if (!is_member)
-		{
-			make_err_response(403, 4, 3, buf);
-			if (write(cfd, buf, BUFSIZ) < 0)
-			{
-				perror("write() failed");
-				close_sock(cfd);
-			}
-			msg_free(msg);
-			return;
-		}
+			RESPONSE_ERR_FREE(403, 4, 3, msg, msg_free);
 	}
 
-	msg_drop(db, msg->id, &rc);
+	msg_delete(db, msg->id, &rc);
 	if (sql_is_err(rc))
-	{
-		make_err_response(500, 4, 3, buf);
-		if (write(cfd, buf, BUFSIZ) < 0)
-		{
-			perror("write() failed");
-			close_sock(cfd);
-		}
-		msg_free(msg);
-		return;
-	}
+		RESPONSE_ERR_FREE(500, 4, 3, msg, msg_free);
 
 	make_response_msg_delete(200, buf);
 	if (write(cfd, buf, BUFSIZ) < 0)
@@ -992,8 +1069,8 @@ void make_token(in_addr_t addr, uint32_t user_id, char res[TOKEN_LEN])
 	time_t expiry = time(NULL) + EXPIRY_TIME;
 	memcpy(msg + 8, &expiry, sizeof(time_t));
 
-	BF_ecb_encrypt(msg, res, &key, BF_ENCRYPT);
-	BF_ecb_encrypt(msg + 8, res + 8, &key, BF_ENCRYPT);
+	BF_ecb_encrypt((const unsigned char *)msg, (unsigned char *)res, &key, BF_ENCRYPT);
+	BF_ecb_encrypt((const unsigned char *)(msg + 8), (unsigned char *)(res + 8), &key, BF_ENCRYPT);
 }
 
 int verify_token(uint32_t addr, uint32_t user_id, const char token[TOKEN_LEN])
@@ -1001,8 +1078,8 @@ int verify_token(uint32_t addr, uint32_t user_id, const char token[TOKEN_LEN])
 	char decrypt[16];
 	time_t expiry;
 
-	BF_ecb_encrypt(token, decrypt, &key, BF_DECRYPT);
-	BF_ecb_encrypt(token + 8, decrypt + 8, &key, BF_DECRYPT);
+	BF_ecb_encrypt((const unsigned char *)token, (unsigned char *)decrypt, &key, BF_DECRYPT);
+	BF_ecb_encrypt((const unsigned char *)(token + 8), (unsigned char *)(decrypt + 8), &key, BF_DECRYPT);
 
 	if (memcmp(decrypt, &addr, 4) != 0)
 		return -1;
@@ -1026,7 +1103,7 @@ int hash_str(const char *str, char *res)
 	if (MD5_Update(&md5_ctx, str, strlen(str)) == 0)
 		return -1;
 
-	if (MD5_Final(hashed, &md5_ctx) == 0)
+	if (MD5_Final((unsigned char *)hashed, &md5_ctx) == 0)
 		return -1;
 
 	/* output a hexa string */

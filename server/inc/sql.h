@@ -74,7 +74,7 @@ int sql_is_err(int rc);
 user_schema *user_get_by_id(sqlite3 *db, uint32_t id, int *lastrc);
 uint32_t user_create(sqlite3 *db, const user_schema *info, int *lastrc);
 void user_drop(sqlite3 *db, uint32_t id, int *lastrc);
-uint32_t user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc);
+user_schema *user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc);
 sllnode_t *user_search_by_uname(sqlite3 *db, const char *uname, int limit, int offset, int *lastrc);
 sllnode_t *user_get_conv_list(sqlite3 *db, uint32_t user_id, int limit, int offset, int *lastrc);
 sllnode_t *user_get_chat_list(sqlite3 *db, uint32_t user_id, int limit, int offset, int *lastrc);
