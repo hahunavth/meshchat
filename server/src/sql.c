@@ -152,13 +152,13 @@ user_schema *user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc)
 	return res;
 }
 
-sllnode_t *user_search_by_uname(sqlite3 *db, const char *uname, int limit, int offset, int *lastrc)
+sllnode_t *user_search_by_uname(sqlite3 *db, const char *uname, int32_t limit, int32_t offset, int *lastrc)
 {
 	sllnode_t *list = NULL;
 
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT id FROM users WHERE uname LIKE '%%%s%%' LIMIT %d OFFSET %d", uname, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT id FROM users WHERE uname LIKE '%%%s%%' LIMIT %" PRId32 " OFFSET %" PRId32 "", uname, limit, offset);
 
 	sqlite3_stmt *stmt;
 	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
@@ -216,20 +216,20 @@ void user_drop(sqlite3 *db, uint32_t id, int *lastrc)
 	*lastrc = SQLITE_OK;
 }
 
-sllnode_t *user_get_conv_list(sqlite3 *db, uint32_t user_id, int limit, int offset, int *lastrc)
+sllnode_t *user_get_conv_list(sqlite3 *db, uint32_t user_id, int32_t limit, int32_t offset, int *lastrc)
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT conv_id FROM members WHERE user_id=%" PRIu32 " LIMIT %d OFFSET %d", user_id, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT conv_id FROM members WHERE user_id=%" PRIu32 " ORDER BY id DESC LIMIT %" PRId32 " OFFSET %" PRId32 "", user_id, limit, offset);
 
 	return sql_get_list(db, query, lastrc);
 }
 
-sllnode_t *user_get_chat_list(sqlite3 *db, uint32_t user_id, int limit, int offset, int *lastrc)
+sllnode_t *user_get_chat_list(sqlite3 *db, uint32_t user_id, int32_t limit, int32_t offset, int *lastrc)
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT id FROM chats WHERE member1=%" PRIu32 " OR member2=%" PRIu32 " LIMIT %d OFFSET %d", user_id, user_id, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT id FROM chats WHERE member1=%" PRIu32 " OR member2=%" PRIu32 " ORDER BY id DESC LIMIT %" PRId32 " OFFSET %" PRId32 "", user_id, user_id, limit, offset);
 
 	return sql_get_list(db, query, lastrc);
 }
@@ -546,20 +546,20 @@ void chat_free(chat_schema *chat)
 
 //////////////////////////////////////////////////
 
-sllnode_t *msg_conv_get_all(sqlite3 *db, uint32_t conv_id, int limit, int offset, int *lastrc)
+sllnode_t *msg_conv_get_all(sqlite3 *db, uint32_t conv_id, int32_t limit, int32_t offset, int *lastrc)
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT id FROM messages WHERE conv_id=%" PRIu32 " ORDER BY created_at DESC LIMIT %d OFFSET %d", conv_id, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT id FROM messages WHERE conv_id=%" PRIu32 " ORDER BY created_at DESC LIMIT %" PRId32 " OFFSET %" PRId32 "", conv_id, limit, offset);
 
 	return sql_get_list(db, query, lastrc);
 }
 
-sllnode_t *msg_chat_get_all(sqlite3 *db, uint32_t chat_id, int limit, int offset, int *lastrc)
+sllnode_t *msg_chat_get_all(sqlite3 *db, uint32_t chat_id, int32_t limit, int32_t offset, int *lastrc)
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT id FROM messages WHERE chat_id=%" PRIu32 " ORDER BY created_at DESC LIMIT %d OFFSET %d", chat_id, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT id FROM messages WHERE chat_id=%" PRIu32 " ORDER BY created_at DESC LIMIT %" PRId32 " OFFSET %" PRId32 "", chat_id, limit, offset);
 
 	return sql_get_list(db, query, lastrc);
 }
