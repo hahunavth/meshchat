@@ -578,7 +578,11 @@ void handle_auth_register(int cfd, in_addr_t addr, request *req, char *buf)
 	/* Save the new user to db */
 	uint32_t id = user_create(db, &user, &rc);
 	if (sql_is_err(rc))
+	{
+		if(rc == SQLITE_CONSTRAINT)
+			RESPONSE_ERR(409, 0, 0); /* An user with such uname has already existed*/
 		RESPONSE_ERR(500, 0, 0);
+	}
 
 	make_token(addr, id, token);
 	make_response_auth_register(201, token, id, buf);
@@ -842,7 +846,11 @@ void handle_chat_create(int cfd, request *req, char *buf)
 	int rc;
 	uint32_t id = chat_create(db, (req->header).user_id, (req->body->r_chat).user_id2, &rc);
 	if (sql_is_err(rc))
+	{
+		if(rc == SQLITE_CONSTRAINT)
+			RESPONSE_ERR(409, 3, 0);	/* The chat has already exist */
 		RESPONSE_ERR(500, 3, 0);
+	}
 
 	make_response_chat_create(201, id, buf);
 	if (write(cfd, buf, BUFSIZ) < 0)
@@ -1011,7 +1019,11 @@ void handle_msg_send(int cfd, request *req, char *buf)
 		.from_uid = (req->header).user_id, .reply_to = rm->reply_id, .conv_id = rm->conv_id, .chat_id = rm->chat_id, .content_length = (req->header).content_len, .content_type = (req->header).content_type, .content = rm->msg_content};
 	uint32_t id = msg_send(db, &msg, &rc);
 	if (sql_is_err(rc))
+	{
+		if(rc == SQLITE_CONSTRAINT)
+			RESPONSE_ERR(409, 4, 2);	/* conflicted from_uid, reply_to, chat_id, conv_id */
 		RESPONSE_ERR(500, 4, 2);
+	}
 
 	make_responses_msg_send(201, id, buf);
 	if (write(cfd, buf, BUFSIZ) < 0)
