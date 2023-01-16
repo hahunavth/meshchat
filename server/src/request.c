@@ -81,7 +81,7 @@ request *request_parse(const char *buf)
 static char *field_tokenizer(char* buf, char **rest)
 {
 	char *old = buf;
-	for(; (*buf) != '\0'; buf++)
+	for(; ((*buf) != '\0') && ((buf-old) <= REQUEST_BODY_LEN); buf++)
 	{
 		if(buf[0] == BODY_DEMLIMITER)
 		{
