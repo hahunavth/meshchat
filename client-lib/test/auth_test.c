@@ -1,3 +1,6 @@
+/**
+ * SUCCESS!
+ */
 #include "test_common.h"
 
 uint32_t USER_TABLE_CURRENT_MAX_ID = 0;
@@ -48,7 +51,9 @@ int test_login(char *username, char *password)
     break;
 
   default:
-    printf("Login failed: %d\n", stt);
+    printf("Login failed\n");
+    PRINT_USER_ID(res.user_id);
+    PRINT_TOKEN(res.token);
     break;
   }
   return stt;
@@ -62,18 +67,20 @@ int main()
     printf("Connect to server failed\n");
     return 1;
   }
+  // reset db then run test
+  // cd build; make; cd ..; make migratedown && make migrateup && ./server
   puts("=====");
   assert(test_register("user000", "abc@def.com", "pass", "0987654321") == 201);
   puts("=====");
   assert(test_register("user001", "abc@def.com", "pass", "0987654321") == 201);
   puts("=====");
-  assert(test_register("user000", "abc@def.com", "pass", "0987654321") == 500);
+  assert(test_register("user000", "abc@def.com", "pass", "0987654321") == 409);
   puts("=====");
   assert(test_login("user000", "pass") == 200);
   puts("=====");
-  (test_login("user000", "12345678987") == 403);
+  assert(test_login("user000", "invalidpwd") == 403);
   puts("=====");
-  (test_login("user999", "12345678987") == 404);
+  assert(test_login("user999", "pass") == 404);
 
   /**
    * result: 403, 404 failed -> server return status code 200 ?

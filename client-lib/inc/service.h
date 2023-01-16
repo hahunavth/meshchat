@@ -45,10 +45,13 @@ extern uint32_t _get_uid();
 extern char *_get_token();
 
 extern int __login(const char *username, const char *password, response_auth *_res);
-extern int _login(const char *username, const char *password);
 extern int __register(const request_auth *req, response_auth *_res);
+extern int __logout(const char *token, const char *user_id);
+
+extern int _login(const char *username, const char *password);
 extern int _register(const request_auth *req);
-extern int _logout(const char *token, const char *user_id);
+extern int _logout();
+
 extern int _get_user_info(const uint32_t user2_id, response_user *_res);
 extern int _get_user_search(const char *uname, uint32_t *_idls, int *_len);
 extern int _create_conv(const char *gname, uint32_t *_gid);

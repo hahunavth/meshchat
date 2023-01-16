@@ -145,7 +145,7 @@ void __set_auth(const response_auth *auth)
 void __clear_auth()
 {
   __uid = 0;
-  memset(__token, 0, sizeof(response_auth));
+  memset(__token, 0, TOKEN_LEN);
   is_auth = 0;
 }
 
@@ -210,7 +210,12 @@ int __login(const char *username, const char *password, response_auth *_res)
   case 200:
     printf("Login success%d", res->body->r_auth.user_id);
     __auth_cpy(_res, &res->body->r_auth);
-
+    break;
+  case 403:
+    // invalid pwd
+    break;
+  case 404:
+    // user not found
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -252,22 +257,22 @@ int _login(const char *username, const char *password)
 
   SWITCH_STT(res)
   {
+  case 0:
+    __set_auth(&res->body->r_auth);
+    break;
   case 200:
     __set_auth(&res->body->r_auth);
     break;
+  case 409:
+    break;
 
-    // case 148:
-    //   __set_auth(&res->body->r_auth);
-    //   // fixme: unknown error
-    //   break;
-
-    UNHANDLE_OTHER_STT_CODE(res);
+    // UNHANDLE_OTHER_STT_CODE(res);
   }
 
-  FREE_AND_RETURN_STT(res);
+  // FREE_AND_RETURN_STT(res);
 }
 
-int _logout(const char *token, const char *user_id)
+int __logout(const char *token, const char *user_id)
 {
   make_request_user_logout(token, user_id, buf);
 
@@ -276,7 +281,29 @@ int _logout(const char *token, const char *user_id)
   SWITCH_STT(res)
   {
   case 200:
+    // __clear_auth();
+    break;
+
+    UNHANDLE_OTHER_STT_CODE(res);
+  }
+
+  FREE_AND_RETURN_STT(res);
+}
+
+int _logout()
+{
+  make_request_user_logout(__token, __uid, buf);
+
+  PRINT_TOKEN(__token);
+  PRINT_USER_ID(__uid);
+  response *res = api_call(buf);
+
+  SWITCH_STT(res)
+  {
+  case 200:
     __clear_auth();
+    PRINT_TOKEN(__token);
+    PRINT_USER_ID(__uid);
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -321,6 +348,7 @@ int _get_user_info(const uint32_t user2_id,
 int _get_user_search(const char *uname,
                      uint32_t *_idls, int *_len)
 {
+
   make_request_user_search(__token, __uid, uname, buf);
 
   response *res = api_call(buf);
@@ -328,7 +356,7 @@ int _get_user_search(const char *uname,
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_idls, &res->body->r_user.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_idls, res->body->r_user.idls, sizeof(uint32_t) * (res->header.count));
     *_len = res->header.count;
     break;
 
@@ -367,6 +395,8 @@ int _drop_conv(const uint32_t conv_id)
   {
   case 200:
     break;
+  case 403:
+    break;
 
     UNHANDLE_OTHER_STT_CODE(res);
   }
@@ -383,6 +413,8 @@ int _join_conv(const uint32_t conv_id, const uint32_t user2_id)
   SWITCH_STT(res)
   {
   case 200:
+    break;
+  case 403:
     break;
   case 500:
     break;
