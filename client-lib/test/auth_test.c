@@ -2,14 +2,13 @@
 
 uint32_t USER_TABLE_CURRENT_MAX_ID = 0;
 
-int test_register()
+int test_register(char *uname, char *email, char *password, char *phone)
 {
-
   request_auth req;
-  req.email = "abc@def.com";
-  req.uname = "user000";
-  req.password = "pass";
-  req.phone = "12345678";
+  req.email = email;
+  req.uname = uname;
+  req.password = password;
+  req.phone = phone;
 
   response_auth res;
 
@@ -25,7 +24,7 @@ int test_register()
     assert(res.user_id == USER_TABLE_CURRENT_MAX_ID + 1);
     USER_TABLE_CURRENT_MAX_ID += 1;
     break;
-  case 244:
+  case 500:
     printf("User exists\n");
     break;
   }
@@ -64,15 +63,17 @@ int main()
     return 1;
   }
   puts("=====");
-  assert(test_register() == 201);
+  assert(test_register("user000", "abc@def.com", "pass", "0987654321") == 201);
   puts("=====");
-  assert(test_register() == 244);
+  assert(test_register("user001", "abc@def.com", "pass", "0987654321") == 201);
+  puts("=====");
+  assert(test_register("user000", "abc@def.com", "pass", "0987654321") == 500);
   puts("=====");
   assert(test_login("user000", "pass") == 200);
-  // puts("=====");
-  // assert(test_login("user000", "12345678987") == 403);
-  // puts("=====");
-  // assert(test_login("user999", "12345678987") == 404);
+  puts("=====");
+  (test_login("user000", "12345678987") == 403);
+  puts("=====");
+  (test_login("user999", "12345678987") == 404);
 
   /**
    * result: 403, 404 failed -> server return status code 200 ?

@@ -20,10 +20,14 @@
   response_destroy(res);               \
   return __stt;
 
-#define UNHANDLE_OTHER_STT_CODE     \
-  default:                          \
-    perror("Unhandle status code"); \
-    break;
+#define UNHANDLE_OTHER_STT_CODE(res)                                   \
+  default:                                                             \
+  {                                                                    \
+    char tmp[BUFSIZ];                                                  \
+    sprintf(tmp, "Unhandle status code: %d", res->header.status_code); \
+    perror(tmp);                                                       \
+  }                                                                    \
+  break;
 
 // send and recv
 static int sockfd = -1;
@@ -183,13 +187,13 @@ int __register(const request_auth *req, response_auth *_res)
     __auth_cpy(_res, &res->body->r_auth);
     break;
     // 204: user already exists
-  case 244:
+  case 500:
     break;
     // 400: bad request
   case 400:
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -209,7 +213,7 @@ int __login(const char *username, const char *password, response_auth *_res)
 
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -234,7 +238,7 @@ int _register(const request_auth *req)
   case 400:
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -257,7 +261,7 @@ int _login(const char *username, const char *password)
     //   // fixme: unknown error
     //   break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -275,7 +279,7 @@ int _logout(const char *token, const char *user_id)
     __clear_auth();
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -308,7 +312,7 @@ int _get_user_info(const uint32_t user2_id,
     // strcpy(_res->email, res->body->r_user.email);
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -328,7 +332,7 @@ int _get_user_search(const char *uname,
     *_len = res->header.count;
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -347,7 +351,7 @@ int _create_conv(const char *gname,
     *_gid = (res->body->r_conv).conv_id;
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -364,7 +368,7 @@ int _drop_conv(const uint32_t conv_id)
   case 200:
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -380,8 +384,10 @@ int _join_conv(const uint32_t conv_id, const uint32_t user2_id)
   {
   case 200:
     break;
+  case 500:
+    break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -398,7 +404,7 @@ int _quit_conv(const uint32_t conv_id)
   case 200:
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -419,7 +425,7 @@ int _get_conv_info(const uint32_t conv_id,
     strcpy(_gname, res->body->r_conv.gname);
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -438,7 +444,7 @@ int _get_conv_members(const uint32_t conv_id,
     memcpy(_res, &res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -456,7 +462,7 @@ int _get_conv_list(const int limit, const int offset, uint32_t *_res)
     memcpy(_res, &res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -474,7 +480,7 @@ int _create_chat(const uint32_t user2_id, uint32_t *chat_id)
     *chat_id = parse_uint32_from_buf((res->body->r_chat).idls);
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -491,7 +497,7 @@ int _delete_chat(const uint32_t chat_id)
   case 200:
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -509,7 +515,7 @@ int _get_chat_list(const int limit, const int offset, uint32_t *_res)
     memcpy(_res, &res->body->r_chat.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -529,7 +535,7 @@ int _get_msg_all(const int limit, const int offset,
     memcpy(_msg_idls, &res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -547,7 +553,7 @@ int _get_msg_detail(const uint32_t msg_id, response_msg *_msg)
     memcpy(_msg, &res->body->r_msg, sizeof(response_msg));
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -567,7 +573,7 @@ int _send_msg_text(
     *_msg_id = parse_uint32_from_buf((res->body));
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -584,7 +590,7 @@ int _delete_msg(const uint32_t msg_id)
   case 200:
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -603,7 +609,7 @@ int _notify_new_msg(const uint32_t user_id, uint32_t *_idls)
     memcpy(_idls, &res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);
@@ -621,7 +627,7 @@ int _notify_del_msg(uint32_t *_idls)
     memcpy(_idls, &res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
     break;
 
-    UNHANDLE_OTHER_STT_CODE;
+    UNHANDLE_OTHER_STT_CODE(res);
   }
 
   FREE_AND_RETURN_STT(res);

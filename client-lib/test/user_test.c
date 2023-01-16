@@ -9,7 +9,7 @@ void test_user_get_info()
 
   assert(strcmp(tmp.email, "abc@def.com") == 0);
   assert(strcmp(tmp.uname, "user000") == 0);
-  assert(strcmp(tmp.phone, "12345678") == 0);
+  assert(strcmp(tmp.phone, "0987654321") == 0);
   SUCCESS("user_test get_user_info pass");
 }
 
