@@ -78,6 +78,33 @@ void test_request_auth()
 	SUCCESS("test_request_auth_login pass");
 }
 
+void test_request_user_search()
+{
+	const char *uname = "abcd";
+	uint32_t user_id = 1;
+	int32_t limit = 10;
+	int32_t offset = 100;
+	make_request_user_search(EMPTY_TOKEN, user_id, uname, limit, offset, buf);
+	req = request_parse(buf);
+	request_header *header = &(req->header);
+	request_body *body = req->body;
+	size_t sum_len = strlen(uname);
+
+	assert(header->group == 1);
+	assert(header->action == 2);
+	assert(header->content_len == sum_len);
+	assert(header->body_len == sum_len);
+	assert(memcmp(header->token, EMPTY_TOKEN, TOKEN_LEN) == 0);
+	assert(header->user_id == user_id);
+	assert(header->limit == limit);
+	assert(header->offset == offset);
+
+	assert(strcmp(body->r_user.uname, uname) == 0);
+	request_destroy(req);
+
+	SUCCESS("test_request_user_search pass");
+}
+
 void test_request_user_id_only()
 {
 	make_request_conv_get_list(EMPTY_TOKEN, 1, 10, 3, buf);
@@ -222,6 +249,7 @@ int main(int argc, char **argv)
 	signal(SIGABRT, abort_handler);
 
 	test_request_auth();
+	test_request_user_search();
 	test_request_user_id_only();
 	test_request_body_uint32();
 	test_request_msg_send();

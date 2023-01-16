@@ -368,7 +368,7 @@ static void make_request_uint32(const char* token, uint8_t group, uint8_t action
 	write_uint32_to_buf(body, num);
 }
 
-static void make_request_page(const char* token, uint8_t group, uint8_t action, uint32_t user_id, int limit, int offset, char *res)
+static void make_request_page(const char* token, uint8_t group, uint8_t action, uint32_t user_id, int32_t limit, int32_t offset, char *res)
 {
 	request_header header = {
 		.group = group,
@@ -479,9 +479,26 @@ inline void make_request_user_get_info(const char* token, uint32_t user_id, uint
 	make_request_uint32(token, 1, 1, user_id, user_id2, res);
 }
 
-inline void make_request_user_search(const char* token, uint32_t user_id, const char *uname, char *res)
+void make_request_user_search(const char* token, uint32_t user_id, const char *uname, int32_t limit, int32_t offset, char *res)
 {
-	make_request_string(token, 1, 2, user_id, uname, res);
+	size_t len = strlen(uname);
+	request_header header = {
+		.group = 1,
+		.action = 2,
+		.content_type = 0,
+		.content_len = len,
+		.body_len = len,
+		.token = token,
+		.user_id = user_id,
+		.limit = limit,
+		.offset = offset
+	};
+	make_request_header(&header, res);
+	
+	char *body = res+REQUEST_HEADER_LEN;
+	memset(body, 0, REQUEST_BODY_LEN);
+
+	memcpy(body, uname, len);
 }
 
 inline void make_request_conv_create(const char* token, uint32_t user_id, const char* gname, char *res)
@@ -515,7 +532,7 @@ inline void make_request_conv_get_members(const char* token, uint32_t user_id, u
 	make_request_uint32(token, 2, 5, user_id, conv_id, res);
 }
 
-inline void make_request_conv_get_list(const char* token, uint32_t user_id, int limit, int offset, char *res)
+inline void make_request_conv_get_list(const char* token, uint32_t user_id, int32_t limit, int32_t offset, char *res)
 {
 	make_request_page(token, 2, 6, user_id, limit, offset, res);
 }
@@ -530,12 +547,12 @@ inline void make_request_chat_delete(const char* token, uint32_t user_id, uint32
 	make_request_uint32(token, 3, 1, user_id, chat_id, res);
 }
 
-inline void make_request_chat_get_list(const char* token, uint32_t user_id, int limit, int offset, char *res)
+inline void make_request_chat_get_list(const char* token, uint32_t user_id, int32_t limit, int32_t offset, char *res)
 {
 	make_request_page(token, 3, 2, user_id, limit, offset, res);
 }
 
-void make_request_msg_get_all(const char* token, uint32_t user_id, int limit, int offset, uint32_t conv_id, uint32_t chat_id, char *res)
+void make_request_msg_get_all(const char* token, uint32_t user_id, int32_t limit, int32_t offset, uint32_t conv_id, uint32_t chat_id, char *res)
 {
 	request_header header = {
 		.group = 4,
