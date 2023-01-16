@@ -105,12 +105,12 @@ static char *field_tokenizer(char* buf, char **rest)
 
 void response_parse_auth(response *req, const char *body)
 {
-	response_header *header = &(req->header);
+	// response_header *header = &(req->header);
 
 	response_body *rb = (response_body *)calloc(1, sizeof(response_body));
 	assert(rb);
 
-	(rb->r_auth).token = string_new_n(body, TOKEN_LEN);
+	(rb->r_auth).token = string_mem_n(body, TOKEN_LEN);
 	(rb->r_auth).user_id = parse_uint32_from_buf(body+TOKEN_LEN);
 
 	req->body = rb;
@@ -332,7 +332,7 @@ static void make_response_empty_body(uint8_t group, uint8_t action, uint32_t sta
 	make_response_header(&header, res);
 }
 
-static void make_response_id_list(uint8_t group, uint8_t action, uint32_t status_code, uint32_t *ls, uint32_t count, char *res)
+static void make_response_id_list(uint8_t group, uint8_t action, uint32_t status_code, const uint32_t *ls, uint32_t count, char *res)
 {
 	uint32_t sz = (count << 2);
 	response_header header = {

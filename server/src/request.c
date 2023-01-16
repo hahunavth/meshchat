@@ -48,7 +48,7 @@ request *request_parse(const char *buf)
 	header->body_len = parse_uint32_from_buf(buf+8);
 	// header->offset0 = parse_uint32_from_buf(buf+12);
 
-	header->token = string_new_n(buf + 16, TOKEN_LEN);
+	header->token = string_mem_n(buf + 16, TOKEN_LEN);
 
 	header->user_id = parse_uint32_from_buf(buf+32);
 	header->limit = parse_uint32_from_buf(buf+36);
@@ -81,7 +81,7 @@ request *request_parse(const char *buf)
 static char *field_tokenizer(char* buf, char **rest)
 {
 	char *old = buf;
-	for(; (*buf) != '\0'; buf++)
+	for(; ((*buf) != '\0') && ((buf-old) <= REQUEST_BODY_LEN); buf++)
 	{
 		if(buf[0] == BODY_DEMLIMITER)
 		{
