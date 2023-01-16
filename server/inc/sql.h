@@ -75,9 +75,9 @@ user_schema *user_get_by_id(sqlite3 *db, uint32_t id, int *lastrc);
 uint32_t user_create(sqlite3 *db, const user_schema *info, int *lastrc);
 void user_drop(sqlite3 *db, uint32_t id, int *lastrc);
 user_schema *user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc);
-sllnode_t *user_search_by_uname(sqlite3 *db, const char *uname, int limit, int offset, int *lastrc);
-sllnode_t *user_get_conv_list(sqlite3 *db, uint32_t user_id, int limit, int offset, int *lastrc);
-sllnode_t *user_get_chat_list(sqlite3 *db, uint32_t user_id, int limit, int offset, int *lastrc);
+sllnode_t *user_search_by_uname(sqlite3 *db, const char *uname, int32_t limit, int32_t offset, int *lastrc);
+sllnode_t *user_get_conv_list(sqlite3 *db, uint32_t user_id, int32_t limit, int32_t offset, int *lastrc);
+sllnode_t *user_get_chat_list(sqlite3 *db, uint32_t user_id, int32_t limit, int32_t offset, int *lastrc);
 
 void user_free(user_schema *user);
 
@@ -104,8 +104,8 @@ void chat_free(chat_schema *chat);
 
 //////////////////////////////////////////////////
 
-sllnode_t *msg_conv_get_all(sqlite3 *db, uint32_t conv_id, int limit, int offset, int *lastrc);
-sllnode_t *msg_chat_get_all(sqlite3 *db, uint32_t chat_id, int limit, int offset, int *lastrc);
+sllnode_t *msg_conv_get_all(sqlite3 *db, uint32_t conv_id, int32_t limit, int32_t offset, int *lastrc);
+sllnode_t *msg_chat_get_all(sqlite3 *db, uint32_t chat_id, int32_t limit, int32_t offset, int *lastrc);
 msg_schema *msg_get_detail(sqlite3 *db, uint32_t msg_id, int *lastrc);
 uint32_t msg_send(sqlite3 *db, const msg_schema *msg, int *lastrc);
 void msg_delivered(sqlite3 *db, uint32_t msg_id, int *lastrc);
