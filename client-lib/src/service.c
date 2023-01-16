@@ -11,7 +11,8 @@
 #include <sys/time.h>
 #include "service.h"
 
-#define SWITCH_STT(res) \
+#define SWITCH_STT(res)                       \
+  PRINT_STATUS_CODE(res->header.status_code); \
   switch (res->header.status_code)
 
 #define FREE_AND_RETURN_STT(res)       \
@@ -160,6 +161,8 @@ int is_authenticated()
   return is_auth;
 }
 
+uint32_t _get_uid() { return __uid; }
+char *_get_token() { return __token; }
 /**
  * @brief Send request to server and receive response
  *
@@ -201,7 +204,9 @@ int __login(const char *username, const char *password, response_auth *_res)
   SWITCH_STT(res)
   {
   case 200:
+    printf("Login success%d", res->body->r_auth.user_id);
     __auth_cpy(_res, &res->body->r_auth);
+
     break;
 
     UNHANDLE_OTHER_STT_CODE;
@@ -247,6 +252,11 @@ int _login(const char *username, const char *password)
     __set_auth(&res->body->r_auth);
     break;
 
+    // case 148:
+    //   __set_auth(&res->body->r_auth);
+    //   // fixme: unknown error
+    //   break;
+
     UNHANDLE_OTHER_STT_CODE;
   }
 
@@ -281,7 +291,21 @@ int _get_user_info(const uint32_t user2_id,
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_res, &res->body->r_user, sizeof(request_user));
+    // memcpy(_res, &res->body->r_user, sizeof(request_user));
+    _res->email = calloc(1, strlen(res->body->r_user.email));
+    strcpy(_res->email, res->body->r_user.email);
+    _res->phone = calloc(1, strlen(res->body->r_user.phone));
+    strcpy(_res->phone, res->body->r_user.phone);
+    _res->uname = calloc(1, strlen(res->body->r_user.uname));
+    strcpy(_res->uname, res->body->r_user.uname);
+    break;
+
+    // fixme: unknow stt code
+  case 147:
+    // memcpy(_res, &res->body->r_user, sizeof(request_user));
+    // _res->email = calloc(1, strlen(res->body->r_user.email));
+    // printf("%s\n\n", res->body->r_user.phone);
+    // strcpy(_res->email, res->body->r_user.email);
     break;
 
     UNHANDLE_OTHER_STT_CODE;
@@ -291,7 +315,7 @@ int _get_user_info(const uint32_t user2_id,
 }
 
 int _get_user_search(const char *uname,
-                     uint32_t *_res)
+                     uint32_t *_idls, int *_len)
 {
   make_request_user_search(__token, __uid, uname, buf);
 
@@ -300,7 +324,8 @@ int _get_user_search(const char *uname,
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_res, &res->body->r_user.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_idls, &res->body->r_user.idls, sizeof(uint32_t) * (res->header.count));
+    *_len = res->header.count;
     break;
 
     UNHANDLE_OTHER_STT_CODE;
@@ -319,7 +344,7 @@ int _create_conv(const char *gname,
   SWITCH_STT(res)
   {
   case 201:
-    *_gid = parse_uint32_from_buf(res->body);
+    *_gid = (res->body->r_conv).conv_id;
     break;
 
     UNHANDLE_OTHER_STT_CODE;

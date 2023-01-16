@@ -16,6 +16,8 @@
     "assert.h": "c",
     "types.h": "c",
     "signal.h": "c",
-    "inttypes.h": "c"
+    "inttypes.h": "c",
+    "in.h": "c",
+    "test_common.h": "c"
   }
 }
