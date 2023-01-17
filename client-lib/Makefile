@@ -1,3 +1,5 @@
+.PHONY: config build test clean migrateup migratedown init_server build_native_lib
+
 config:
 ifdef DEBUG
 	cmake -DCMAKE_BUILD_TYPE=Debug -S . -B debug
@@ -25,4 +27,5 @@ clean:
 init_server:
 	cd ../server/; make; cd build; make; cd .. ; make migratedown && make migrateup && ./server
 
-.PHONY: config build test clean migrateup migratedown
+build_native_lib:
+	cd build && cmake .. && cmake --build . --target cli_service && mv libcli_service.so ../../client/src/main/resources/libcli_service.so && rm -rf *

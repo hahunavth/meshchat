@@ -22,7 +22,7 @@ add_library(util_string STATIC ../server/src/utils/string.c)
 add_library(request STATIC ../server/src/request.c)
 add_library(response STATIC ../server/src/response.c)
 
-add_library(cli_service STATIC ./src/service.c)
+add_library(cli_service SHARED ./src/service.c)
 
 add_executable(main main.c)
 
