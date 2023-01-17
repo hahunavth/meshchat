@@ -1,7 +1,4 @@
-/**
- * FIXME: free(): invalid pointer
- */
-#include "test_common.h"
+#include "./inc/test_common.h"
 
 uint32_t test_conv_create(char *name)
 {

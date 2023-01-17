@@ -18,6 +18,7 @@
     "signal.h": "c",
     "inttypes.h": "c",
     "in.h": "c",
-    "test_common.h": "c"
+    "test_common.h": "c",
+    "color.h": "c"
   }
 }

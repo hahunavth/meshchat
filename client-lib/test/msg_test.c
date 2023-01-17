@@ -1,8 +1,24 @@
-#include "test_common.h"
+#include "./inc/test_common.h"
+
+uint32_t chat_1;
+uint32_t chat_2;
+uint32_t chat_3;
+uint32_t chat_4;
+uint32_t chat_5;
+
+uint32_t msg_id_1;
+uint32_t msg_id_2;
+uint32_t msg_id_3;
+uint32_t msg_id_4;
+uint32_t msg_id_5;
+uint32_t msg_id_6;
+
+int stt = 0;
 
 int main()
 {
-  int stt = 0;
+  atexit(close_conn);
+
   // =================================================
   // BEFORE ALL TESTS
   // =================================================
@@ -10,11 +26,6 @@ int main()
   create_fake_user();
   CLOSE_CONN();
 
-  uint32_t chat_1;
-  uint32_t chat_2;
-  uint32_t chat_3;
-  uint32_t chat_4;
-  uint32_t chat_5;
   chat_1 = create_fake_chat(1, 2);
   assert(chat_1 > 0);
   chat_2 = create_fake_chat(1, 3);
@@ -23,18 +34,13 @@ int main()
   chat_5 = create_fake_chat(3, 6);
   SUCCESS("before_all create_fake_chat pass");
 
+  // TODO: create fake conv
+
   // =================================================
   // SEND MSG TEXT
   // =================================================
   CONNECT_SERVER();
   LOGIN_AS_USER_X(1);
-
-  uint32_t msg_id_1;
-  uint32_t msg_id_2;
-  uint32_t msg_id_3;
-  uint32_t msg_id_4;
-  uint32_t msg_id_5;
-  uint32_t msg_id_6;
 
   // chat_1
   assert(chat_1 > 0);
@@ -62,5 +68,18 @@ int main()
 
   LOGOUT();
   CLOSE_CONN();
+
+  // =================================================
+  // GET ALL MSG
+  // =================================================
+
+  // =================================================
+  // GET MSG DETAIL
+  // =================================================
+
+  // =================================================
+  // DELETE MSG
+  // =================================================
+
   return 0;
 }

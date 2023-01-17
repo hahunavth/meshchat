@@ -1,4 +1,4 @@
-#include "test_common.h"
+#include "./inc/test_common.h"
 
 int stt;
 uint32_t chat_id;

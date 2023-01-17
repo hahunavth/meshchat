@@ -1,7 +1,7 @@
 /**
  * SUCCESS!
  */
-#include "test_common.h"
+#include "./inc/test_common.h"
 
 uint32_t USER_TABLE_CURRENT_MAX_ID = 0;
 
@@ -52,10 +52,9 @@ int test_login(char *username, char *password)
 
   default:
     printf("Login failed\n");
-    PRINT_USER_ID(res.user_id);
-    PRINT_TOKEN(res.token);
     break;
   }
+
   return stt;
 }
 
@@ -82,9 +81,6 @@ int main()
   puts("=====");
   assert(test_login("user999", "pass") == 404);
 
-  /**
-   * result: 403, 404 failed -> server return status code 200 ?
-   */
-
+  close_conn();
   return 0;
 }

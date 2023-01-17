@@ -30,7 +30,7 @@
         printf("%02hhX ", token[i]);    \
     }                                   \
     puts("");
-#define PRINT_STATUS_CODE(status_code) printf("status_code: %d\n", status_code);
+#define PRINT_STATUS_CODE(status_code) printf(YELLOW "status_code: %d\n" RESET, status_code);
 
 /**
  * External API

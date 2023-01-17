@@ -1,4 +1,4 @@
-#include "test_common.h"
+#include "./inc/test_common.h"
 
 void test_user_get_info()
 {

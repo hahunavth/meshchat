@@ -20,13 +20,13 @@
   response_destroy(res);               \
   return __stt;
 
-#define UNHANDLE_OTHER_STT_CODE(res)                                   \
-  default:                                                             \
-  {                                                                    \
-    char tmp[BUFSIZ];                                                  \
-    sprintf(tmp, "Unhandle status code: %d", res->header.status_code); \
-    perror(tmp);                                                       \
-  }                                                                    \
+#define UNHANDLE_OTHER_STT_CODE(res)                                                 \
+  default:                                                                           \
+  {                                                                                  \
+    char tmp[BUFSIZ];                                                                \
+    sprintf(tmp, MAGENTA "Unhandle status code: %d" RESET, res->header.status_code); \
+    perror(tmp);                                                                     \
+  }                                                                                  \
   break;
 
 // send and recv
@@ -612,6 +612,8 @@ int _send_msg_text(
   case 201:
     *_msg_id = parse_uint32_from_buf((res->body));
     break;
+    // case 403:
+    //   break;
 
     UNHANDLE_OTHER_STT_CODE(res);
   }
