@@ -10,11 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TOKEN_LEN		64
-#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"\
-						"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
+#define TOKEN_LEN		16
+#define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
 
 char buf[BUFSIZ];
 response *res;
@@ -46,7 +43,7 @@ void test_response_auth()
 
 void test_response_empty_body()
 {
-	make_response_user_logout(200, buf);
+	make_response_user_logout(500, buf);
 
 	res = response_parse(buf);
 	response_header *header = &(res->header);
@@ -55,7 +52,7 @@ void test_response_empty_body()
 	assert(header->group == 1);
 	assert(header->action == 0);
 	assert(header->content_type == 0);
-	assert(header->status_code == 200);
+	assert(header->status_code == 500);
 	assert(header->content_len == 0);
 	assert(header->body_len == 0);
 	assert(header->count == 0);
@@ -146,7 +143,13 @@ void test_response_msg_get_detail()
 	const char *fname = "smile.jpg";
 	size_t fsize = 1048576;
 	size_t fname_len = strlen(fname);
-	make_response_msg_get_detail(200, 1, 51, 16, 17, 18, 19, fsize, fname, buf);
+	response_msg rm = {
+		.msg_id = 15, .from_uid = 1, .reply_to = 2,
+		.conv_id = 3, .chat_id = 4,
+		.content_length = fsize, .content_type = 1,
+		.msg_content = fname, .created_at = 12345, .msg_type = 1
+	};
+	make_response_msg_get_detail(200, &rm, buf);
 
 	res = response_parse(buf);
 	response_header *header = &(res->header);
@@ -156,15 +159,18 @@ void test_response_msg_get_detail()
 	assert(header->action == 1);
 	assert(header->content_type == 1);
 	assert(header->status_code == 200);
+	assert(header->content_type == 1);
 	assert(header->content_len == fsize);
-	assert(header->body_len == 20+fname_len);
+	assert(header->body_len == 30+fname_len);
 	assert(header->count == 0);
 
-	assert((body->r_msg).msg_id == 51);
-	assert((body->r_msg).conv_id == 16);
-	assert((body->r_msg).chat_id == 17);
-	assert((body->r_msg).from_uid == 18);
-	assert((body->r_msg).reply_to == 19);
+	assert((body->r_msg).msg_id == 15);
+	assert((body->r_msg).from_uid == 1);
+	assert((body->r_msg).reply_to == 2);
+	assert((body->r_msg).conv_id == 3);
+	assert((body->r_msg).chat_id == 4);
+	assert((body->r_msg).created_at == 12345);
+	assert((body->r_msg).msg_type == 1);
 	assert(strcmp((body->r_msg).msg_content, fname) == 0);
 
 	response_destroy(res);

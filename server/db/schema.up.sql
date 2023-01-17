@@ -6,11 +6,11 @@ BEGIN TRANSACTION;
 -- Table: users
 CREATE TABLE IF NOT EXISTS users (
 	id INTEGER PRIMARY KEY,
-	username TEXT NOT NULL, 
+	uname TEXT NOT NULL, 
 	password TEXT NOT NULL, 
-	phone_number TEXT NOT NULL,
+	phone TEXT NOT NULL,
 	email TEXT NOT NULL,
-	UNIQUE (username)
+	UNIQUE (uname)
 );
 
 -- Table: chat
@@ -48,10 +48,12 @@ CREATE TABLE IF NOT EXISTS members (
 -- Table: messages
 CREATE TABLE IF NOT EXISTS messages (
 	id INTEGER PRIMARY KEY,
-	from_user_id INTEGER NOT NULL REFERENCES users (id) NOT NULL, 
+	from_uid INTEGER NOT NULL REFERENCES users (id) NOT NULL, 
 	reply_to INTEGER REFERENCES messages (id)
 		ON UPDATE CASCADE
-		ON DELETE CASCADE, 
+		ON DELETE CASCADE,
+	content_type INTEGER NOT NULL,
+	content_length INTEGER NOT NULL,
 	content TEXT NOT NULL, 
 	created_at INTEGER NOT NULL, 
 	chat_id INTEGER REFERENCES chats (id)

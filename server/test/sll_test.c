@@ -12,6 +12,8 @@ int main(int argc, char** argv)
 	sll_insert_node(&head, new_jval_i(2));
 	sll_insert_node(&head, new_jval_i(3));
 
+	assert(sll_length(head) == 3);
+
 	sllnode_t* node = head;
 	assert((node->val).i == 3);
 	node = node->next;
@@ -33,6 +35,8 @@ int main(int argc, char** argv)
 	assert((node->val).i == 3);
 	node = node->next;
 	assert((node->val).i == 1);
+
+	assert(sll_length(head) == 2);
 
 	/* Complete removal*/
 	sll_remove(&head);

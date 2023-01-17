@@ -1,0 +1,24 @@
+{
+  "files.associations": {
+    "stdio.h": "c",
+    "blowfish.h": "c",
+    "sll.h": "c",
+    "all.h": "c",
+    "response.h": "c",
+    "jval.h": "c",
+    "stdlib.h": "c",
+    "common.h": "c",
+    "request.h": "c",
+    "string.h": "c",
+    "socket.h": "c",
+    "unistd.h": "c",
+    "inet.h": "c",
+    "assert.h": "c",
+    "types.h": "c",
+    "signal.h": "c",
+    "inttypes.h": "c",
+    "in.h": "c",
+    "test_common.h": "c",
+    "color.h": "c"
+  }
+}
