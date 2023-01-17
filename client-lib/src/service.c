@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <assert.h>
 #include "service.h"
 
 #define SWITCH_STT(res)                       \
@@ -73,6 +74,7 @@ int get_sockfd()
 
 void close_conn()
 {
+  printf(YELLOW "Closing connection...\n" RESET);
   close(sockfd);
   sockfd = -1;
 }
@@ -116,12 +118,27 @@ int __recv(char *buff)
 
 response *api_call(const char *req)
 {
+  int sz;
+
+  if (req == NULL)
+    perror("Error: Request is NULL\n");
   if (__send(req) < 0)
+  {
+    perror("Error: Send failed");
     return NULL;
+  }
   memset(buf, 0, BUFSIZ);
 
-  if (__recv(buf) < 0)
+  if ((sz = __recv(buf)) < 0)
+  {
+    perror("Error: Recv failed");
     return NULL;
+  }
+
+  if (sz == 0)
+  {
+    printf(YELLOW "Connection closed\n" RESET);
+  }
   response *res = response_parse(buf);
 
   return res;
@@ -133,6 +150,20 @@ void __auth_cpy(response_auth *dest, const response_auth *src)
 {
   memcpy(dest, src, sizeof(response_auth));
   memcpy(dest->token, src->token, TOKEN_LEN);
+}
+
+void __parse_uint32_list(char *buf, uint32_t *ls, uint32_t count)
+{
+  size_t sz = count << 2;
+  // uint32_t *ls = (uint32_t *)malloc(sz); // 4xcount
+  assert(ls);
+  for (uint32_t i = 0; i < count; i++)
+  {
+    uint32_t cur;
+    memcpy(&cur, buf + (i << 2), 4);
+    ls[i] = ntohl(cur);
+  }
+  return ls;
 }
 
 void __set_auth(const response_auth *auth)
@@ -659,18 +690,24 @@ int _delete_msg(const uint32_t msg_id)
   FREE_AND_RETURN_STT(res);
 }
 
-// ??? conv or chat ??? id ???
 int _notify_new_msg(const uint32_t user_id, uint32_t *_idls, uint32_t *_len)
 {
   make_request_msg_notify_new(__token, __uid, buf);
 
   response *res = api_call(buf);
 
+  if (!res)
+  {
+    perror("res is null");
+  }
+
   SWITCH_STT(res)
   {
   case 200:
     memcpy(_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
     *_len = res->header.count;
+    break;
+  case 500:
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -679,17 +716,21 @@ int _notify_new_msg(const uint32_t user_id, uint32_t *_idls, uint32_t *_len)
   FREE_AND_RETURN_STT(res);
 }
 
-int _notify_del_msg(uint32_t *_idls, uint32_t *_len)
+int _notify_del_msg(const uint32_t conv_id, const uint32_t chat_id, uint32_t *_idls, uint32_t *_len)
 {
-  make_request_msg_notify_del(__token, __uid, buf);
+  make_request_msg_notify_del(__token, __uid, conv_id, chat_id, buf);
 
   response *res = api_call(buf);
 
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_idls, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
+    // memcpy(_idls, res->body, sizeof(uint32_t) * (res->header.count));
+    // __parse_uint32_list(res->body, _idls, _len);
     *_len = res->header.count;
+    printf("count: %d\n", res->header.count);
+    break;
+  case 500:
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);

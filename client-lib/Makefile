@@ -23,6 +23,6 @@ clean:
 	rm -rf ./build/*
 
 init_server:
-	cd ../server/; make && make migratedown && make migrateup && ./server
+	cd ../server/; make; cd build; make; cd .. ; make migratedown && make migrateup && ./server
 
 .PHONY: config build test clean migrateup migratedown

@@ -6,9 +6,67 @@ int stt = 0;
 
 int main()
 {
+  CONNECT_SERVER();
+  create_fake_user();
+  CLOSE_CONN();
 
+  // Tạo chat giữa 2 user
+  DIVIDER();
+  int chat_id = create_fake_chat(1, 5); // FIXME: 2, 5 : user001, user004 instead of 1, 5
+
+  DIVIDER();
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(1);
+
+  // notify new msg -> len = 0
+  DIVIDER();
   stt = _notify_new_msg(_get_uid(), &idls, &idls_len);
   assert(stt == 200);
+  assert(idls_len == 0);
+  SUCCESS("notify_new_msg no new msg:200 pass");
 
+  DIVIDER();
+  LOGOUT();
+  CLOSE_CONN();
+  //
+  DIVIDER();
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(4);
+
+  // User004 (id=5) gửi tin nhắn cho user001 (id=2)
+  uint32_t msg_id;
+  stt = _send_msg_text(0, chat_id, 0, "hello world", &msg_id);
+  assert(stt == 201);
+  SUCCESS("send_msg_text:200 pass");
+
+  DIVIDER();
+  LOGOUT();
+  CLOSE_CONN();
+
+  DIVIDER();
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(1);
+
+  // notify new msg -> len = 1
+  DIVIDER();
+  stt = _notify_new_msg(_get_uid(), &idls, &idls_len);
+  assert(stt == 200);
+  assert(idls_len > 0);
+  SUCCESS("notify_new_msg has new msg:200 pass");
+
+  DIVIDER();
+  stt = _delete_msg(msg_id);
+  assert(stt == 200);
+  SUCCESS("delete_msg:200 pass");
+
+  DIVIDER();
+  stt = _notify_del_msg(0, chat_id, &idls, &idls_len);
+  assert(stt == 200);
+  assert(idls[0] == chat_id);
+  SUCCESS("notify_del_msg:200 pass");
+
+  DIVIDER();
+  LOGOUT();
+  CLOSE_CONN();
   return 0;
 }

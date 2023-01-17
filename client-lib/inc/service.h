@@ -72,6 +72,6 @@ extern int _send_msg_text(
     uint32_t *_msg_id);
 extern int _delete_msg(const uint32_t msg_id);
 extern int _notify_new_msg(const uint32_t user_id, uint32_t *_idls, uint32_t *_len);
-extern int _notify_del_msg(uint32_t *_idls, uint32_t *_len);
+extern int _notify_del_msg(const uint32_t conv_id, const uint32_t chat_id, uint32_t *_idls, uint32_t *_len);
 
 #endif
