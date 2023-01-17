@@ -14,7 +14,7 @@ int main()
 
   // Tạo chat giữa 2 user
   DIVIDER();
-  int chat_id = create_fake_chat(1, 5); // FIXME: 2, 5 : user001, user004 instead of 1, 5
+  int chat_id = create_fake_chat(2, 5);
 
   DIVIDER();
   CONNECT_SERVER();

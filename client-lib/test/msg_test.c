@@ -38,10 +38,10 @@ int main()
   create_fake_user();
   CLOSE_CONN();
 
-  chat_1 = create_fake_chat(1, 3);
+  chat_1 = create_fake_chat(2, 3);
   assert(chat_1 > 0);
-  chat_2 = create_fake_chat(1, 4);
-  chat_3 = create_fake_chat(1, 5);
+  chat_2 = create_fake_chat(2, 4);
+  chat_3 = create_fake_chat(2, 5);
   chat_4 = create_fake_chat(2, 5);
   chat_5 = create_fake_chat(3, 6);
   SUCCESS("before_all create_fake_chat pass");

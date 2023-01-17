@@ -103,7 +103,7 @@ void create_fake_user()
 uint32_t create_fake_chat(uint32_t user_id, uint32_t user2_id)
 {
   CONNECT_SERVER();
-  LOGIN_AS_USER_X(user_id);
+  LOGIN_AS_USER_X(user_id - 1); // ADD -1
   uint32_t chat_id;
 
   _create_chat(user2_id, &chat_id);
