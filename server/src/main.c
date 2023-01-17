@@ -371,6 +371,8 @@ void *th_func(void *arg)
 	return NULL;
 }
 
+/* Handler routines */
+
 #define RESPONSE_ERR(status, group, action)                      \
 	{                                                            \
 		make_err_response((uint32_t)status, group, action, buf); \
@@ -388,7 +390,7 @@ void *th_func(void *arg)
 		RESPONSE_ERR(status, group, action);                       \
 	}
 
-/* Handler routines */
+
 void handle_auth_register(int cfd, in_addr_t addr, request *req, char *buf);
 void handle_auth_login(int cfd, in_addr_t addr, request *req, char *buf);
 /****************/
@@ -411,6 +413,8 @@ void handle_msg_get_all(int cfd, request *req, char *buf);
 void handle_msg_get_detail(int cfd, request *req, char *buf);
 void handle_msg_send(int cfd, request *req, char *buf);
 void handle_msg_delete(int cfd, request *req, char *buf);
+void handle_notify_new_msg(int cfd, request *req, char *buf);
+void handle_notify_del_msg(int cfd, request *req, char *buf);
 /****************/
 void handle_req(int cfd)
 {
@@ -544,10 +548,10 @@ void handle_req(int cfd)
 				handle_msg_delete(cfd, req, buf);
 				break;
 			case 0x04:
-				// handle_msg_get_all(cfd, req, buf);
+				handle_notify_new_msg(cfd, req, buf);
 				break;
 			case 0x05:
-				// handle_msg_get_all(cfd, req, buf);
+				handle_notify_del_msg(cfd, req, buf);
 				break;
 			}
 			break;
@@ -1009,6 +1013,9 @@ void handle_msg_get_detail(int cfd, request *req, char *buf)
 		perror("write() failed");
 		close_sock(cfd);
 	}
+
+	msg_delivered(db, (req->body->r_msg).msg_id, &rc);
+
 	msg_free(msg);
 }
 
@@ -1089,6 +1096,60 @@ void handle_msg_delete(int cfd, request *req, char *buf)
 	msg_free(msg);
 }
 
+void handle_notify_new_msg(int cfd, request *req, char *buf)
+{
+	int rc;
+	sllnode_t *ls = msg_get_msg_sent(db, (req->header).user_id, &rc);
+	if(sql_is_err(rc))
+		RESPONSE_ERR(500, 4, 4);
+	
+	size_t len = sll_length(ls);
+	uint32_t idls[len];
+	sllnode_t *iter = ls;
+	for (size_t i = 0; i < len; i++)
+	{
+		idls[i] = (iter->val).l;
+		iter = iter->next;
+	}
+
+	make_response_msg_notify_new(200, len, idls, buf);
+	if (write(cfd, buf, BUFSIZ) < 0)
+	{
+		perror("write() failed");
+		close_sock(cfd);
+	}
+
+	sll_remove(&ls);
+}
+
+void handle_notify_del_msg(int cfd, request *req, char *buf)
+{
+	int rc;
+	uint32_t conv_id = (req->body->r_msg).conv_id;
+	uint32_t chat_id = (req->body->r_msg).chat_id;
+
+	sllnode_t *ls = msg_get_msg_del(db, (req->header).user_id, conv_id, chat_id, &rc);
+	if(sql_is_err(rc))
+		RESPONSE_ERR(500, 4, 4);
+	
+	size_t len = sll_length(ls);
+	uint32_t idls[len];
+	sllnode_t *iter = ls;
+	for (size_t i = 0; i < len; i++)
+	{
+		idls[i] = (iter->val).l;
+		iter = iter->next;
+	}
+
+	make_response_msg_notify_del(200, len, idls, buf);
+	if (write(cfd, buf, BUFSIZ) < 0)
+	{
+		perror("write() failed");
+		close_sock(cfd);
+	}
+
+	sll_remove(&ls);
+}
 /*******************************/
 
 void make_token(in_addr_t addr, uint32_t user_id, char res[TOKEN_LEN])

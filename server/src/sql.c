@@ -750,6 +750,30 @@ void msg_drop(sqlite3 *db, uint32_t msg_id, int *lastrc)
 	*lastrc = SQLITE_OK;
 }
 
+sllnode_t *msg_get_msg_sent(sqlite3 *db, uint32_t user_id, int *lastrc)
+{
+	char query[QUERY_SMALL];
+	memset(query, 0, QUERY_SMALL);
+	snprintf(query, QUERY_SMALL,
+		"select id from messages where chat_id in (select id from chats where member1="PRIu32" or member2="PRIu32") and type=0 "
+		"union "
+		"select id from messages where conv_id in (select conv_id from members where user_id="PRIu32") and type=0;", user_id, user_id, user_id);
+
+	return sql_get_list(db, query, lastrc);
+}
+
+sllnode_t *msg_get_msg_del(sqlite3 *db, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, int *lastrc)
+{
+	char query[QUERY_SMALL];
+	memset(query, 0, QUERY_SMALL);
+	if(conv_id != 0)
+		snprintf(query, QUERY_SMALL, "select id from messages where conv_id in (select conv_id from members where user_id="PRIu32" and conv_id="PRIu32") and type=%d;", user_id, conv_id, MSG_DELETED);
+	else if(chat_id != 0)
+		snprintf(query, QUERY_SMALL, "select id from messages where chat_id in (select id from chats where (member1="PRIu32" or member2="PRIu32") and id="PRIu32") and type=%d;", user_id, user_id, chat_id, MSG_DELETED);
+
+	return sql_get_list(db, query, lastrc);
+}
+
 void msg_free(msg_schema *msg)
 {
 	if (!msg)
