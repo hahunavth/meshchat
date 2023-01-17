@@ -12,9 +12,10 @@
 #define QUERY_SMALL 512
 #define QUERY_LARGE BUFSIZ
 
-#define ROLLBACK() \
+#define ROLLBACK() {\
 	*lastrc = rc;  \
-	rc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
+	rc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);\
+}
 
 inline int sql_is_ok(int rc) { return (rc == SQLITE_OK) || (rc == SQLITE_ROW) || (rc == SQLITE_DONE) || (rc == SQLITE_EMPTY); }
 inline int sql_is_err(int rc) { return !sql_is_ok(rc); }
@@ -24,19 +25,28 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint32_t sql_insert(sqlite3 *db, const char *query, int *lastrc)
 {
 	/* printf("Insert query: %s\n", query); */
-	int rc;
+	sqlite3_stmt *stmt;
+	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+	if (rc != SQLITE_OK)
+	{
+		*lastrc = rc;
+		return 0;
+	}
+
 	uint32_t newid;
 
 	pthread_mutex_lock(&mutex);
-	if ((rc = sqlite3_exec(db, query, NULL, NULL, NULL)) != SQLITE_OK)
+	if ((rc = sqlite3_step(stmt)) != SQLITE_DONE)
 	{
 		*lastrc = rc;
 		pthread_mutex_unlock(&mutex);
+		sqlite3_finalize(stmt);
 		return 0;
 	}
 	newid = sqlite3_last_insert_rowid(db);
 	pthread_mutex_unlock(&mutex);
 
+	sqlite3_finalize(stmt);
 	*lastrc = SQLITE_OK;
 	return newid;
 }
@@ -68,13 +78,12 @@ static sllnode_t *sql_get_list(sqlite3 *db, const char *query, int *lastrc)
 
 user_schema *user_get_by_id(sqlite3 *db, uint32_t id, int *lastrc)
 {
-	user_schema *res = (user_schema *)malloc(sizeof(user_schema));
+	user_schema *res = (user_schema *)calloc(1, sizeof(user_schema));
 	if (!res)
 	{
 		*lastrc = SQLITE_NOMEM;
 		return NULL;
 	}
-	memset(res, 0, sizeof(user_schema));
 
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
@@ -113,13 +122,12 @@ user_schema *user_get_by_id(sqlite3 *db, uint32_t id, int *lastrc)
 
 user_schema *user_get_by_uname(sqlite3 *db, const char *uname, int *lastrc)
 {
-	user_schema *res = (user_schema *)malloc(sizeof(user_schema));
+	user_schema *res = (user_schema *)calloc(1, sizeof(user_schema));
 	if (!res)
 	{
 		*lastrc = SQLITE_NOMEM;
 		return NULL;
 	}
-	memset(res, 0, sizeof(user_schema));
 
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
@@ -353,19 +361,50 @@ int conv_is_member(sqlite3 *db, uint32_t conv_id, uint32_t user_id, int *lastrc)
 
 void conv_drop(sqlite3 *db, uint32_t conv_id, int *lastrc)
 {
+	int rc;
 	char query[QUERY_SMALL];
-	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL,
-			 "DELETE FROM messages WHERE conv_id=%" PRIu32 ";"
-			 "DELETE FROM members WHERE conv_id=%" PRIu32 ";"
-			 "DELETE FROM conversations WHERE id=%" PRIu32 ";",
-			 conv_id, conv_id, conv_id);
 
-	int rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	memset(query, 0, QUERY_SMALL);
+	snprintf(query, QUERY_SMALL, "BEGIN TRANSACTION;");
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	if (rc != SQLITE_OK)
 	{
-		*lastrc = rc;
+		ROLLBACK();
+		return;
 	}
+
+	snprintf(query, QUERY_SMALL, "DELETE FROM messages WHERE conv_id=%" PRIu32 ";", conv_id);
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK)
+	{
+		ROLLBACK();
+		return;
+	}
+
+	snprintf(query, QUERY_SMALL, "DELETE FROM members WHERE conv_id=%" PRIu32 ";", conv_id);
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK)
+	{
+		ROLLBACK();
+		return;
+	}
+
+	snprintf(query, QUERY_SMALL, "DELETE FROM conversations WHERE id=%" PRIu32 ";", conv_id);
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK)
+	{
+		ROLLBACK();
+		return;
+	}
+
+	snprintf(query, QUERY_SMALL, "COMMIT TRANSACTION;");
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK)
+	{
+		ROLLBACK();
+		return;
+	}
+
 	*lastrc = SQLITE_OK;
 }
 
@@ -397,13 +436,12 @@ void conv_quit(sqlite3 *db, uint32_t user_id, uint32_t conv_id, int *lastrc)
 
 conv_schema *conv_get_info(sqlite3 *db, uint32_t conv_id, int *lastrc)
 {
-	conv_schema *res = (conv_schema *)malloc(sizeof(conv_schema));
+	conv_schema *res = (conv_schema *)calloc(1, sizeof(conv_schema));
 	if (!res)
 	{
 		*lastrc = SQLITE_NOMEM;
 		return NULL;
 	}
-	memset(res, 0, sizeof(user_schema));
 
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
@@ -461,6 +499,15 @@ void conv_free(conv_schema *conv)
 uint32_t chat_create(sqlite3 *db, uint32_t member1, uint32_t member2, int *lastrc)
 {
 	char query[QUERY_SMALL];
+	memset(query, 0, QUERY_SMALL);
+	snprintf(query, QUERY_SMALL, "PRAGMA foreign_keys=ON;");
+	int rc = sqlite3_exec(db, query, NULL, NULL, NULL);
+	if (rc != SQLITE_OK)
+	{
+		*lastrc = rc;
+		return 0;
+	}
+
 	memset(query, 0, QUERY_SMALL);
 	snprintf(query, QUERY_SMALL, "INSERT INTO chats(member1, member2) VALUES (%" PRIu32 ", %" PRIu32 ");", member1, member2);
 
@@ -566,13 +613,12 @@ sllnode_t *msg_chat_get_all(sqlite3 *db, uint32_t chat_id, int32_t limit, int32_
 
 msg_schema *msg_get_detail(sqlite3 *db, uint32_t msg_id, int *lastrc)
 {
-	msg_schema *res = (msg_schema *)malloc(sizeof(msg_schema));
+	msg_schema *res = (msg_schema *)calloc(1, sizeof(msg_schema));
 	if (!res)
 	{
 		*lastrc = SQLITE_NOMEM;
 		return NULL;
 	}
-	memset(res, 0, sizeof(msg_schema));
 
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
