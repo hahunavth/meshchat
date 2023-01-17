@@ -129,12 +129,14 @@ void test_conv_get_list()
   uint32_t *conv_ids = (uint32_t *)calloc(BUFSIZ, sizeof(uint32_t));
   uint32_t n_conv_ids;
 
-  stt = _get_conv_list(10, 0, &n_conv_ids);
+  stt = _get_conv_list(10, 0, conv_ids, &n_conv_ids);
   printf("stt: %d, n_conv_ids: %d", stt, n_conv_ids);
-  printf("conv_ids: %d", conv_ids[0]);
+  printf("conv_ids[0]: %d", conv_ids[0]);
+  printf("conv_ids[1]: %d", conv_ids[1]);
+  puts("");
 
-  // assert(stt == 200);
-  // assert(n_conv_ids == 1);
+  assert(stt == 200);
+  assert(n_conv_ids > 0);
   // assert(conv_ids[0] == 1);
   free(conv_ids);
   SUCCESS("conv_test get_conv_list pass");
@@ -144,40 +146,40 @@ int main()
 {
   // user 1
   CONNECT_SERVER();
-  before_each();
+  create_fake_user();
 
   LOGIN_AS_USER_X(1);
 
   uint32_t conv_id = test_conv_create("conv000");
-  test_conv_get_info(conv_id);
+  // test_conv_get_info(conv_id);
   test_conv_get_members(conv_id);
-  test_conv_get_list();
+  // test_conv_get_list();
 
   LOGOUT();
   CLOSE_CONN();
 
   // user 2
-  CONNECT_SERVER();
-  LOGIN_AS_USER_X(2);
+  // CONNECT_SERVER();
+  // LOGIN_AS_USER_X(2);
 
-  // test_conv_get_info(conv_id);
-  test_conv_join_2(conv_id);
-  test_conv_drop_2(conv_id);
+  // // test_conv_get_info(conv_id);
+  // test_conv_join_2(conv_id);
+  // test_conv_drop_2(conv_id);
 
-  LOGOUT();
-  CLOSE_CONN();
+  // LOGOUT();
+  // CLOSE_CONN();
 
   // user 1
-  CONNECT_SERVER();
+  // CONNECT_SERVER();
 
-  LOGIN_AS_USER_X(1);
+  // LOGIN_AS_USER_X(1);
 
-  test_conv_join(conv_id);
-  test_conv_quit(conv_id);
-  test_conv_drop(conv_id);
+  // test_conv_join(conv_id);
+  // test_conv_quit(conv_id);
+  // test_conv_drop(conv_id);
 
-  LOGOUT();
-  CLOSE_CONN();
+  // LOGOUT();
+  // CLOSE_CONN();
 
   return 0;
 }

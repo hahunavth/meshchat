@@ -27,3 +27,10 @@ add_test(
 	NAME chat_test
 	COMMAND $<TARGET_FILE:chat_test>
 )
+
+add_executable(msg_test msg_test.c)
+target_link_libraries(msg_test PUBLIC cli_service)
+add_test(
+	NAME msg_test
+	COMMAND $<TARGET_FILE:msg_test>
+)

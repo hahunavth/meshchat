@@ -61,9 +61,10 @@
     SUCCESS("after_each logout pass"); \
   }
 
-extern void before_each();
+extern void create_fake_user();
+extern uint32_t create_fake_chat(uint32_t user_id, uint32_t user2_id);
 
-void before_each()
+void create_fake_user()
 {
   CREATE_USER_X(0);
   CREATE_USER_X(1);
@@ -75,6 +76,18 @@ void before_each()
   CREATE_USER_X(7);
   CREATE_USER_X(8);
   CREATE_USER_X(9);
+}
+
+uint32_t create_fake_chat(uint32_t user_id, uint32_t user2_id)
+{
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(user_id);
+  uint32_t chat_id;
+  _create_chat(user2_id, &chat_id);
+  printf("Fake chat created: %d\n", chat_id);
+  LOGOUT();
+  CLOSE_CONN();
+  return chat_id;
 }
 
 #endif

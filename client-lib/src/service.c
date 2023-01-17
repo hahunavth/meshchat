@@ -478,7 +478,7 @@ int _get_conv_members(const uint32_t conv_id,
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_conv_list(const int limit, const int offset, uint32_t *_res)
+int _get_conv_list(const int limit, const int offset, uint32_t *_idls, uint32_t *_len)
 {
   make_request_conv_get_list(__token, __uid, limit, offset, buf);
 
@@ -487,7 +487,8 @@ int _get_conv_list(const int limit, const int offset, uint32_t *_res)
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_res, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
+    memcpy(_idls, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
+    *_len = res->header.count;
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -551,6 +552,8 @@ int _get_chat_list(const int limit, const int offset, uint32_t *_idls, uint32_t 
     memcpy(_idls, res->body->r_chat.idls, sizeof(uint32_t) * (res->header.count));
     *_len = res->header.count;
     break;
+  case 400:
+    break;
 
     UNHANDLE_OTHER_STT_CODE(res);
   }
@@ -597,7 +600,7 @@ int _get_msg_detail(const uint32_t msg_id, response_msg *_msg)
 }
 
 int _send_msg_text(
-    const uint32_t user_id, const uint32_t conv_id,
+    const uint32_t conv_id,
     const uint32_t chat_id, const uint32_t reply_to, const char *msg,
     uint32_t *_msg_id)
 {
