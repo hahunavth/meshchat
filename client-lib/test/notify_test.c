@@ -3,6 +3,8 @@
 uint32_t idls[2048];
 uint32_t idls_len = 0;
 int stt = 0;
+uint32_t msg_id;
+uint32_t msg2_id;
 
 int main()
 {
@@ -34,8 +36,11 @@ int main()
   LOGIN_AS_USER_X(4);
 
   // User004 (id=5) gửi tin nhắn cho user001 (id=2)
-  uint32_t msg_id;
   stt = _send_msg_text(0, chat_id, 0, "hello world", &msg_id);
+  assert(stt == 201);
+  SUCCESS("send_msg_text:200 pass");
+
+  stt = _send_msg_text(0, chat_id, 0, "hello world 2", &msg2_id);
   assert(stt == 201);
   SUCCESS("send_msg_text:200 pass");
 
@@ -51,7 +56,9 @@ int main()
   DIVIDER();
   stt = _notify_new_msg(_get_uid(), &idls, &idls_len);
   assert(stt == 200);
-  assert(idls_len > 0);
+  assert(idls_len == 2);
+  assert(idls[0] == msg2_id);
+  assert(idls[1] == msg_id);
   SUCCESS("notify_new_msg has new msg:200 pass");
 
   DIVIDER();
@@ -62,7 +69,8 @@ int main()
   DIVIDER();
   stt = _notify_del_msg(0, chat_id, &idls, &idls_len);
   assert(stt == 200);
-  assert(idls[0] == chat_id);
+  assert(idls_len == 1);
+  assert(idls[0] == msg2_id);
   SUCCESS("notify_del_msg:200 pass");
 
   DIVIDER();

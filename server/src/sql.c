@@ -12,10 +12,11 @@
 #define QUERY_SMALL 512
 #define QUERY_LARGE BUFSIZ
 
-#define ROLLBACK() {\
-	*lastrc = rc;  \
-	rc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);\
-}
+#define ROLLBACK()                                        \
+	{                                                       \
+		*lastrc = rc;                                         \
+		rc = sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL); \
+	}
 
 inline int sql_is_ok(int rc) { return (rc == SQLITE_OK) || (rc == SQLITE_ROW) || (rc == SQLITE_DONE) || (rc == SQLITE_EMPTY); }
 inline int sql_is_err(int rc) { return !sql_is_ok(rc); }
@@ -193,8 +194,8 @@ uint32_t user_create(sqlite3 *db, const user_schema *info, int *lastrc)
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
 	snprintf(query, QUERY_SMALL,
-			 "INSERT INTO users(uname, password, phone, email) VALUES ('%s', '%s', '%s', '%s');",
-			 info->uname, info->password, info->phone, info->email);
+					 "INSERT INTO users(uname, password, phone, email) VALUES ('%s', '%s', '%s', '%s');",
+					 info->uname, info->password, info->phone, info->email);
 
 	return sql_insert(db, query, lastrc);
 }
@@ -422,8 +423,8 @@ void conv_quit(sqlite3 *db, uint32_t user_id, uint32_t conv_id, int *lastrc)
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
 	snprintf(query, QUERY_SMALL,
-			 "DELETE FROM members WHERE conv_id=%" PRIu32 " AND user_id=%" PRIu32 "",
-			 conv_id, user_id);
+					 "DELETE FROM members WHERE conv_id=%" PRIu32 " AND user_id=%" PRIu32 "",
+					 conv_id, user_id);
 
 	int rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	if (rc != SQLITE_OK)
@@ -694,8 +695,8 @@ uint32_t msg_send(sqlite3 *db, const msg_schema *msg, int *lastrc)
 
 	memset(query, 0, QUERY_LARGE);
 	snprintf(query, QUERY_LARGE,
-			 "INSERT INTO messages(from_uid, reply_to, content_type, content_length, content, created_at, chat_id, conv_id, type) VALUES (%" PRIu32 ", %s, %d, %" PRIu32 ", '%s', %" PRIu32 ", %s, %s, %d);",
-			 msg->from_uid, reply_str, msg->content_type, msg->content_length, msg->content, (uint32_t)time(NULL), chat_str, conv_str, MSG_SENT);
+					 "INSERT INTO messages(from_uid, reply_to, content_type, content_length, content, created_at, chat_id, conv_id, type) VALUES (%" PRIu32 ", %s, %d, %" PRIu32 ", '%s', %" PRIu32 ", %s, %s, %d);",
+					 msg->from_uid, reply_str, msg->content_type, msg->content_length, msg->content, (uint32_t)time(NULL), chat_str, conv_str, MSG_SENT);
 
 	pthread_mutex_lock(&mutex);
 	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
@@ -755,9 +756,10 @@ sllnode_t *msg_get_msg_sent(sqlite3 *db, uint32_t user_id, int *lastrc)
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
 	snprintf(query, QUERY_SMALL,
-		"select id from messages where chat_id in (select id from chats where member1="PRIu32" or member2="PRIu32") and type=0 "
-		"union "
-		"select id from messages where conv_id in (select conv_id from members where user_id="PRIu32") and type=0;", user_id, user_id, user_id);
+					 "select id from messages where chat_id in (select id from chats where member1=%" PRIu32 " or member2=%" PRIu32 ") and type=0 "
+					 "union "
+					 "select id from messages where conv_id in (select conv_id from members where user_id=%" PRIu32 ") and type=0;",
+					 user_id, user_id, user_id);
 
 	return sql_get_list(db, query, lastrc);
 }
@@ -766,10 +768,10 @@ sllnode_t *msg_get_msg_del(sqlite3 *db, uint32_t user_id, uint32_t conv_id, uint
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	if(conv_id != 0)
-		snprintf(query, QUERY_SMALL, "select id from messages where conv_id in (select conv_id from members where user_id="PRIu32" and conv_id="PRIu32") and type=%d;", user_id, conv_id, MSG_DELETED);
-	else if(chat_id != 0)
-		snprintf(query, QUERY_SMALL, "select id from messages where chat_id in (select id from chats where (member1="PRIu32" or member2="PRIu32") and id="PRIu32") and type=%d;", user_id, user_id, chat_id, MSG_DELETED);
+	if (conv_id != 0)
+		snprintf(query, QUERY_SMALL, "select id from messages where conv_id in (select conv_id from members where user_id=%" PRIu32 " and conv_id=%" PRIu32 ") and type=%d;", user_id, conv_id, MSG_DELETED);
+	else if (chat_id != 0)
+		snprintf(query, QUERY_SMALL, "select id from messages where chat_id in (select id from chats where (member1=%" PRIu32 " or member2=%" PRIu32 ") and id=%" PRIu32 ") and type=%d;", user_id, user_id, chat_id, MSG_DELETED);
 
 	return sql_get_list(db, query, lastrc);
 }
