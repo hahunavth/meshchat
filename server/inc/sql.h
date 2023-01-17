@@ -111,6 +111,8 @@ uint32_t msg_send(sqlite3 *db, const msg_schema *msg, int *lastrc);
 void msg_delivered(sqlite3 *db, uint32_t msg_id, int *lastrc);
 void msg_delete(sqlite3 *db, uint32_t msg_id, int *lastrc);
 void msg_drop(sqlite3 *db, uint32_t msg_id, int *lastrc);
+sllnode_t *msg_get_msg_sent(sqlite3 *db, uint32_t user_id, int *lastrc);
+sllnode_t *msg_get_msg_del(sqlite3 *db, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, int *lastrc);
 
 void msg_free(msg_schema *msg);
 

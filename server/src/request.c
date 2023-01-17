@@ -12,7 +12,7 @@
 #define EMPTY_TOKEN		"\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06\x06"
 #define BODY_DEMLIMITER	'\x1D'
 
-uint32_t parse_uint32_from_buf(char *buf)
+uint32_t parse_uint32_from_buf(const char *buf)
 {
 	uint32_t num;
 	memcpy(&num, buf, 4);
@@ -234,6 +234,7 @@ void request_parse_msg(request *req, const char *body)
 	switch (header->action)
 	{
 	case 0:
+	case 5:
 		(rb->r_msg).conv_id = parse_uint32_from_buf(body);
 		(rb->r_msg).chat_id = parse_uint32_from_buf(body+4);
 		break;
@@ -246,6 +247,8 @@ void request_parse_msg(request *req, const char *body)
 		(rb->r_msg).chat_id = parse_uint32_from_buf(body+4);
 		(rb->r_msg).reply_id = parse_uint32_from_buf(body+8);
 		(rb->r_msg).msg_content = string_new_n(body + 12, header->body_len - 12);
+		break;
+	case 4:
 		break;
 	default:
 		request_body_destroy(rb, header->group);
@@ -658,7 +661,7 @@ void make_request_msg_notify_new(const char* token, uint32_t user_id, char *res)
 	make_request_header(&header, res);
 }
 
-void make_request_msg_notify_del(const char* token, uint32_t user_id, char *res)
+void make_request_msg_notify_del(const char* token, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, char *res)
 {
 	request_header header = {
 		.group = 4,
@@ -673,4 +676,10 @@ void make_request_msg_notify_del(const char* token, uint32_t user_id, char *res)
 		.offset = -1
 	};
 	make_request_header(&header, res);
+
+	char *body = res+REQUEST_HEADER_LEN;
+	memset(body, 0, REQUEST_BODY_LEN);
+
+	write_uint32_to_buf(body, conv_id);
+	write_uint32_to_buf(body+4, chat_id);
 }
