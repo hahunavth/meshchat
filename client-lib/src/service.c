@@ -631,8 +631,10 @@ int _send_msg_text(
   case 201:
     *_msg_id = (res->body->r_msg).msg_id;
     break;
-    // case 403:
-    //   break;
+  case 403:
+    break;
+  case 409:
+    break;
 
     UNHANDLE_OTHER_STT_CODE(res);
   }

@@ -87,7 +87,6 @@ int main()
   // GET ALL MSG
   // =================================================
 
-  // FIXME: RETURN 403
   CONNECT_SERVER();
   LOGIN_AS_USER_X(1);
   {
@@ -210,9 +209,10 @@ int main()
     SUCCESS("msg_test 1->2 send_msg_text pass");
 
     // user001 send msg to conv 1
-    stt = _send_msg_text(conv_1, 0, msg_id_1, "Hello conv 1 p3", &msg_id_3);
+    stt = _send_msg_text(conv_1, 0, 1000, "Hello conv 1 p3", &msg_id_3);
+    assert(stt == 409);
     assert(msg_id_1 > 0);
-    SUCCESS("msg_test 1->3 send_msg_text pass");
+    SUCCESS("msg_test 1->3 send_msg_text invalid reply_to - 409 pass");
 
     // user001 send msg to conv 3
     stt = _send_msg_text(conv_3, 0, 0, "Hello conv 3", &msg_id_4);
