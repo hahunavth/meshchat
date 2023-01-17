@@ -34,3 +34,10 @@ add_test(
 	NAME msg_test
 	COMMAND $<TARGET_FILE:msg_test>
 )
+
+add_executable(notify_test notify_test.c)
+target_link_libraries(notify_test PUBLIC cli_service)
+add_test(
+	NAME notify_test
+	COMMAND $<TARGET_FILE:notify_test>
+)

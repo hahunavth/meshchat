@@ -658,7 +658,7 @@ int _delete_msg(const uint32_t msg_id)
 }
 
 // ??? conv or chat ??? id ???
-int _notify_new_msg(const uint32_t user_id, uint32_t *_idls)
+int _notify_new_msg(const uint32_t user_id, uint32_t *_idls, uint32_t *_len)
 {
   make_request_msg_notify_new(__token, __uid, buf);
 
@@ -668,6 +668,7 @@ int _notify_new_msg(const uint32_t user_id, uint32_t *_idls)
   {
   case 200:
     memcpy(_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
+    *_len = res->header.count;
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -676,7 +677,7 @@ int _notify_new_msg(const uint32_t user_id, uint32_t *_idls)
   FREE_AND_RETURN_STT(res);
 }
 
-int _notify_del_msg(uint32_t *_idls)
+int _notify_del_msg(uint32_t *_idls, uint32_t *_len)
 {
   make_request_msg_notify_del(__token, __uid, buf);
 
@@ -686,6 +687,7 @@ int _notify_del_msg(uint32_t *_idls)
   {
   case 200:
     memcpy(_idls, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
+    *_len = res->header.count;
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
