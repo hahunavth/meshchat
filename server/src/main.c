@@ -698,10 +698,10 @@ void handle_conv_drop(int cfd, request *req, char *buf)
 {
 	int rc;
 	request_conv *rconv = &(req->body->r_conv);
-	int is_member = conv_is_admin(db, rconv->conv_id, (req->header).user_id, &rc);
+	int is_admin = conv_is_admin(db, rconv->conv_id, (req->header).user_id, &rc);
 	if (sql_is_err(rc))
 		RESPONSE_ERR(500, 2, 4);
-	if (!is_member)
+	if (!is_admin)
 		RESPONSE_ERR(403, 2, 4);
 
 	conv_drop(db, rconv->conv_id, &rc);
@@ -742,10 +742,15 @@ void handle_conv_quit(int cfd, request *req, char *buf)
 {
 	int rc;
 	request_conv *rconv = &(req->body->r_conv);
+	int is_admin = conv_is_admin(db, rconv->conv_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR(500, 2, 4);
+	
 	int is_member = conv_is_member(db, rconv->conv_id, (req->header).user_id, &rc);
 	if (sql_is_err(rc))
 		RESPONSE_ERR(500, 2, 4);
-	if (!is_member)
+	
+	if ((!is_member) || (is_member & is_admin))
 		RESPONSE_ERR(403, 2, 4);
 
 	conv_quit(db, (req->header).user_id, (req->body->r_conv).conv_id, &rc);
@@ -844,11 +849,16 @@ void handle_conv_get_list(int cfd, request *req, char *buf)
 void handle_chat_create(int cfd, request *req, char *buf)
 {
 	int rc;
-	uint32_t id = chat_create(db, (req->header).user_id, (req->body->r_chat).user_id2, &rc);
+	request_chat *rchat = &(req->body->r_chat);
+
+	if((req->header).user_id == rchat->user_id2)
+		RESPONSE_ERR(400, 3, 0);
+
+	uint32_t id = chat_create(db, (req->header).user_id, rchat->user_id2, &rc);
 	if (sql_is_err(rc))
 	{
 		if(rc == SQLITE_CONSTRAINT)
-			RESPONSE_ERR(409, 3, 0);	/* The chat has already exist */
+			RESPONSE_ERR(409, 3, 0);	/* The chat has already existed */
 		RESPONSE_ERR(500, 3, 0);
 	}
 

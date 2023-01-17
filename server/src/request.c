@@ -189,6 +189,8 @@ void request_parse_conv(request *req, const char *body)
 		(rb->r_conv).conv_id = parse_uint32_from_buf(body);
 		(rb->r_conv).user_id = parse_uint32_from_buf(body+4);
 		break;
+	case 6:
+		break;
 	default:
 		request_body_destroy(rb, header->group);
 		return;
@@ -211,6 +213,8 @@ void request_parse_chat(request *req, const char *body)
 			break;
 		case 1:
 			(rb->r_chat).chat_id = parse_uint32_from_buf(body);
+			break;
+		case 2:
 			break;
 		default:
 			request_body_destroy(rb, header->group);
