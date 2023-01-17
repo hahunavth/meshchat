@@ -936,9 +936,10 @@ void handle_msg_get_all(int cfd, request *req, char *buf)
 
 	if (!is_member)
 	{
+		is_member = chat_is_member(db, chat_id, (req->header).user_id, &rc);
 		if (sql_is_err(rc))
 			RESPONSE_ERR(500, 4, 0);
-		if (!is_member)
+		if(!is_member)
 			RESPONSE_ERR(403, 4, 0);
 	}
 
@@ -990,10 +991,11 @@ void handle_msg_get_detail(int cfd, request *req, char *buf)
 
 	if (!is_member)
 	{
+		is_member = chat_is_member(db, msg->chat_id, (req->header).user_id, &rc);
 		if (sql_is_err(rc))
 			RESPONSE_ERR_FREE(500, 4, 1, msg, msg_free);
 		if (!is_member)
-			RESPONSE_ERR_FREE(404, 4, 1, msg, msg_free);
+			RESPONSE_ERR_FREE(403, 4, 1, msg, msg_free);
 	}
 
 	response_msg rm = {
