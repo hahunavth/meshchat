@@ -591,7 +591,21 @@ int _get_msg_detail(const uint32_t msg_id, response_msg *_msg)
   SWITCH_STT(res)
   {
   case 200:
-    memcpy(_msg, res->body->r_msg.msg_content, sizeof(response_msg));
+    if (!_msg->msg_content)
+    {
+      _msg->msg_content = malloc(res->body->r_msg.content_length + 1);
+    }
+    memcpy(_msg->msg_content, res->body->r_msg.msg_content, res->body->r_msg.content_length);
+    _msg->chat_id = res->body->r_msg.chat_id;
+    _msg->conv_id = res->body->r_msg.conv_id;
+    _msg->msg_id = res->body->r_msg.msg_id;
+    _msg->msg_type = res->body->r_msg.msg_type;
+    _msg->reply_to = res->body->r_msg.reply_to;
+    _msg->content_length = res->body->r_msg.content_length;
+    printf("content length: %d\n", res->body->r_msg.content_length);
+    _msg->content_type = res->body->r_msg.content_type;
+    _msg->created_at = res->body->r_msg.created_at;
+    _msg->from_uid = res->body->r_msg.from_uid;
     break;
   case 404:
     break;

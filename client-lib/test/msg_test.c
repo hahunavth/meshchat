@@ -34,123 +34,123 @@ int main()
   // =================================================
   // BEFORE ALL TESTS
   // =================================================
-  // CONNECT_SERVER();
-  // create_fake_user();
-  // CLOSE_CONN();
+  CONNECT_SERVER();
+  create_fake_user();
+  CLOSE_CONN();
 
-  // chat_1 = create_fake_chat(1, 3);
-  // assert(chat_1 > 0);
-  // chat_2 = create_fake_chat(1, 4);
-  // chat_3 = create_fake_chat(1, 5);
-  // chat_4 = create_fake_chat(2, 5);
-  // chat_5 = create_fake_chat(3, 6);
-  // SUCCESS("before_all create_fake_chat pass");
+  chat_1 = create_fake_chat(1, 3);
+  assert(chat_1 > 0);
+  chat_2 = create_fake_chat(1, 4);
+  chat_3 = create_fake_chat(1, 5);
+  chat_4 = create_fake_chat(2, 5);
+  chat_5 = create_fake_chat(3, 6);
+  SUCCESS("before_all create_fake_chat pass");
 
   // // TODO: create fake conv
 
   // // =================================================
   // // SEND MSG TEXT
   // // =================================================
-  // CONNECT_SERVER();
-  // LOGIN_AS_USER_X(1);
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(1);
 
-  // // chat_1
-  // {
-  //   assert(chat_1 > 0);
-  //   stt = _send_msg_text(0, chat_1, 0, "Hello 2", &msg_id_1);
-  //   assert(stt == 201);
-  //   assert(msg_id_1 > 0);
-  //   SUCCESS("msg_test 1->2 send_msg_text pass");
+  // chat_1
+  {
+    assert(chat_1 > 0);
+    stt = _send_msg_text(0, chat_1, 0, "Hello 2", &msg_id_1);
+    assert(stt == 201);
+    assert(msg_id_1 > 0);
+    SUCCESS("msg_test 1->2 send_msg_text pass");
 
-  //   stt = _send_msg_text(0, chat_1, 0, "Hello 2", &msg_id_2);
-  //   assert(stt == 201);
-  //   assert(msg_id_2 > 0);
-  //   SUCCESS("msg_test 1->2 send_msg_text pass");
+    stt = _send_msg_text(0, chat_1, 0, "Hello 2", &msg_id_2);
+    assert(stt == 201);
+    assert(msg_id_2 > 0);
+    SUCCESS("msg_test 1->2 send_msg_text pass");
 
-  //   // chat_2
-  //   assert(chat_2 > 0);
-  //   stt = _send_msg_text(0, chat_2, 0, "Hello 3", &msg_id_3);
-  //   assert(msg_id_1 > 0);
-  //   SUCCESS("msg_test 1->3 send_msg_text pass");
+    // chat_2
+    assert(chat_2 > 0);
+    stt = _send_msg_text(0, chat_2, 0, "Hello 3", &msg_id_3);
+    assert(msg_id_1 > 0);
+    SUCCESS("msg_test 1->3 send_msg_text pass");
 
-  //   // chat_4: user2-user5, user 1 not in chat
-  //   stt = _send_msg_text(0, chat_4, 0, "Hello 4", &msg_id_4);
-  //   assert(msg_id_4 == 0);
-  //   assert(stt == 403);
-  //   SUCCESS("msg_test send_msg_text 2<->4 login_as_user1 - 403 pass");
-  // }
+    // chat_4: user2-user5, user 1 not in chat
+    stt = _send_msg_text(0, chat_4, 0, "Hello 4", &msg_id_4);
+    assert(msg_id_4 == 0);
+    assert(stt == 403);
+    SUCCESS("msg_test send_msg_text 2<->4 login_as_user1 - 403 pass");
+  }
 
-  // LOGOUT();
-  // CLOSE_CONN();
+  LOGOUT();
+  CLOSE_CONN();
 
   // =================================================
   // GET ALL MSG
   // =================================================
 
   // FIXME: RETURN 403
-  // CONNECT_SERVER();
-  // LOGIN_AS_USER_X(1);
-  // {
-  // NOTE: hardcode
-  //   // chat_1 = 1;
-  //   stt = _get_msg_all(10, 0, 0, chat_1, &idls, &idls_len);
-  //   printf("idls_len: %d\n", idls_len);
-  //   for (uint32_t i = 0; i < idls_len; i++)
-  //   {
-  //     printf("Msg id: %d\n", idls[i]);
-  //   }
-  //   assert(stt == 200);
-  //   assert(idls_len == 2);
-  //   assert(idls[0] == msg_id_2);
-  //   assert(idls[1] == msg_id_1);
-  //   SUCCESS("msg_test get_msg_all chat_1 pass");
-  // }
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(1);
+  {
+    // NOTE: hardcode
+    // chat_1 = 1;
+    stt = _get_msg_all(10, 0, 0, chat_1, &idls, &idls_len);
+    printf("idls_len: %d\n", idls_len);
+    for (uint32_t i = 0; i < idls_len; i++)
+    {
+      printf("Msg id: %d\n", idls[i]);
+    }
+    assert(stt == 200);
+    assert(idls_len == 2);
+    assert(idls[0] == msg_id_2);
+    assert(idls[1] == msg_id_1);
+    SUCCESS("msg_test get_msg_all chat_1 pass");
+  }
 
-  // LOGOUT();
-  // CLOSE_CONN();
+  LOGOUT();
+  CLOSE_CONN();
 
   // =================================================
   // GET MSG DETAIL
   // =================================================
 
-  // CONNECT_SERVER();
-  // LOGIN_AS_USER_X(1);
-  // {
-  // NOTE: hardcode
-  //   msg_id_1 = 1;
-  //   response_msg msg;
-  //   assert(msg_id_1 > 0);
-  //   stt = _get_msg_detail(msg_id_1, &msg);
-  //   printf("msg_id: %d", msg.msg_id);
-  //   assert(stt == 200);
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(1);
+  {
+    // NOTE: hardcode
+    // msg_id_1 = 1;
+    response_msg msg;
+    assert(msg_id_1 > 0);
+    stt = _get_msg_detail(msg_id_1, &msg);
+    printf("msg_id: %d\n", msg.msg_id);
+    assert(stt == 200);
+    assert(msg.msg_id == msg_id_1);
+    assert(msg.chat_id == chat_1);
+    assert(msg.from_uid == 2);
+    // printf("msg_content %d: %s\n", msg.content_length, msg.msg_content);
+    assert(strcmp(msg.msg_content, "Hello 2") == 0);
+    assert(msg.msg_type == 0);
+    SUCCESS("msg_test get_msg_detail msg_id_1 pass");
+  }
 
-  //   assert(msg.msg_id == msg_id_1);
-  //   assert(msg.chat_id == chat_1);
-  //   assert(msg.from_uid == 2);
-  //   assert(strcmp(msg.msg_content, "Hello 2") == 0);
-  //   assert(msg.msg_type == 0);
-  //   SUCCESS("msg_test get_msg_detail msg_id_1 pass");
-  // }
-
-  // LOGOUT();
-  // CLOSE_CONN();
+  LOGOUT();
+  CLOSE_CONN();
 
   // =================================================
   // DELETE MSG
   // =================================================
 
-  // CONNECT_SERVER();
-  // LOGIN_AS_USER_X(1);
-  // {
-  //   // NOTE: hardcode msg_id_1 = 1
-  //   msg_id_1 = 1;
-  //   stt = _delete_msg(msg_id_1);
-  //   assert(stt == 200);
-  //   SUCCESS("msg_test delete_msg msg_id_1 pass");
-  // }
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(1);
+  {
+    // NOTE: hardcode msg_id_1 = 1
+    // msg_id_1 = 1;
+    stt = _delete_msg(msg_id_1);
+    assert(stt == 200);
+    SUCCESS("msg_test delete_msg msg_id_1 pass");
+  }
 
-  // LOGOUT();
-  // CLOSE_CONN();
+  LOGOUT();
+  CLOSE_CONN();
 
   // =================================================
   // =================================================
