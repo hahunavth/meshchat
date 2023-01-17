@@ -41,3 +41,8 @@ add_test(
 	NAME notify_test
 	COMMAND $<TARGET_FILE:notify_test>
 )
+
+#
+# add_custom_command(
+
+# )

@@ -17,7 +17,11 @@
 #define SUCCESS(msg) printf("\033[0;32m%s\033[0m\n", msg)
 #define INFO(msg) printf(BLUE "%s\n" RESET, msg)
 #define ERR(msg) printf(BLUE "%s\n" RESET, msg)
+#define DIVIDER() puts("=====")
 
+/**
+ * Connect to test server
+ */
 #define CONNECT_SERVER()                            \
   {                                                 \
     int sockfd = connect_server("127.0.0.1", 9000); \
@@ -47,6 +51,11 @@
     printf(BLUE "create_user user_00%d\n" RESET, x); \
   }
 
+/**
+ * login as user_00x
+ * x is a number from 0 to 9
+ * id of user_00x is x + 1
+ */
 #define LOGIN_AS_USER_X(x)                        \
   {                                               \
     int stt = 0;                                  \
@@ -57,6 +66,9 @@
     printf(BLUE "login_as user_00%d\n" RESET, x); \
   }
 
+/**
+ * logout
+ */
 #define LOGOUT()         \
   {                      \
     _logout();           \
@@ -66,6 +78,10 @@
 extern void create_fake_user();
 extern uint32_t create_fake_chat(uint32_t user_id, uint32_t user2_id);
 
+/**
+ * tạo ng dùng fake có tên từ user000 đến user009
+ * id của ng dùng fake sẽ tăng dần từ 1 đến 10
+ */
 void create_fake_user()
 {
   CREATE_USER_X(0);
@@ -80,6 +96,10 @@ void create_fake_user()
   CREATE_USER_X(9);
 }
 
+/**
+ * tạo chat giữa user_id và user2_id
+ * trả về id của chat
+ */
 uint32_t create_fake_chat(uint32_t user_id, uint32_t user2_id)
 {
   CONNECT_SERVER();

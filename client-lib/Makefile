@@ -22,4 +22,7 @@ endif
 clean:
 	rm -rf ./build/*
 
+init_server:
+	cd ../server/; make && make migratedown && make migrateup && ./server
+
 .PHONY: config build test clean migrateup migratedown
