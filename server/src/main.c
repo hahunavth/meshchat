@@ -999,7 +999,10 @@ void handle_msg_get_detail(int cfd, request *req, char *buf)
 	}
 
 	response_msg rm = {
-		.msg_id = msg->id, .from_uid = msg->from_uid, .reply_to = msg->reply_to, .conv_id = msg->conv_id, .chat_id = msg->chat_id, .created_at = msg->created_at, .msg_type = msg->type, .content_type = msg->content_type, .msg_content = msg->content};
+		.msg_id = msg->id, .from_uid = msg->from_uid, .reply_to = msg->reply_to, 
+		.conv_id = msg->conv_id, .chat_id = msg->chat_id, .created_at = msg->created_at, 
+		.msg_type = msg->type, .content_length=msg->content_length, .content_type = msg->content_type, 
+		.msg_content = msg->content};
 	make_response_msg_get_detail(200, &rm, buf);
 	if (write(cfd, buf, BUFSIZ) < 0)
 	{
@@ -1013,6 +1016,7 @@ void handle_msg_send(int cfd, request *req, char *buf)
 {
 	int rc;
 	request_msg *rm = &(req->body->r_msg);
+	int content_type = (req->header).content_type;
 
 	int is_member = conv_is_member(db, rm->conv_id, (req->header).user_id, &rc);
 	if (sql_is_err(rc))
@@ -1028,7 +1032,9 @@ void handle_msg_send(int cfd, request *req, char *buf)
 	}
 
 	msg_schema msg = {
-		.from_uid = (req->header).user_id, .reply_to = rm->reply_id, .conv_id = rm->conv_id, .chat_id = rm->chat_id, .content_length = (req->header).content_len, .content_type = (req->header).content_type, .content = rm->msg_content};
+		.from_uid = (req->header).user_id, .reply_to = rm->reply_id, .conv_id = rm->conv_id, 
+		.chat_id = rm->chat_id, .content_length = (content_type==MSG_TEXT ? ((req->header).content_len-12) : (req->header).content_len), 
+		.content_type = content_type, .content = rm->msg_content};
 	uint32_t id = msg_send(db, &msg, &rc);
 	if (sql_is_err(rc))
 	{
