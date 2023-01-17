@@ -610,7 +610,7 @@ int _send_msg_text(
   SWITCH_STT(res)
   {
   case 201:
-    *_msg_id = parse_uint32_from_buf((res->body));
+    *_msg_id = (res->body->r_msg).msg_id;
     break;
     // case 403:
     //   break;

@@ -228,7 +228,7 @@ sllnode_t *user_get_conv_list(sqlite3 *db, uint32_t user_id, int32_t limit, int3
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "SELECT conv_id FROM members WHERE user_id=%" PRIu32 " ORDER BY id DESC LIMIT %" PRId32 " OFFSET %" PRId32 "", user_id, limit, offset);
+	snprintf(query, QUERY_SMALL, "SELECT conv_id FROM members WHERE user_id=%" PRIu32 " ORDER BY rowid DESC LIMIT %" PRId32 " OFFSET %" PRId32 "", user_id, limit, offset);
 
 	return sql_get_list(db, query, lastrc);
 }

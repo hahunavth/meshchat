@@ -852,7 +852,7 @@ void handle_chat_create(int cfd, request *req, char *buf)
 	request_chat *rchat = &(req->body->r_chat);
 
 	if((req->header).user_id == rchat->user_id2)
-		RESPONSE_ERR(400, 3, 0);
+		RESPONSE_ERR(403, 3, 0);
 
 	uint32_t id = chat_create(db, (req->header).user_id, rchat->user_id2, &rc);
 	if (sql_is_err(rc))
