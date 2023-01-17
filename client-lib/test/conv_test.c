@@ -73,9 +73,6 @@ void test_conv_quit(uint32_t conv_id)
   int stt = 0;
 
   // admin quit room mình tạo -> err
-  /**
-   * FIXME: chưa xử lý trường hợp này
-   */
   stt = _quit_conv(conv_id);
   assert(stt == 403);
 
@@ -127,9 +124,9 @@ void test_conv_get_list()
   uint32_t n_conv_ids;
 
   stt = _get_conv_list(10, 0, conv_ids, &n_conv_ids);
-  printf("stt: %d, n_conv_ids: %d", stt, n_conv_ids);
-  printf("conv_ids[0]: %d", conv_ids[0]);
-  printf("conv_ids[1]: %d", conv_ids[1]);
+  printf("stt: %d, n_conv_ids: %d\n", stt, n_conv_ids);
+  printf("conv_ids[0]: %d\n", conv_ids[0]);
+  printf("conv_ids[1]: %d\n", conv_ids[1]);
   puts("");
 
   assert(stt == 200);

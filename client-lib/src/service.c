@@ -563,7 +563,7 @@ int _get_chat_list(const int limit, const int offset, uint32_t *_idls, uint32_t 
 
 int _get_msg_all(const int limit, const int offset,
                  const uint32_t conv_id, uint32_t chat_id,
-                 uint32_t *_msg_idls)
+                 uint32_t *_msg_idls, uint32_t *_len)
 {
   make_request_msg_get_all(__token, __uid, limit, offset, conv_id, chat_id, buf);
 
@@ -573,6 +573,7 @@ int _get_msg_all(const int limit, const int offset,
   {
   case 200:
     memcpy(_msg_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
+    *_len = res->header.count;
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -591,6 +592,10 @@ int _get_msg_detail(const uint32_t msg_id, response_msg *_msg)
   {
   case 200:
     memcpy(_msg, res->body->r_msg.msg_content, sizeof(response_msg));
+    break;
+  case 404:
+    break;
+  case 500:
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
