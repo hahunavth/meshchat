@@ -80,7 +80,7 @@ void test_conv_quit(uint32_t conv_id)
    * FIXME: chưa xử lý trường hợp này
    */
   stt = _quit_conv(conv_id);
-  // assert(stt == 200);
+  assert(stt == 403);
 
   // ko có room với id này -> 403
   stt = _quit_conv(123456);
@@ -151,35 +151,35 @@ int main()
   LOGIN_AS_USER_X(1);
 
   uint32_t conv_id = test_conv_create("conv000");
-  // test_conv_get_info(conv_id);
+  test_conv_get_info(conv_id);
   test_conv_get_members(conv_id);
-  // test_conv_get_list();
+  test_conv_get_list();
 
   LOGOUT();
   CLOSE_CONN();
 
   // user 2
-  // CONNECT_SERVER();
-  // LOGIN_AS_USER_X(2);
+  CONNECT_SERVER();
+  LOGIN_AS_USER_X(2);
 
-  // // test_conv_get_info(conv_id);
-  // test_conv_join_2(conv_id);
-  // test_conv_drop_2(conv_id);
+  // test_conv_get_info(conv_id);
+  test_conv_join_2(conv_id);
+  test_conv_drop_2(conv_id);
 
-  // LOGOUT();
-  // CLOSE_CONN();
+  LOGOUT();
+  CLOSE_CONN();
 
   // user 1
-  // CONNECT_SERVER();
+  CONNECT_SERVER();
 
-  // LOGIN_AS_USER_X(1);
+  LOGIN_AS_USER_X(1);
 
-  // test_conv_join(conv_id);
-  // test_conv_quit(conv_id);
-  // test_conv_drop(conv_id);
+  test_conv_join(conv_id);
+  test_conv_quit(conv_id);
+  test_conv_drop(conv_id);
 
-  // LOGOUT();
-  // CLOSE_CONN();
+  LOGOUT();
+  CLOSE_CONN();
 
   return 0;
 }
