@@ -6,3 +6,5 @@ sqlite
 db/*.db
 db/.fuse*
 tmp.sql
+
+storage

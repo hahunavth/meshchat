@@ -1,4 +1,6 @@
 #include "common.h"
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,6 +11,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <assert.h>
 #include "service.h"
 #include "connection.h"
@@ -80,7 +84,7 @@ int __register(const request_auth *req, response_auth *_res)
 
   response *res = api_call(__sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   // 201: user created
   case 201:
@@ -105,7 +109,7 @@ int __login(const char *username, const char *password, response_auth *_res)
 
   response *res = api_call(__sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     printf("Login success%d", res->body->r_auth.user_id);
@@ -130,7 +134,7 @@ int _register(const int sockfd, const request_auth *req)
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   // 201: user created
   case 201:
@@ -155,7 +159,7 @@ int _login(const int sockfd, const char *username, const char *password)
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 0:
     // error
@@ -178,7 +182,7 @@ int __logout(const char *token, const char *user_id)
 
   response *res = api_call(__sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     // __clear_auth();
@@ -194,16 +198,12 @@ int _logout(const int sockfd)
 {
   make_request_user_logout(__token, __uid, buf);
 
-  PRINT_TOKEN(__token);
-  PRINT_USER_ID(__uid);
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     __clear_auth();
-    PRINT_TOKEN(__token);
-    PRINT_USER_ID(__uid);
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -219,7 +219,7 @@ int _get_user_info(const int sockfd, const uint32_t user2_id,
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     // memcpy(_res, &res->body->r_user, sizeof(request_user));
@@ -244,7 +244,7 @@ int _get_user_search(const int sockfd, const char *uname, const int32_t offset, 
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     memcpy(_idls, res->body->r_user.idls, sizeof(uint32_t) * (res->header.count));
@@ -264,11 +264,10 @@ int _create_conv(const int sockfd, const char *gname,
   puts("_create_conv: Make request");
   response *res = api_call(sockfd, buf);
   puts("_create_conv: Call api");
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 201:
-    // *_gid = (res->body->r_conv).conv_id;
-    *_gid = calloc(1, sizeof(uint32_t));
+    *_gid = (res->body->r_conv).conv_id;
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -283,7 +282,7 @@ int _drop_conv(const int sockfd, const uint32_t conv_id)
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     break;
@@ -302,7 +301,7 @@ int _join_conv(const int sockfd, const uint32_t conv_id, const uint32_t user2_id
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     break;
@@ -323,7 +322,7 @@ int _quit_conv(const int sockfd, const uint32_t conv_id)
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     break;
@@ -341,7 +340,7 @@ int _get_conv_info(const int sockfd, const uint32_t conv_id,
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     // use admin_id and gname
@@ -364,7 +363,7 @@ int _get_conv_members(const int sockfd, const uint32_t conv_id,
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     memcpy(_res, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
@@ -384,7 +383,7 @@ int _get_conv_list(const int sockfd, const int limit, const int offset, uint32_t
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     memcpy(_idls, res->body->r_conv.idls, sizeof(uint32_t) * (res->header.count));
@@ -403,7 +402,7 @@ int _create_chat(const int sockfd, const uint32_t user2_id, uint32_t *_chat_id)
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 201:
     *_chat_id = (res->body->r_chat).chat_id;
@@ -428,7 +427,7 @@ int _delete_chat(const int sockfd, const uint32_t chat_id)
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     break;
@@ -444,9 +443,8 @@ int _get_chat_list(const int sockfd, const int limit, const int offset, uint32_t
   make_request_chat_get_list(__token, __uid, limit, offset, buf);
 
   response *res = api_call(sockfd, buf);
-  printf("lennnnnnnnnnnnnnnnnnnnn %d\n", res->header.count);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     memcpy(_idls, res->body->r_chat.idls, sizeof(uint32_t) * (res->header.count));
@@ -469,7 +467,7 @@ int _get_msg_all(const int sockfd, const int limit, const int offset,
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     memcpy(_msg_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
@@ -488,7 +486,7 @@ int _get_msg_detail(const int sockfd, const uint32_t msg_id, response_msg *_msg)
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     if (!_msg->msg_content)
@@ -502,7 +500,6 @@ int _get_msg_detail(const int sockfd, const uint32_t msg_id, response_msg *_msg)
     _msg->msg_type = res->body->r_msg.msg_type;
     _msg->reply_to = res->body->r_msg.reply_to;
     _msg->content_length = res->body->r_msg.content_length;
-    printf("content length: %d\n", res->body->r_msg.content_length);
     _msg->content_type = res->body->r_msg.content_type;
     _msg->created_at = res->body->r_msg.created_at;
     _msg->from_uid = res->body->r_msg.from_uid;
@@ -526,7 +523,77 @@ int _send_msg_text(const int sockfd,
   make_requests_msg_send_text(__token, __uid, conv_id, chat_id, reply_to, msg, buf);
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
+  {
+  case 201:
+    *_msg_id = (res->body->r_msg).msg_id;
+    break;
+  case 403:
+    break;
+  case 409:
+    break;
+
+    UNHANDLE_OTHER_STT_CODE(res);
+  }
+
+  FREE_AND_RETURN_STT(res);
+}
+
+int _send_msg_file(
+    const int sockfd,
+    const uint32_t conv_id,
+    const uint32_t chat_id, const uint32_t reply_to, const char *msg,
+    uint32_t *_msg_id)
+{
+  int fd = open(msg, O_RDONLY);
+  struct stat sb;
+  if (fd < 0)
+  {
+    perror("open() failed");
+    return errno;
+  }
+
+  int rc = stat(msg, &sb);
+  if (rc < 0)
+  {
+    perror("stat() failed");
+    return errno;
+  }
+
+  make_requests_msg_send_file(__token, __uid, conv_id, chat_id, reply_to, sb.st_size, msg, buf);
+  if (write(sockfd, buf, BUFSIZ) < 0)
+  {
+    perror("write() failed");
+    return errno;
+  }
+
+  ssize_t nbytes;
+  while ((nbytes = read(fd, buf, BUFSIZ)) > 0)
+  {
+    if (write(sockfd, buf, nbytes) != nbytes)
+    {
+      perror("write() failed");
+      close(fd);
+      return errno;
+    }
+  }
+  close(fd);
+
+  if ((nbytes = read(sockfd, buf, BUFSIZ)) < 0)
+  {
+    perror("read() failed");
+    return errno;
+  }
+
+  if (nbytes == 0)
+  {
+    puts("Connection closed");
+    return 0;
+  }
+
+  response *res = response_parse(buf);
+
+  HANDLE_RES_STT(res)
   {
   case 201:
     *_msg_id = (res->body->r_msg).msg_id;
@@ -548,7 +615,7 @@ int _delete_msg(const int sockfd, const uint32_t msg_id)
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     break;
@@ -570,7 +637,7 @@ int _notify_new_msg(const int sockfd, const uint32_t user_id, uint32_t *_idls, u
     perror("res is null");
   }
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
     memcpy(_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
@@ -591,13 +658,12 @@ int _notify_del_msg(const int sockfd, const uint32_t conv_id, const uint32_t cha
 
   response *res = api_call(sockfd, buf);
 
-  SWITCH_STT(res)
+  HANDLE_RES_STT(res)
   {
   case 200:
-    // memcpy(_idls, res->body, sizeof(uint32_t) * (res->header.count));
     // __parse_uint32_list(res->body, _idls, _len);
+    memcpy(_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
     *_len = res->header.count;
-    printf("count: %d\n", res->header.count);
     break;
   case 500:
     break;

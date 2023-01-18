@@ -9,7 +9,25 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <assert.h>
+#include <errno.h>
 #include "connection.h"
+
+#define HANDLE_SOCKET_ERRNO_AND_RETURN_NULL        \
+  switch (errno)                                   \
+  {                                                \
+  case EWOULDBLOCK:                                \
+    perror(RED "Error: timeout" RESET);            \
+    return NULL;                                   \
+  case ECONNRESET:                                 \
+    perror(RED "Error: conn reset by peer" RESET); \
+    return NULL;                                   \
+  case EMSGSIZE:                                   \
+    perror(RED "Error: message too long" RESET);   \
+    return NULL;                                   \
+  default:                                         \
+    perror(RED "Error: failed" RESET);             \
+    return NULL;                                   \
+  }
 
 /**
  * @brief Connect to server
@@ -111,25 +129,23 @@ response *api_call(const int sockfd, const char *req)
   sz = send(sockfd, req, BUFSIZ, 0);
   if ((sz) < 0)
   {
-    printf("Size: %d, SocketFD: %d\n", sz, __sockfd);
-    fflush(stdout);
-    perror("Error: Send failed!");
-    return NULL;
+    HANDLE_SOCKET_ERRNO_AND_RETURN_NULL;
   }
   memset(buf, 0, BUFSIZ);
 
   sz = recv(sockfd, buf, BUFSIZ, 0);
   if ((sz) < 0)
   {
-    perror("Error: Recv failed");
-    return NULL;
+    HANDLE_SOCKET_ERRNO_AND_RETURN_NULL;
   }
-
-  if (sz == 0)
+  else if (sz == 0)
   {
     printf(YELLOW "Connection closed\n" RESET);
+    return NULL;
   }
-  response *res = response_parse(buf);
-
-  return res;
+  else
+  {
+    response *res = response_parse(buf);
+    return res;
+  }
 }

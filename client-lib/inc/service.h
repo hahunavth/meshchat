@@ -34,7 +34,6 @@
 /**
  * External API
  */
-// extern int __send(const char *buff);
 extern int __recv(char *buff);
 extern void ___send(const char *buff);
 
@@ -52,9 +51,7 @@ extern int __login(const char *username, const char *password, response_auth *_r
 extern int __register(const request_auth *req, response_auth *_res);
 extern int __logout(const char *token, const char *user_id);
 
-// extern int _login(const char *username, const char *password);
 extern int _login(const int sockfd, const char *username, const char *password);
-// extern int _register(const request_auth *req);
 extern int _register(const int sockfd, const request_auth *req);
 extern int _logout(const int sockfd);
 
@@ -73,6 +70,7 @@ extern int _get_chat_list(const int sockfd, const int limit, const int offset, u
 extern int _get_msg_all(const int sockfd, const int limit, const int offset, const uint32_t conv_id, uint32_t chat_id, uint32_t *_msg_idls, uint32_t *_len);
 extern int _get_msg_detail(const int sockfd, const uint32_t msg_id, response_msg *_msg);
 extern int _send_msg_text(const int sockfd, const uint32_t conv_id, const uint32_t chat_id, const uint32_t reply_to, const char *msg, uint32_t *_msg_id);
+extern int _send_msg_file(const int sockfd, const uint32_t conv_id, const uint32_t chat_id, const uint32_t reply_to, const char *msg, uint32_t *_msg_id);
 extern int _delete_msg(const int sockfd, const uint32_t msg_id);
 extern int _notify_new_msg(const int sockfd, const uint32_t user_id, uint32_t *_idls, uint32_t *_len);
 extern int _notify_del_msg(const int sockfd, const uint32_t conv_id, const uint32_t chat_id, uint32_t *_idls, uint32_t *_len);

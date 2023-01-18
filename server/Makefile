@@ -1,3 +1,7 @@
+init:
+	[[ -d build ]] || mkdir build
+	[[ -d debug ]] || mkdir debug
+	[[ -d storage ]] || mkdir storage
 config:
 ifdef DEBUG
 	cmake -DCMAKE_BUILD_TYPE=Debug -S . -B debug

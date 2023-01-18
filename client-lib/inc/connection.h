@@ -2,8 +2,23 @@
 #define __CLIENT_LIB_INC_CONNECTION_H__
 
 #include "common.h"
+#include "errno.h"
 
-#define SWITCH_STT(res)                       \
+/**
+ * Handle res exception and handle each status
+ * if res NULL: send, recv error
+ * else: exception
+ */
+#define HANDLE_RES_STT(res)                   \
+  if (res == NULL)                            \
+    switch (errno)                            \
+    {                                         \
+    case EWOULDBLOCK:                         \
+      clearerr(stderr);                       \
+      return 408;                             \
+    default:                                  \
+      return -1;                              \
+    }                                         \
   PRINT_STATUS_CODE(res->header.status_code); \
   switch (res->header.status_code)
 
