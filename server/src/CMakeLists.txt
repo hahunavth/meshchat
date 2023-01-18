@@ -19,7 +19,7 @@ target_link_libraries(response
 
 find_package(OpenSSL REQUIRED)
 
-add_executable(server main.c)
+add_executable(server main.c handler.c)
 target_link_libraries(server
 	PUBLIC pthread
 	PUBLIC OpenSSL::SSL

@@ -676,3 +676,8 @@ void make_request_msg_notify_del(const char *token, uint32_t user_id, uint32_t c
 	write_uint32_to_buf(body, conv_id);
 	write_uint32_to_buf(body + 4, chat_id);
 }
+
+inline void make_request_msg_file_download(const char* token, uint32_t user_id, uint32_t msg_id, char *res)
+{
+	make_request_uint32(token, 4, 6, user_id, msg_id, res);
+}

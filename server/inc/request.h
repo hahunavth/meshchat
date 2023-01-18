@@ -108,6 +108,7 @@ void make_requests_msg_send_file(const char *token, uint32_t user_id, uint32_t c
 void make_request_msg_delete(const char* token, uint32_t user_id, uint32_t msg_id, char *res);
 void make_request_msg_notify_new(const char* token, uint32_t user_id, char *res);
 void make_request_msg_notify_del(const char* token, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, char *res);
+void make_request_msg_file_download(const char* token, uint32_t user_id, uint32_t msg_id, char *res);
 
 void request_destroy(request *req);
 
