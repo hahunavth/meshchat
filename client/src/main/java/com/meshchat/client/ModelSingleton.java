@@ -1,7 +1,7 @@
 package com.meshchat.client;
 
 import com.meshchat.client.experiments.libs.TypeMappingLib;
-import com.meshchat.client.model.DataSource;
+import com.meshchat.client.model.DataStore;
 import com.meshchat.client.net.client.simple.TCPSimpleClient;
 import com.meshchat.client.net.client.simple.TCPSimpleCClient;
 import com.meshchat.client.views.navigation.StackNavigation;
@@ -19,7 +19,7 @@ public class ModelSingleton {
 
     //
     public TypeMappingLib lib;
-    public final DataSource dataSource = new DataSource();
+    public final DataStore dataStore = new DataStore();
     public TCPSimpleClient tcpClient;
     public StackNavigation stackNavigation;;
 
@@ -39,7 +39,7 @@ public class ModelSingleton {
             System.out.println("Close connection!");
         }});
 
-        tcpClient.subscribe(dataSource);
+        tcpClient.subscribe(dataStore);
     }
 
     public void initClient(String host, int port) {

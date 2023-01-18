@@ -10,17 +10,17 @@ import java.util.Map;
 
 public class ChatViewModel extends BaseViewModel {
     public List<Long> getChatIdList() {
-        List<Long> list = new ArrayList<>(dataSource.getChatMap().keySet());
+        List<Long> list = new ArrayList<>(dataStore.getChatMap().keySet());
         Collections.sort(list);
         return list;
     }
 
     public Map<Long, Chat> getChatMap() {
-        return dataSource.getChatMap();
+        return dataStore.getChatMap();
     }
 
     public Map<Long, Conv> getConvMap () {
-        return this.dataSource.getConvMap();
+        return this.dataStore.getConvMap();
     }
 
 //    @Override

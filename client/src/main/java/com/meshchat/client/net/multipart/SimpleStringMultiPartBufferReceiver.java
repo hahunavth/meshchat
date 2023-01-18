@@ -1,5 +1,8 @@
 package com.meshchat.client.net.multipart;
 
+/**
+ * @deprecated
+ */
 public class SimpleStringMultiPartBufferReceiver implements IMultiPartBufferReceiver {
 
     private final StringBuilder stringBuilder = new StringBuilder();

@@ -19,7 +19,7 @@ import java.util.concurrent.Flow;
  * <br>
  * <s>Observable pattern:</s>
  */
-public class DataSource implements Flow.Subscriber<char[]> {
+public class DataStore implements Flow.Subscriber<char[]> {
     // reactive streams
     private Flow.Subscription subscription;
 
@@ -32,7 +32,7 @@ public class DataSource implements Flow.Subscriber<char[]> {
     public final ObservableMap<Long, Conv> oConvMap = FXCollections.observableMap(convMap);
     public final ObservableMap<Long, Chat> oChatMap = FXCollections.observableMap(chatMap);
 
-    public DataSource() {
+    public DataStore() {
         /**
          * Fake data
          */

@@ -1,5 +1,8 @@
 package com.meshchat.client.net;
 
+/**
+ * @deprecated
+ */
 public enum OpSubGroup {
     REGISTER,
     LOGIN,

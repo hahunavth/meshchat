@@ -1,8 +1,7 @@
 package com.meshchat.client.viewmodels;
 
 import com.meshchat.client.ModelSingleton;
-import com.meshchat.client.model.DataSource;
-import com.meshchat.client.views.base.BaseScreenHandler;
+import com.meshchat.client.model.DataStore;
 
 /**
  * ViewModel
@@ -11,6 +10,6 @@ import com.meshchat.client.views.base.BaseScreenHandler;
  * - impl action handler
  */
 public abstract class BaseViewModel {
-    protected DataSource dataSource = ModelSingleton.getInstance().dataSource;
+    protected DataStore dataStore = ModelSingleton.getInstance().dataStore;
 
 }

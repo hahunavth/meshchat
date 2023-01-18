@@ -7,15 +7,12 @@ import com.meshchat.client.viewmodels.MessageViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.LazyInitialize;
 import com.meshchat.client.views.components.MsgItem;
-import com.meshchat.client.views.components.MsgItemLeft;
-import com.meshchat.client.views.components.MsgItemRight;
 import com.meshchat.client.views.factories.MsgItemComponentFactory;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -23,11 +20,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.controlsfx.control.PropertySheet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class MessageScreenHandler extends BaseScreenHandler implements LazyInitialize {
 
@@ -64,7 +59,7 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         this.username.textProperty().bindBidirectional(this.viewModel.getName());
         //
         this.viewModel.getMsgList().forEach((item) -> {
-            MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataSource.getUserProfile().getEntity().getId());
+            MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataStore.getUserProfile().getEntity().getId());
             addMsg(msgItem);
         });
         this.viewModel.getMsgList().addListener((ListChangeListener<? super Message>) e -> {
@@ -73,7 +68,7 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
             if (e.wasAdded()) {
                 List<Message> ins = (List<Message>) e.getAddedSubList();
                 ins.forEach(item -> {
-                    MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataSource.getUserProfile().getEntity().getId());
+                    MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataStore.getUserProfile().getEntity().getId());
                     addMsg(msgItem);
                 });
             }

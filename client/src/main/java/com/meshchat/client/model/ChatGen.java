@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Chung cho conv và chat
  */
-public abstract class ChatGen extends BaseSchema {
+public abstract class ChatGen extends BaseModel {
     private final Map<Long, Message> msgMap = new HashMap<>();
     private final ObservableMap<Long, Message> oMsgMap = FXCollections.observableMap(msgMap);
 

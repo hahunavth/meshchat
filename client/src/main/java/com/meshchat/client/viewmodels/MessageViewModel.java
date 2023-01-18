@@ -6,7 +6,6 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 
 public class MessageViewModel extends BaseViewModel {
     public enum Type {
@@ -21,9 +20,9 @@ public class MessageViewModel extends BaseViewModel {
 
     public ChatGen getChatGen() {
         if(type==Type.CONV)
-            return this.dataSource.oConvMap.get(room_id.get());
+            return this.dataStore.oConvMap.get(room_id.get());
         else if(type == Type.CHAT)
-            return this.dataSource.oChatMap.get(room_id.get());
+            return this.dataStore.oChatMap.get(room_id.get());
         else
             throw new Error("Not implemented");
     }
@@ -109,8 +108,8 @@ public class MessageViewModel extends BaseViewModel {
         if (this.newMsgListener != null) {
             ChatGen room;
             // add msg list
-            if (type == Type.CHAT) room = ModelSingleton.getInstance().dataSource.oChatMap.get(room_id.get());
-            else room = ModelSingleton.getInstance().dataSource.oConvMap.get(room_id.get());
+            if (type == Type.CHAT) room = ModelSingleton.getInstance().dataStore.oChatMap.get(room_id.get());
+            else room = ModelSingleton.getInstance().dataStore.oConvMap.get(room_id.get());
             room.getOMsgMap().removeListener(this.newMsgListener);
         }
     }

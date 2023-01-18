@@ -1,5 +1,7 @@
 package com.meshchat.client.net.client.simple;
 
+import com.meshchat.client.model.DataStore;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Flow;
@@ -8,7 +10,7 @@ import java.util.concurrent.SubmissionPublisher;
 /**
  * @deprecated
  * Connection with server
- * @see com.meshchat.client.model.DataSource
+ * @see DataStore
  */
 public abstract class TCPSimpleClient extends SubmissionPublisher<char[]> implements Runnable, Flow.Publisher<char[]> {
     // constant

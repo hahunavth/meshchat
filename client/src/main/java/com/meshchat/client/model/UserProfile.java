@@ -2,7 +2,7 @@ package com.meshchat.client.model;
 
 import com.meshchat.client.db.entities.UserEntity;
 
-public class UserProfile extends BaseSchema {
+public class UserProfile extends BaseModel {
     private final UserEntity entity = new UserEntity();
 
     public UserProfile(long id, String username, String password, String phone_number, String email) {
