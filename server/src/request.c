@@ -71,7 +71,9 @@ request *request_parse(const char *buf)
 	case 4:
 		request_parse_msg(req, buf + REQUEST_HEADER_LEN);
 		break;
-	default:
+	}
+	if(!(req->body))
+	{
 		free(req);
 		return NULL;
 	}

@@ -6,6 +6,8 @@ int main(int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
+
+	printf("thread mode = %d\n", sqlite3_threadsafe());	
 	
 	struct sqlite3 *db;
 

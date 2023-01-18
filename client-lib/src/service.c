@@ -1,4 +1,6 @@
 #include "common.h"
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,6 +11,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <assert.h>
 #include "service.h"
 
@@ -657,6 +661,75 @@ int _send_msg_text(
   make_requests_msg_send_text(__token, __uid, conv_id, chat_id, reply_to, msg, buf);
   response *res = api_call(buf);
 
+  SWITCH_STT(res)
+  {
+  case 201:
+    *_msg_id = (res->body->r_msg).msg_id;
+    break;
+  case 403:
+    break;
+  case 409:
+    break;
+
+    UNHANDLE_OTHER_STT_CODE(res);
+  }
+
+  FREE_AND_RETURN_STT(res);
+}
+
+int _send_msg_file(
+    const uint32_t conv_id,
+    const uint32_t chat_id, const uint32_t reply_to, const char *msg,
+    uint32_t *_msg_id)
+{
+	int fd = open(msg, O_RDONLY);
+	struct stat sb;
+	if(fd < 0)
+	{
+		perror("open() failed");
+		return errno;
+	}
+	
+	int rc = stat(msg, &sb);
+	if(rc < 0)
+	{
+		perror("stat() failed");
+		return errno;
+	}
+
+  make_requests_msg_send_file(__token, __uid, conv_id, chat_id, reply_to, sb.st_size, msg, buf);
+	if(write(sockfd, buf, BUFSIZ) < 0)
+	{
+		perror("write() failed");
+		return errno;
+	}
+
+	ssize_t nbytes;
+	while((nbytes = read(fd, buf, BUFSIZ)) > 0)
+	{
+		if(write(sockfd, buf, nbytes) != nbytes)
+		{
+			perror("write() failed");
+			close(fd);
+			return errno;
+		}
+	}
+	close(fd);
+	
+	if((nbytes = read(sockfd, buf, BUFSIZ)) < 0)
+	{
+		perror("read() failed");
+		return errno;
+	}
+
+	if(nbytes == 0)
+	{
+		puts("Connection closed");
+		return 0;
+	}
+
+	response *res = response_parse(buf);
+	
   SWITCH_STT(res)
   {
   case 201:

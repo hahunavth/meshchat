@@ -4,6 +4,7 @@ target_link_libraries(sqlite3
 	PUBLIC dl
 	PUBLIC m
 )
+target_compile_definitions(sqlite3 PRIVATE SQLITE_THREADSAFE=1)
 
 add_executable(sqlite shell.c sqlite3.c)
 target_link_libraries(sqlite
