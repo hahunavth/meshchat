@@ -1,12 +1,9 @@
 package com.meshchat.client.cnative;
 
 import com.meshchat.client.cnative.req.RequestAuth;
-import com.meshchat.client.cnative.res.ResponseAuth;
 import com.meshchat.client.cnative.res.ResponseUser;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.LibraryOption;
-import jnr.ffi.NativeLong;
-import jnr.ffi.Struct;
 import jnr.ffi.annotations.In;
 import jnr.ffi.annotations.Out;
 import jnr.ffi.byref.NativeLongByReference;
@@ -15,13 +12,24 @@ import jnr.ffi.types.u_int16_t;
 import jnr.ffi.types.u_int32_t;
 
 /**
- * Map function:
- * const -> @In
- * const char * -> @In CharSequence
- * char * -> @Out CharSequence
- * uint32_t -> @u_int32_t long
- * uint16_t -> @u_int16_t int
- * @Out @u_int32_t NativeLongByReference  -> @Out @u_int32_t long
+ * Map type parameters: C -> Java <br>
+ * <br>
+ * I/O: <br>
+ * const -> @In <br>
+ * _ prefix -> @Out <br>
+ * <br>
+ * IN: <br>
+ * const char * -> @In CharSequence <br>
+ * uint32_t -> @In @u_int32_t long <br>
+ * uint16_t -> @In @u_int32_t int <br>
+ * const struct * -> @In ... <br>
+ * <br>
+ * OUT:  <br>
+ * char * -> @Out CharSequence <br>
+ * uint32_t * -> @Out @u_int32_t NativeLongByReference <br>
+ * uint16_t * -> @Out @u_int16_t NativeIntByReference <br>
+ * uint32_t[] -> @Out @u_int32_t long[] <br>
+ * struct * -> @Out ... <br>
  */
 public interface CAPIServiceLib {
     /**
