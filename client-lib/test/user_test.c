@@ -5,7 +5,7 @@ void test_user_get_info()
   // int stt = 0;
   response_user tmp;
   // stt =
-  _get_user_info(1, &tmp);
+  _get_user_info(get_sockfd(), 1, &tmp);
   // PRINT_STATUS_CODE(stt);
 
   assert(strcmp(tmp.email, "abc@def.com") == 0);
@@ -19,7 +19,7 @@ void test_user_get_search()
   int stt = 0;
   uint32_t *idls = (uint32_t *)malloc(sizeof(uint32_t) * 2048);
   uint32_t idls_len = 0;
-  stt = _get_user_search("user00", 0, 10, idls, &idls_len);
+  stt = _get_user_search(get_sockfd(), "user00", 0, 10, idls, &idls_len);
   printf("idls_len: %d\n", idls_len);
   for (uint32_t i = 0; i < idls_len; i++)
   {

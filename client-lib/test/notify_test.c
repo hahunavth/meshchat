@@ -22,7 +22,7 @@ int main()
 
   // notify new msg -> len = 0
   DIVIDER();
-  stt = _notify_new_msg(_get_uid(), &idls, &idls_len);
+  stt = _notify_new_msg(get_sockfd(), _get_uid(), &idls, &idls_len);
   assert(stt == 200);
   assert(idls_len == 0);
   SUCCESS("notify_new_msg no new msg:200 pass");
@@ -36,11 +36,11 @@ int main()
   LOGIN_AS_USER_X(4);
 
   // User004 (id=5) gửi tin nhắn cho user001 (id=2)
-  stt = _send_msg_text(0, chat_id, 0, "hello world", &msg_id);
+  stt = _send_msg_text(get_sockfd(), 0, chat_id, 0, "hello world", &msg_id);
   assert(stt == 201);
   SUCCESS("send_msg_text:200 pass");
 
-  stt = _send_msg_text(0, chat_id, 0, "hello world 2", &msg2_id);
+  stt = _send_msg_text(get_sockfd(), 0, chat_id, 0, "hello world 2", &msg2_id);
   assert(stt == 201);
   SUCCESS("send_msg_text:200 pass");
 
@@ -54,7 +54,7 @@ int main()
 
   // notify new msg -> len = 1
   DIVIDER();
-  stt = _notify_new_msg(_get_uid(), &idls, &idls_len);
+  stt = _notify_new_msg(get_sockfd(), _get_uid(), &idls, &idls_len);
   assert(stt == 200);
   assert(idls_len == 2);
   assert(idls[0] == msg2_id);
@@ -62,12 +62,12 @@ int main()
   SUCCESS("notify_new_msg has new msg:200 pass");
 
   DIVIDER();
-  stt = _delete_msg(msg_id);
+  stt = _delete_msg(get_sockfd(), msg_id);
   assert(stt == 200);
   SUCCESS("delete_msg:200 pass");
 
   DIVIDER();
-  stt = _notify_del_msg(0, chat_id, &idls, &idls_len);
+  stt = _notify_del_msg(get_sockfd(), 0, chat_id, &idls, &idls_len);
   assert(stt == 200);
   assert(idls_len == 1);
   assert(idls[0] == msg2_id);

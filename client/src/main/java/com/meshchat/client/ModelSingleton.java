@@ -2,9 +2,8 @@ package com.meshchat.client;
 
 import com.meshchat.client.experiments.libs.TypeMappingLib;
 import com.meshchat.client.model.DataSource;
-import com.meshchat.client.net.client.TCPClient;
-import com.meshchat.client.net.client.TCPJavaClient;
-import com.meshchat.client.net.client.TCPSimpleCClient;
+import com.meshchat.client.net.client.simple.TCPSimpleClient;
+import com.meshchat.client.net.client.simple.TCPSimpleCClient;
 import com.meshchat.client.views.navigation.StackNavigation;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.LibraryOption;
@@ -21,7 +20,7 @@ public class ModelSingleton {
     //
     public TypeMappingLib lib;
     public final DataSource dataSource = new DataSource();
-    public TCPClient tcpClient;
+    public TCPSimpleClient tcpClient;
     public StackNavigation stackNavigation;;
 
     private ModelSingleton() {

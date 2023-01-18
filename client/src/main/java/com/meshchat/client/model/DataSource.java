@@ -1,7 +1,7 @@
 package com.meshchat.client.model;
 
 import com.meshchat.client.db.entities.UserEntity;
-import com.meshchat.client.net.client.TCPClient;
+import com.meshchat.client.net.client.simple.TCPSimpleClient;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -11,7 +11,7 @@ import java.util.concurrent.Flow;
 /**
  * Reactive programming:
  * @see com.meshchat.client.net.providers.ApiProvider
- * @see TCPClient
+ * @see TCPSimpleClient
  *
  * @see <a href="https://blog.avenuecode.com/reactive-streams-and-microservices-a-case-study">reactive-streams</a>
  * @see <a href="https://dzone.com/articles/reactive-streams-in-java-9">reactive-streams</a>

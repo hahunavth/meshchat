@@ -4,6 +4,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * @deprecated
+ */
 public abstract class BaseParser {
     private final Charset charset = StandardCharsets.US_ASCII;
     private final CharsetEncoder encoder = StandardCharsets.US_ASCII.newEncoder();

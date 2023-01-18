@@ -57,24 +57,24 @@ int main()
   // chat_1
   {
     assert(chat_1 > 0);
-    stt = _send_msg_text(0, chat_1, 0, "Hello 2", &msg_id_1);
+    stt = _send_msg_text(get_sockfd(), 0, chat_1, 0, "Hello 2", &msg_id_1);
     assert(stt == 201);
     assert(msg_id_1 > 0);
     SUCCESS("msg_test 1->2 send_msg_text pass");
 
-    stt = _send_msg_text(0, chat_1, 0, "Hello 2", &msg_id_2);
+    stt = _send_msg_text(get_sockfd(), 0, chat_1, 0, "Hello 2", &msg_id_2);
     assert(stt == 201);
     assert(msg_id_2 > 0);
     SUCCESS("msg_test 1->2 send_msg_text pass");
 
     // chat_2
     assert(chat_2 > 0);
-    stt = _send_msg_text(0, chat_2, 0, "Hello 3", &msg_id_3);
+    stt = _send_msg_text(get_sockfd(), 0, chat_2, 0, "Hello 3", &msg_id_3);
     assert(msg_id_1 > 0);
     SUCCESS("msg_test 1->3 send_msg_text pass");
 
     // chat_4: user2-user5, user 1 not in chat
-    stt = _send_msg_text(0, chat_4, 0, "Hello 4", &msg_id_4);
+    stt = _send_msg_text(get_sockfd(), 0, chat_4, 0, "Hello 4", &msg_id_4);
     assert(msg_id_4 == 0);
     assert(stt == 403);
     SUCCESS("msg_test send_msg_text 2<->4 login_as_user1 - 403 pass");
@@ -92,7 +92,7 @@ int main()
   {
     // NOTE: hardcode
     // chat_1 = 1;
-    stt = _get_msg_all(10, 0, 0, chat_1, &idls, &idls_len);
+    stt = _get_msg_all(get_sockfd(), 10, 0, 0, chat_1, &idls, &idls_len);
     printf("idls_len: %d\n", idls_len);
     for (uint32_t i = 0; i < idls_len; i++)
     {
@@ -119,7 +119,7 @@ int main()
     // msg_id_1 = 1;
     response_msg msg;
     assert(msg_id_1 > 0);
-    stt = _get_msg_detail(msg_id_1, &msg);
+    stt = _get_msg_detail(get_sockfd(), msg_id_1, &msg);
     printf("msg_id: %d\n", msg.msg_id);
     assert(stt == 200);
     assert(msg.msg_id == msg_id_1);
@@ -143,7 +143,7 @@ int main()
   {
     // NOTE: hardcode msg_id_1 = 1
     // msg_id_1 = 1;
-    stt = _delete_msg(msg_id_1);
+    stt = _delete_msg(get_sockfd(), msg_id_1);
     assert(stt == 200);
     SUCCESS("msg_test delete_msg msg_id_1 pass");
   }
@@ -166,14 +166,14 @@ int main()
 
   // user 1 create conv 1
   LOGIN_AS_USER_X(1); // user001 - id 2
-  _create_conv("conv_1", &conv_1);
-  _join_conv(conv_1, 3); // user002
-  _join_conv(conv_1, 4); // user003
-  _join_conv(conv_1, 5); // user004
+  _create_conv(get_sockfd(), "conv_1", &conv_1);
+  _join_conv(get_sockfd(), conv_1, 3); // user002
+  _join_conv(get_sockfd(), conv_1, 4); // user003
+  _join_conv(get_sockfd(), conv_1, 5); // user004
 
   // user 1 create conv 2
-  _create_conv("conv_2", &conv_2);
-  _join_conv(conv_2, 6); // user005
+  _create_conv(get_sockfd(), "conv_2", &conv_2);
+  _join_conv(get_sockfd(), conv_2, 6); // user005
 
   LOGOUT();
   CLOSE_CONN();
@@ -181,7 +181,7 @@ int main()
   CONNECT_SERVER();
   LOGIN_AS_USER_X(2); // user002 - id 3
   // user 2 create conv 3
-  _create_conv("conv_3", &conv_3);
+  _create_conv(get_sockfd(), "conv_3", &conv_3);
 
   LOGOUT();
   CLOSE_CONN();
@@ -198,24 +198,24 @@ int main()
   LOGIN_AS_USER_X(1);
   // user 1 send msg to conv 1
   {
-    stt = _send_msg_text(conv_1, 0, 0, "Hello conv 1 p1", &msg_id_1);
+    stt = _send_msg_text(get_sockfd(), conv_1, 0, 0, "Hello conv 1 p1", &msg_id_1);
     assert(stt == 201);
     assert(msg_id_1 > 0);
     SUCCESS("msg_test 1->2 send_msg_text pass");
 
-    stt = _send_msg_text(conv_1, 0, msg_id_1, "Hello conv 1 p2", &msg_id_2);
+    stt = _send_msg_text(get_sockfd(), conv_1, 0, msg_id_1, "Hello conv 1 p2", &msg_id_2);
     assert(stt == 201);
     assert(msg_id_2 > 0);
     SUCCESS("msg_test 1->2 send_msg_text pass");
 
     // user001 send msg to conv 1
-    stt = _send_msg_text(conv_1, 0, 1000, "Hello conv 1 p3", &msg_id_3);
+    stt = _send_msg_text(get_sockfd(), conv_1, 0, 1000, "Hello conv 1 p3", &msg_id_3);
     assert(stt == 409);
     assert(msg_id_1 > 0);
     SUCCESS("msg_test 1->3 send_msg_text invalid reply_to - 409 pass");
 
     // user001 send msg to conv 3
-    stt = _send_msg_text(conv_3, 0, 0, "Hello conv 3", &msg_id_4);
+    stt = _send_msg_text(get_sockfd(), conv_3, 0, 0, "Hello conv 3", &msg_id_4);
     assert(msg_id_4 == 0);
     assert(stt == 403);
     SUCCESS("msg_test send_msg_text 2<->4 login_as_user1 - 403 pass");

@@ -1,10 +1,13 @@
-package com.meshchat.client.net.client;
+package com.meshchat.client.net.client.simple;
 
 import com.meshchat.client.experiments.libs.TypeMappingLib;
 
 import java.util.Arrays;
 
-public class TCPSimpleCClient extends TCPClient {
+/**
+ * @deprecated
+ */
+public class TCPSimpleCClient extends TCPSimpleClient {
     private final TypeMappingLib lib;
     public TCPSimpleCClient(String host, int port, TypeMappingLib lib) {
         super(host, port);

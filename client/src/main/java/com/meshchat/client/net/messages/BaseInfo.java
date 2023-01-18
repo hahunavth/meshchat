@@ -3,6 +3,9 @@ package com.meshchat.client.net.messages;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 
+/**
+ * @deprecated
+ */
 public class BaseInfo extends Struct {
     protected BaseInfo(Runtime runtime) {
         super(runtime);

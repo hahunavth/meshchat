@@ -1,19 +1,16 @@
-package com.meshchat.client.net.client;
+package com.meshchat.client.net.client.simple;
 
-import java.io.*;
-import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
 /**
+ * @deprecated
  * Connection with server
-// * @see com.meshchat.client.net.providers.ApiProvider
  * @see com.meshchat.client.model.DataSource
  */
-public abstract class TCPClient extends SubmissionPublisher<char[]> implements Runnable, Flow.Publisher<char[]> {
+public abstract class TCPSimpleClient extends SubmissionPublisher<char[]> implements Runnable, Flow.Publisher<char[]> {
     // constant
     public final int DEFAULT_BUFF_SIZE = 8192;
     protected int buff_size = DEFAULT_BUFF_SIZE;
@@ -27,12 +24,12 @@ public abstract class TCPClient extends SubmissionPublisher<char[]> implements R
 
     protected List<Flow.Subscriber> subscriberList = new ArrayList<>();
 
-    public TCPClient(String host, int port) {
+    public TCPSimpleClient(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
-    public TCPClient() {
+    public TCPSimpleClient() {
     }
 
     // getter, setter

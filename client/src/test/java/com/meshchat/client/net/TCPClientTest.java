@@ -1,7 +1,7 @@
 package com.meshchat.client.net;
 
-import com.meshchat.client.net.client.TCPClient;
-import com.meshchat.client.net.client.TCPJavaClient;
+import com.meshchat.client.net.client.simple.TCPSimpleClient;
+import com.meshchat.client.net.client.simple.TCPSimpleJavaClient;
 import com.meshchat.client.net.multipart.SimpleStringMultiPartBufferReceiver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,14 +11,14 @@ import java.util.concurrent.Flow;
 
 class TCPClientTest {
 
-    private TCPClient client;
+    private TCPSimpleClient client;
     private static boolean WAIT_FLAG = true;
 
     @BeforeEach
     void setUp() {
         WAIT_FLAG = true;
 
-        client = new TCPJavaClient("127.0.0.1", 5500);
+        client = new TCPSimpleJavaClient("127.0.0.1", 5500);
         client.setBuffSize(4);
         Thread thread = new Thread(client);
         thread.start();

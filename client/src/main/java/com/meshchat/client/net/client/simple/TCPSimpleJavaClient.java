@@ -1,21 +1,24 @@
-package com.meshchat.client.net.client;
+package com.meshchat.client.net.client.simple;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
 
-public class TCPJavaClient extends TCPClient{
+/**
+ * @deprecated
+ */
+public class TCPSimpleJavaClient extends TCPSimpleClient {
     // socket
     private Socket socket;
     // writer, reader
     private PrintWriter writer;
     private BufferedReader reader;
 
-    public TCPJavaClient() {
+    public TCPSimpleJavaClient() {
         this("127.0.0.1", 5500);
     }
 
-    public TCPJavaClient(String host, int port) {
+    public TCPSimpleJavaClient(String host, int port) {
         super(host, port);
     }
 

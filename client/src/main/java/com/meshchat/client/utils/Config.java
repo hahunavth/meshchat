@@ -53,5 +53,6 @@ public class Config {
     public final static int SCREEN_WIDTH = 1280;
     public final static int SCREEN_HEIGHT = 720;
 
-
+    public final static int NORMAL_STR_SZ = 64;
+    public final static int TOKEN_LEN = 16;
 }

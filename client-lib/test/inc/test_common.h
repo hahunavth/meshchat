@@ -47,7 +47,7 @@
         .email = "abc@def.com",                      \
         .phone = "123456789",                        \
     };                                               \
-    _register(&auth);                                \
+    _register(get_sockfd(), &auth);                  \
     printf(BLUE "create_user user_00%d\n" RESET, x); \
   }
 
@@ -61,7 +61,7 @@
     int stt = 0;                                  \
     char user[20] = "user00x";                    \
     user[6] = x + '0';                            \
-    stt = _login(user, "pass");                   \
+    stt = _login(get_sockfd(), user, "pass");     \
     assert(stt == 200);                           \
     printf(BLUE "login_as user_00%d\n" RESET, x); \
   }
@@ -69,10 +69,10 @@
 /**
  * logout
  */
-#define LOGOUT()         \
-  {                      \
-    _logout();           \
-    INFO("logout pass"); \
+#define LOGOUT()           \
+  {                        \
+    _logout(get_sockfd()); \
+    INFO("logout pass");   \
   }
 
 extern void create_fake_user();
@@ -106,7 +106,7 @@ uint32_t create_fake_chat(uint32_t user_id, uint32_t user2_id)
   LOGIN_AS_USER_X(user_id - 1); // ADD -1
   uint32_t chat_id;
 
-  _create_chat(user2_id, &chat_id);
+  _create_chat(get_sockfd(), user2_id, &chat_id);
   printf("Fake chat created: %d\n", chat_id);
 
   LOGOUT();

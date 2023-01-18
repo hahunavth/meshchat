@@ -7,19 +7,19 @@ uint32_t idls_len;
 
 void test_chat_create(uint32_t user2_id)
 {
-  stt = _create_chat(user2_id, &chat_id);
+  stt = _create_chat(get_sockfd(), user2_id, &chat_id);
 
   printf("chat_id: %d\n", chat_id);
 }
 
 void test_chat_delete(uint32_t chat_id)
 {
-  stt = _delete_chat(chat_id);
+  stt = _delete_chat(get_sockfd(), chat_id);
 }
 
 void test_chat_get_list()
 {
-  stt = _get_chat_list(10, 0, &idls, &idls_len);
+  stt = _get_chat_list(get_sockfd(), 10, 0, &idls, &idls_len);
   printf("stt: %d, idls_len: %d\n", stt, idls_len);
   for (uint32_t i = 0; i < idls_len; i++)
   {

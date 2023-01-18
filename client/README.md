@@ -1,5 +1,10 @@
 # Client
 
+## Native library
+
+- libcli_service: TCP socket API library for client in `client/src/main/resources/libcli_service.so`
+  - How to build: [here](../client-lib/README.md)
+
 ## Folder structure
 ```yaml
 .
@@ -18,7 +23,7 @@
     │   │   ├── com
     │   │   │   └── meshchat
     │   │   │       └── client
-    │   │   │           ├── controllers          # screen controller
+    │   │   │           ├── viewModels          # screen controller
     │   │   │           ├── exceptions           #
     │   │   │           ├── experiments          #
     │   │   │           ├── Launcher.java        #

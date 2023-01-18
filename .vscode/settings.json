@@ -19,6 +19,10 @@
     "inttypes.h": "c",
     "in.h": "c",
     "test_common.h": "c",
-    "color.h": "c"
+    "color.h": "c",
+    "singleton.h": "c",
+    "time.h": "c",
+    "service.h": "c",
+    "connection.h": "c"
   }
 }

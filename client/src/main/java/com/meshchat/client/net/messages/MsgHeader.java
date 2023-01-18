@@ -2,6 +2,9 @@ package com.meshchat.client.net.messages;
 
 import jnr.ffi.Struct;
 
+/**
+ * @deprecated
+ */
 public class MsgHeader extends Struct  {
     public Struct.Signed32 content_type = new Struct.Signed32();
     public Struct.SignedLong content_len = new Struct.SignedLong();

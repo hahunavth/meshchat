@@ -43,6 +43,8 @@ class JNRCSocketTest {
 
         lib.simple_send("Hello");
         lib.simple_recv();
+        lib.simple_send("Hello");
+
 
         for(int i = 0; i < 3; i++) Thread.sleep(1000);
         System.out.println("client_fd=" + fd);

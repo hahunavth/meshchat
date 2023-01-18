@@ -11,138 +11,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include "service.h"
-
-#define SWITCH_STT(res)                       \
-  PRINT_STATUS_CODE(res->header.status_code); \
-  switch (res->header.status_code)
-
-#define FREE_AND_RETURN_STT(res)       \
-  int __stt = res->header.status_code; \
-  response_destroy(res);               \
-  return __stt;
-
-#define UNHANDLE_OTHER_STT_CODE(res)                                                 \
-  default:                                                                           \
-  {                                                                                  \
-    char tmp[BUFSIZ];                                                                \
-    sprintf(tmp, MAGENTA "Unhandle status code: %d" RESET, res->header.status_code); \
-    perror(tmp);                                                                     \
-  }                                                                                  \
-  break;
-
-// send and recv
-static int sockfd = -1;
-static char buf[BUFSIZ];
-// auth
-static uint32_t __uid;
-static char __token[TOKEN_LEN];
-static int is_auth = 0;
-
-/**
- * @brief Connect to server
- */
-int connect_server(const char *addr, uint16_t port)
-{
-  sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (sockfd < 0)
-    return -1;
-
-  // set recv timeout
-  struct timeval tv;
-  tv.tv_sec = 10;
-  tv.tv_usec = 0;
-  setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof tv);
-
-  struct sockaddr_in servaddr;
-  servaddr.sin_family = AF_INET;
-  servaddr.sin_port = htons(port);
-  servaddr.sin_addr.s_addr = inet_addr(addr);
-
-  if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(struct sockaddr_in)) == -1)
-  {
-    close(sockfd);
-    return -1;
-  }
-
-  return sockfd;
-}
-
-int get_sockfd()
-{
-  return sockfd;
-}
-
-void close_conn()
-{
-  printf(YELLOW "Closing connection...\n" RESET);
-  close(sockfd);
-  sockfd = -1;
-}
-
-int __send(const char *buff)
-{
-  if (sockfd == -1)
-    return -1;
-
-  int bytes_sent;
-  if ((bytes_sent = write(sockfd, buff, BUFSIZ)) < 0)
-  {
-    close_conn();
-    return -1;
-  }
-
-  return bytes_sent;
-}
-
-int __recv(char *buff)
-{
-  if (sockfd == -1)
-    return -1;
-
-  int bytes_recv;
-  if ((bytes_recv = read(sockfd, buff, BUFSIZ)) < 0)
-  {
-    // free(buff);
-    perror("\nError: ");
-    close_conn();
-    return -1;
-  }
-  if (bytes_recv == 0)
-  {
-    printf(YELLOW "Connection closed\n" RESET);
-    close_conn();
-  }
-
-  return bytes_recv;
-}
-
-response *api_call(const char *req)
-{
-  int sz;
-
-  if (req == NULL)
-    perror("Error: Request is NULL\n");
-  if (__send(req) < 0)
-  {
-    perror("Error: Send failed");
-    return NULL;
-  }
-  memset(buf, 0, BUFSIZ);
-
-  if ((sz = __recv(buf)) < 0)
-  {
-    perror("Error: Recv failed");
-    return NULL;
-  }
-
-  if (sz == 0)
-  {
-    printf(YELLOW "Connection closed\n" RESET);
-  }
-  response *res = response_parse(buf);
-
-  return res;
-}
+#include "connection.h"
 
 uint32_t parse_uint32_from_buf(char *buf);
 
@@ -209,7 +78,7 @@ int __register(const request_auth *req, response_auth *_res)
 {
   make_request_auth_register(req->uname, req->password, req->phone, req->email, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(__sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -234,7 +103,7 @@ int __login(const char *username, const char *password, response_auth *_res)
 {
   make_request_auth_login(username, password, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(__sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -255,11 +124,11 @@ int __login(const char *username, const char *password, response_auth *_res)
   FREE_AND_RETURN_STT(res);
 }
 
-int _register(const request_auth *req)
+int _register(const int sockfd, const request_auth *req)
 {
   make_request_auth_register(req->uname, req->password, req->phone, req->email, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -280,11 +149,11 @@ int _register(const request_auth *req)
   FREE_AND_RETURN_STT(res);
 }
 
-int _login(const char *username, const char *password)
+int _login(const int sockfd, const char *username, const char *password)
 {
   make_request_auth_login(username, password, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -307,7 +176,7 @@ int __logout(const char *token, const char *user_id)
 {
   make_request_user_logout(token, user_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(__sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -321,13 +190,13 @@ int __logout(const char *token, const char *user_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _logout()
+int _logout(const int sockfd)
 {
   make_request_user_logout(__token, __uid, buf);
 
   PRINT_TOKEN(__token);
   PRINT_USER_ID(__uid);
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -343,12 +212,12 @@ int _logout()
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_user_info(const uint32_t user2_id,
+int _get_user_info(const int sockfd, const uint32_t user2_id,
                    response_user *_res)
 {
   make_request_user_get_info(__token, __uid, user2_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -368,13 +237,12 @@ int _get_user_info(const uint32_t user2_id,
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_user_search(const char *uname, const int32_t offset, int32_t limit,
+int _get_user_search(const int sockfd, const char *uname, const int32_t offset, int32_t limit,
                      uint32_t *_idls, uint32_t *_len)
 {
-
   make_request_user_search(__token, __uid, uname, limit, offset, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -389,30 +257,31 @@ int _get_user_search(const char *uname, const int32_t offset, int32_t limit,
   FREE_AND_RETURN_STT(res);
 }
 
-int _create_conv(const char *gname,
+int _create_conv(const int sockfd, const char *gname,
                  uint32_t *_gid)
 {
   make_request_conv_create(__token, __uid, gname, buf);
-
-  response *res = api_call(buf);
-
+  puts("_create_conv: Make request");
+  response *res = api_call(sockfd, buf);
+  puts("_create_conv: Call api");
   SWITCH_STT(res)
   {
   case 201:
-    *_gid = (res->body->r_conv).conv_id;
+    // *_gid = (res->body->r_conv).conv_id;
+    *_gid = calloc(1, sizeof(uint32_t));
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
   }
-
+  puts("_create_conv: Switch stt");
   FREE_AND_RETURN_STT(res);
 }
 
-int _drop_conv(const uint32_t conv_id)
+int _drop_conv(const int sockfd, const uint32_t conv_id)
 {
   make_request_conv_drop(__token, __uid, conv_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -427,11 +296,11 @@ int _drop_conv(const uint32_t conv_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _join_conv(const uint32_t conv_id, const uint32_t user2_id)
+int _join_conv(const int sockfd, const uint32_t conv_id, const uint32_t user2_id)
 {
   make_request_conv_join(__token, __uid, conv_id, user2_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -448,11 +317,11 @@ int _join_conv(const uint32_t conv_id, const uint32_t user2_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _quit_conv(const uint32_t conv_id)
+int _quit_conv(const int sockfd, const uint32_t conv_id)
 {
   make_request_conv_quit(__token, __uid, conv_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -465,12 +334,12 @@ int _quit_conv(const uint32_t conv_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_conv_info(const uint32_t conv_id,
+int _get_conv_info(const int sockfd, const uint32_t conv_id,
                    uint32_t *_admin_id, char *_gname)
 {
   make_request_conv_get_info(__token, __uid, conv_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -488,12 +357,12 @@ int _get_conv_info(const uint32_t conv_id,
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_conv_members(const uint32_t conv_id,
+int _get_conv_members(const int sockfd, const uint32_t conv_id,
                       uint32_t *_res, uint32_t *_len)
 {
   make_request_conv_get_members(__token, __uid, conv_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -509,11 +378,11 @@ int _get_conv_members(const uint32_t conv_id,
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_conv_list(const int limit, const int offset, uint32_t *_idls, uint32_t *_len)
+int _get_conv_list(const int sockfd, const int limit, const int offset, uint32_t *_idls, uint32_t *_len)
 {
   make_request_conv_get_list(__token, __uid, limit, offset, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -528,11 +397,11 @@ int _get_conv_list(const int limit, const int offset, uint32_t *_idls, uint32_t 
   FREE_AND_RETURN_STT(res);
 }
 
-int _create_chat(const uint32_t user2_id, uint32_t *_chat_id)
+int _create_chat(const int sockfd, const uint32_t user2_id, uint32_t *_chat_id)
 {
   make_request_chat_create(__token, __uid, user2_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -553,11 +422,11 @@ int _create_chat(const uint32_t user2_id, uint32_t *_chat_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _delete_chat(const uint32_t chat_id)
+int _delete_chat(const int sockfd, const uint32_t chat_id)
 {
   make_request_chat_delete(__token, __uid, chat_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -570,11 +439,11 @@ int _delete_chat(const uint32_t chat_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_chat_list(const int limit, const int offset, uint32_t *_idls, uint32_t *_len)
+int _get_chat_list(const int sockfd, const int limit, const int offset, uint32_t *_idls, uint32_t *_len)
 {
   make_request_chat_get_list(__token, __uid, limit, offset, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
   printf("lennnnnnnnnnnnnnnnnnnnn %d\n", res->header.count);
 
   SWITCH_STT(res)
@@ -592,13 +461,13 @@ int _get_chat_list(const int limit, const int offset, uint32_t *_idls, uint32_t 
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_msg_all(const int limit, const int offset,
+int _get_msg_all(const int sockfd, const int limit, const int offset,
                  const uint32_t conv_id, uint32_t chat_id,
                  uint32_t *_msg_idls, uint32_t *_len)
 {
   make_request_msg_get_all(__token, __uid, limit, offset, conv_id, chat_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -613,11 +482,11 @@ int _get_msg_all(const int limit, const int offset,
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_msg_detail(const uint32_t msg_id, response_msg *_msg)
+int _get_msg_detail(const int sockfd, const uint32_t msg_id, response_msg *_msg)
 {
   make_request_msg_get_detail(__token, __uid, msg_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -649,13 +518,13 @@ int _get_msg_detail(const uint32_t msg_id, response_msg *_msg)
   FREE_AND_RETURN_STT(res);
 }
 
-int _send_msg_text(
-    const uint32_t conv_id,
-    const uint32_t chat_id, const uint32_t reply_to, const char *msg,
-    uint32_t *_msg_id)
+int _send_msg_text(const int sockfd,
+                   const uint32_t conv_id,
+                   const uint32_t chat_id, const uint32_t reply_to, const char *msg,
+                   uint32_t *_msg_id)
 {
   make_requests_msg_send_text(__token, __uid, conv_id, chat_id, reply_to, msg, buf);
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -673,11 +542,11 @@ int _send_msg_text(
   FREE_AND_RETURN_STT(res);
 }
 
-int _delete_msg(const uint32_t msg_id)
+int _delete_msg(const int sockfd, const uint32_t msg_id)
 {
   make_request_msg_delete(__token, __uid, msg_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {
@@ -690,11 +559,11 @@ int _delete_msg(const uint32_t msg_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _notify_new_msg(const uint32_t user_id, uint32_t *_idls, uint32_t *_len)
+int _notify_new_msg(const int sockfd, const uint32_t user_id, uint32_t *_idls, uint32_t *_len)
 {
   make_request_msg_notify_new(__token, __uid, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   if (!res)
   {
@@ -716,11 +585,11 @@ int _notify_new_msg(const uint32_t user_id, uint32_t *_idls, uint32_t *_len)
   FREE_AND_RETURN_STT(res);
 }
 
-int _notify_del_msg(const uint32_t conv_id, const uint32_t chat_id, uint32_t *_idls, uint32_t *_len)
+int _notify_del_msg(const int sockfd, const uint32_t conv_id, const uint32_t chat_id, uint32_t *_idls, uint32_t *_len)
 {
   make_request_msg_notify_del(__token, __uid, conv_id, chat_id, buf);
 
-  response *res = api_call(buf);
+  response *res = api_call(sockfd, buf);
 
   SWITCH_STT(res)
   {

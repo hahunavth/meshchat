@@ -5,6 +5,9 @@ import com.meshchat.client.net.OpSubGroup;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 
+/**
+ * @deprecated
+ */
 public class BaseHeader extends Struct {
 
     private OpGroup group;
