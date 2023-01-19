@@ -39,21 +39,21 @@ static uint32_t *parse_uint32_list(char *buf, uint32_t count)
 	return ls;
 }
 
-static void response_parse_auth(response *req, const char *body);
-static void response_parse_user(response *req, const char *body);
-static void response_parse_conv(response *req, const char *body);
-static void response_parse_chat(response *req, const char *body);
-static void response_parse_msg(response *req, const char *body);
+static void response_parse_auth(response *res, const char *body);
+static void response_parse_user(response *res, const char *body);
+static void response_parse_conv(response *res, const char *body);
+static void response_parse_chat(response *res, const char *body);
+static void response_parse_msg(response *res, const char *body);
 
 void response_body_destroy(response_body *body, int8_t group);
 
 response *response_parse(const char *buf)
 {
-	response *req = (response *)calloc(1, sizeof(response));
-	assert(req);
+	response *res = (response *)calloc(1, sizeof(response));
+	assert(res);
 
-	response_header *header = &(req->header);
-	req->body = NULL;
+	response_header *header = &(res->header);
+	res->body = NULL;
 
 	header->group = buf[0];
 	header->action = buf[1];
@@ -67,25 +67,27 @@ response *response_parse(const char *buf)
 	switch (header->group)
 	{
 	case 0:
-		response_parse_auth(req, buf + RESPONSE_HEADER_LEN);
+		response_parse_auth(res, buf + RESPONSE_HEADER_LEN);
 		break;
 	case 1:
-		response_parse_user(req, buf + RESPONSE_HEADER_LEN);
+		response_parse_user(res, buf + RESPONSE_HEADER_LEN);
 		break;
 	case 2:
-		response_parse_conv(req, buf + RESPONSE_HEADER_LEN);
+		response_parse_conv(res, buf + RESPONSE_HEADER_LEN);
 		break;
 	case 3:
-		response_parse_chat(req, buf + RESPONSE_HEADER_LEN);
+		response_parse_chat(res, buf + RESPONSE_HEADER_LEN);
 		break;
 	case 4:
-		response_parse_msg(req, buf + RESPONSE_HEADER_LEN);
+		response_parse_msg(res, buf + RESPONSE_HEADER_LEN);
 		break;
-	default:
-		free(req);
+	}
+	if(!(res->body))
+	{
+		free(res);
 		return NULL;
 	}
-	return req;
+	return res;
 }
 
 static char *field_tokenizer(char *buf, char **rest)
@@ -103,9 +105,9 @@ static char *field_tokenizer(char *buf, char **rest)
 	return old;
 }
 
-void response_parse_auth(response *req, const char *body)
+void response_parse_auth(response *res, const char *body)
 {
-	// response_header *header = &(req->header);
+	// response_header *header = &(res->header);
 
 	response_body *rb = (response_body *)calloc(1, sizeof(response_body));
 	assert(rb);
@@ -113,12 +115,12 @@ void response_parse_auth(response *req, const char *body)
 	(rb->r_auth).token = string_mem_n(body, TOKEN_LEN);
 	(rb->r_auth).user_id = parse_uint32_from_buf(body + TOKEN_LEN);
 
-	req->body = rb;
+	res->body = rb;
 }
 
-void response_parse_user(response *req, const char *body)
+void response_parse_user(response *res, const char *body)
 {
-	response_header *header = &(req->header);
+	response_header *header = &(res->header);
 
 	response_body *rb = (response_body *)calloc(1, sizeof(response_body));
 	assert(rb);
@@ -150,12 +152,12 @@ void response_parse_user(response *req, const char *body)
 		return;
 	}
 
-	req->body = rb;
+	res->body = rb;
 }
 
-void response_parse_conv(response *req, const char *body)
+void response_parse_conv(response *res, const char *body)
 {
-	response_header *header = &(req->header);
+	response_header *header = &(res->header);
 
 	response_body *rb = (response_body *)calloc(1, sizeof(response_body));
 	assert(rb);
@@ -178,12 +180,12 @@ void response_parse_conv(response *req, const char *body)
 		return;
 	}
 
-	req->body = rb;
+	res->body = rb;
 }
 
-void response_parse_chat(response *req, const char *body)
+void response_parse_chat(response *res, const char *body)
 {
-	response_header *header = &(req->header);
+	response_header *header = &(res->header);
 
 	response_body *rb = (response_body *)calloc(1, sizeof(response_body));
 	assert(rb);
@@ -201,12 +203,12 @@ void response_parse_chat(response *req, const char *body)
 		return;
 	}
 
-	req->body = rb;
+	res->body = rb;
 }
 
-void response_parse_msg(response *req, const char *body)
+void response_parse_msg(response *res, const char *body)
 {
-	response_header *header = &(req->header);
+	response_header *header = &(res->header);
 
 	response_body *rb = (response_body *)calloc(1, sizeof(response_body));
 	assert(rb);
@@ -234,14 +236,17 @@ void response_parse_msg(response *req, const char *body)
 		break;
 	case 2:
 		rm->msg_id = parse_uint32_from_buf(body);
-		;
+	case 3:
+		break;
+	case 6:
+		rm->msg_content = string_new_n(body, header->body_len);
 		break;
 	default:
 		response_body_destroy(rb, header->group);
 		return;
 	}
 
-	req->body = rb;
+	res->body = rb;
 }
 
 void response_body_destroy(response_body *body, int8_t group)
@@ -296,12 +301,12 @@ void response_body_destroy(response_body *body, int8_t group)
 	free(body);
 }
 
-void response_destroy(response *req)
+void response_destroy(response *res)
 {
-	if (!req)
+	if (!res)
 		return;
-	response_body_destroy(req->body, (req->header).group);
-	free(req);
+	response_body_destroy(res->body, (res->header).group);
+	free(res);
 }
 
 //////////////////////////////////////////////////
@@ -584,4 +589,23 @@ inline void make_response_msg_notify_new(uint32_t status_code, uint32_t count, c
 inline void make_response_msg_notify_del(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(4, 5, status_code, ls, count, res);
+}
+
+inline void make_response_msg_download_file(uint32_t status_code, uint32_t fsize, const char *fname, char *res)
+{
+	uint32_t fname_len = strlen(fname);
+	response_header header = {
+			.group = 4,
+			.action = 6,
+			.content_type = 1,
+			.status_code = status_code,
+			.content_len = fsize,
+			.body_len = fname_len,
+			.count = 0};
+	make_response_header(&header, res);
+
+	char *body = res + RESPONSE_HEADER_LEN;
+	memset(body, 0, RESPONSE_BODY_LEN);
+
+	memcpy(body, fname, fname_len);
 }
