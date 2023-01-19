@@ -1,14 +1,8 @@
 package com.meshchat.client;
 
-import com.meshchat.client.experiments.libs.TypeMappingLib;
 import com.meshchat.client.model.DataStore;
-import com.meshchat.client.net.client.TCPBasedClient;
 import com.meshchat.client.net.client.TCPNativeClient;
-import com.meshchat.client.net.client.simple.TCPSimpleClient;
-import com.meshchat.client.net.client.simple.TCPSimpleCClient;
 import com.meshchat.client.views.navigation.StackNavigation;
-import jnr.ffi.LibraryLoader;
-import jnr.ffi.LibraryOption;
 
 /**
  * Singleton:

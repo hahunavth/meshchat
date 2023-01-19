@@ -17,7 +17,7 @@ public class JNRUnionStructNestedUnionTest {
          libC = LibraryLoader
                 .create(TypeMappingLib.class)
                 .failImmediately()
-                .search("src/test/resources")
+                .search("src/main/resources")
                 .load("typemapping");
 
          runtime = Runtime.getRuntime(libC);

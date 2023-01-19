@@ -23,7 +23,9 @@ add_library(request STATIC ../server/src/request.c)
 add_library(response STATIC ../server/src/response.c)
 
 add_library(cli_service SHARED ./src/service.c ./src/map_types.c ./src/connection.c )
-
+set_target_properties(cli_service PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../client/src/main/resources/"
+	)
 add_executable(main main.c)
 
 enable_testing()

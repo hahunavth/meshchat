@@ -42,7 +42,7 @@ public interface CAPIServiceLib {
                 .option(LibraryOption.LoadNow, true)
                 .option(LibraryOption.SaveError, true)
                 .failImmediately()
-                .search("src/test/resources")
+                .search("src/main/resources")
                 .load("cli_service");
     }
 

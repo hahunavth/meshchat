@@ -1,9 +1,14 @@
 package com.meshchat.client.net.client;
 
+import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.cnative.CAPIServiceLib;
 import com.meshchat.client.cnative.req.RequestAuth;
 import com.meshchat.client.cnative.res.ResponseUser;
+import com.meshchat.client.model.Conv;
+import javafx.util.Pair;
+import jnr.ffi.NativeLong;
 import jnr.ffi.Runtime;
+import jnr.ffi.byref.NativeLongByReference;
 
 public class TCPNativeClient extends TCPBasedClient implements Runnable {
 
@@ -104,6 +109,29 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
         stt = this.lib._login(this.lib.get_sockfd(), uname, pass);
         System.out.println(stt);
+        return stt == 200;
+    }
+
+    public boolean _create_conv(String gname){
+        NativeLongByReference gid = new NativeLongByReference();
+        int stt = this.lib._create_conv(this.lib.get_sockfd(), gname, gid);
+        switch (stt){
+            case 201:
+                /* Update dataStore */
+                Conv newConv = new Conv();
+                /* FIXME what should newConv instance be modified before addConv() */
+                ModelSingleton.getInstance().dataStore.addConv(gid.longValue(), newConv);
+                return true;
+            case 500:
+            default:
+                return false;
+        }
+    }
+
+    public boolean _quit_conv(long gid){
+        int stt;
+//        NativeLongByReference gid = new NativeLongByReference();
+        stt = this.lib._quit_conv(this.lib.get_sockfd(), gid);
         return stt == 200;
     }
 

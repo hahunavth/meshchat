@@ -36,6 +36,7 @@ public class DataStore implements Flow.Subscriber<char[]> {
         /**
          * Fake data
          */
+        /*
         this.getUserProfile().getEntity().setId(10);
         this.getUserProfile().getEntity().setEmail("a@b.c");
         this.getUserProfile().getEntity().setUsername("uname");
@@ -56,6 +57,7 @@ public class DataStore implements Flow.Subscriber<char[]> {
         this.chatMap.put(
                 chat2.id, chat2
         );
+         */
     }
 
     public UserProfile getUserProfile() {

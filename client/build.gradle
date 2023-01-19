@@ -44,7 +44,7 @@ javafx {
 dependencies {
     implementation('org.controlsfx:controlsfx:11.1.1')
     implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
-
+    implementation("com.github.jnr:jnr-ffi:2.2.13")
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
 //    implementation 'mysql:mysql-connector-java:8.0.31'
 

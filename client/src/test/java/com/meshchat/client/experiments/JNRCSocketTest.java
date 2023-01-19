@@ -26,8 +26,8 @@ class JNRCSocketTest {
                 .option(LibraryOption.LoadNow, true)
                 .option(LibraryOption.SaveError, true)
                 .failImmediately()
-                .search("src/test/resources")
-                .load("typemapping");
+                .search("src/main/resources")
+                .load("cli_service");
     }
 
     @Test

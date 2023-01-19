@@ -26,6 +26,3 @@ clean:
 
 init_server:
 	cd ../server/; make; cd build; make; cd .. ; make migratedown && make migrateup && ./server
-
-build_native_lib:
-	cd build && cmake .. && cmake --build . --target cli_service && mv libcli_service.so ../../client/src/main/resources/libcli_service.so && rm -rf *
