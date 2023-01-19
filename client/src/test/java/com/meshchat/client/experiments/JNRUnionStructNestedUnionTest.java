@@ -17,7 +17,7 @@ public class JNRUnionStructNestedUnionTest {
          libC = LibraryLoader
                 .create(TypeMappingLib.class)
                 .failImmediately()
-                .search("/home/kryo/Desktop/meshchat/client/src/main/resources")
+                .search("src/test/resources")
                 .load("typemapping");
 
          runtime = Runtime.getRuntime(libC);

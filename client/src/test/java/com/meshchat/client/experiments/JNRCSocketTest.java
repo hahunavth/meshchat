@@ -26,7 +26,7 @@ class JNRCSocketTest {
                 .option(LibraryOption.LoadNow, true)
                 .option(LibraryOption.SaveError, true)
                 .failImmediately()
-                .search("/home/kryo/Desktop/meshchat/client/src/main/resources")
+                .search("src/test/resources")
                 .load("typemapping");
     }
 

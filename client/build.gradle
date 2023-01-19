@@ -32,7 +32,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'com.meshchat.client'
-    mainClass = 'com.meshchat.client.HelloApplication'
+    mainClass = 'com.meshchat.client.Launcher'
 }
 
 javafx {

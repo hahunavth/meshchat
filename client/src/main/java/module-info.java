@@ -3,7 +3,6 @@ module com.meshchat.client {
     requires javafx.fxml;
     requires javafx.graphics;
     requires javafx.base;
-    requires javafx.graphicsEmpty;
 
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;

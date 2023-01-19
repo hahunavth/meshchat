@@ -45,3 +45,12 @@ bin/
 
 ##
 #.log
+
+### Native built libs ###
+src/main/resources/*.so
+src/main/resources/*.o
+src/test/resources/*.so
+src/test/resources/*.o
+
+### IntelliJ ###
+.idea

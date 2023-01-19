@@ -2,7 +2,7 @@ project(type-mapping)
 
 cmake_minimum_required(VERSION 3.24)
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY /home/kryo/Desktop/meshchat/client/src/main/resources)
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY /home/kryo/Desktop/meshchat/client/src/main/resources)
 
 add_library(
   typemapping SHARED

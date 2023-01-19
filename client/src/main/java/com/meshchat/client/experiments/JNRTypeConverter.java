@@ -15,7 +15,7 @@ public class JNRTypeConverter {
     = LibraryLoader
             .create(TypeMappingLib.class)
             .failImmediately()
-            .search("/home/kryo/Desktop/meshchat/client/src/main/resources")
+            .search("src/test/resources")
             .load("typemapping");
 
     public TypeMappingLib getLibC () {
