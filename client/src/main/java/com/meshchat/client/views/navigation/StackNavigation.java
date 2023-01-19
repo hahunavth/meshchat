@@ -22,7 +22,8 @@ public class StackNavigation extends FactoryBasedNavigation<StackNavigation.WIND
         SEARCH_USER,
         CREATE_CONV,
         CONV_INFO,
-        USER_INFO
+        USER_INFO,
+        DIALOG
     }
 
     private final Stack<BaseScreenHandler> windowStack = new Stack<>();

@@ -32,13 +32,17 @@ module com.meshchat.client {
     opens com.meshchat.client.views.components to javafx.fxml;
     opens com.meshchat.client.views.login to javafx.fxml;
     opens com.meshchat.client.views.signup to javafx.fxml;
+   opens com.meshchat.client.views.dialog to javafx.fxml;
+
 
     exports com.meshchat.client;
+    exports com.meshchat.client.cnative;
     exports com.meshchat.client.experiments;
     exports com.meshchat.client.viewmodels;
 //    exports com.meshchat.client.launchers;
     exports com.meshchat.client.views.layout;
     exports com.meshchat.client.views.home;
+    exports com.meshchat.client.views.dialog;
     exports com.meshchat.client.views.settings;
     exports com.meshchat.client.views.navigation;
     exports com.meshchat.client.views.base;

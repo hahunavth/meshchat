@@ -2,7 +2,9 @@ package com.meshchat.client.views.signup;
 
 import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.utils.Config;
+import com.meshchat.client.viewmodels.SignUpViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
+import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -34,19 +36,30 @@ public class SignUpScreenHandler extends BaseScreenHandler implements Initializa
     @FXML
     private Button signup;
 
+    private SignUpViewModel viewModel;
+
     public SignUpScreenHandler() {
         super(Config.SIGNUP_PATH);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        this.viewModel = new SignUpViewModel();
         this.accord.setExpandedPane(this.acc_tiled_pane);
-//        signup.setOnAction((a) -> {
-//            ModelSingleton.getInstance().initClient(this.address.getText(), Integer.parseInt(this.port.getText()));
-//            System.out.println(this.port.getText());
-//
-//            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
-//        });
+        signup.setOnAction((a) -> {
+            if(viewModel.handleSignUp(
+                    username.getText(),
+                    password.getText(),
+                    "abc@def.cofffff"
+            )) {
+                System.out.println(this.port.getText());
+                this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
+            } else {
+                DialogScreenHandler screenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
+                screenHandler.getViewModel().setMessage("Cannot register user!");
+                screenHandler.show();
+            }
+        });
         a.setOnAction((a) -> {
             ModelSingleton.getInstance().stackNavigation.goBack().show();
         });

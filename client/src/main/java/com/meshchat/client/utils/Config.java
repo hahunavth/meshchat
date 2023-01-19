@@ -34,6 +34,7 @@ public class Config {
     public final static String CREATE_CONV_FORM_PATH = "/com/meshchat/client/views/form/conv-create.fxml";
     public final static String CONV_INFO_PATH = "/com/meshchat/client/views/form/conv-create.fxml";
     public final static String USER_PROFILE_PATH = "/com/meshchat/client/views/form/user-profile.fxml";
+    public final static String DIALOG_PATH = "/com/meshchat/client/views/dialog/dialog.fxml";
 
     /**
      * Assets

@@ -2,6 +2,8 @@ package com.meshchat.client;
 
 import com.meshchat.client.experiments.libs.TypeMappingLib;
 import com.meshchat.client.model.DataStore;
+import com.meshchat.client.net.client.TCPBasedClient;
+import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.net.client.simple.TCPSimpleClient;
 import com.meshchat.client.net.client.simple.TCPSimpleCClient;
 import com.meshchat.client.views.navigation.StackNavigation;
@@ -16,30 +18,16 @@ import jnr.ffi.LibraryOption;
  */
 public class ModelSingleton {
     private static ModelSingleton instance;
-
-    //
-    public TypeMappingLib lib;
     public final DataStore dataStore = new DataStore();
-    public TCPSimpleClient tcpClient;
+    public TCPNativeClient tcpClient;
     public StackNavigation stackNavigation;;
 
     private ModelSingleton() {
-        lib = LibraryLoader
-                .create(TypeMappingLib.class)
-                .option(LibraryOption.LoadNow, true)
-                .option(LibraryOption.SaveError, true)
-                .failImmediately()
-                .search("/home/kryo/Desktop/meshchat/client/src/main/resources")
-                .load("typemapping");
-
-        tcpClient = new TCPSimpleCClient(lib);
+        tcpClient = new TCPNativeClient("127.0.0.1", 9000);
         // close on exit
-        Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             tcpClient.close();
-            System.out.println("Close connection!");
-        }});
-
-        tcpClient.subscribe(dataStore);
+        }));
     }
 
     public void initClient(String host, int port) {
