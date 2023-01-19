@@ -89,7 +89,7 @@ static void make_token(in_addr_t addr, uint32_t user_id, char *res)
 	BF_ecb_encrypt((const unsigned char *)(msg + 8), (unsigned char *)(res + 8), &key, BF_ENCRYPT);
 }
 
-int verify_token(uint32_t addr, uint32_t user_id, const char *token)
+static int verify_token(uint32_t addr, uint32_t user_id, const char *token)
 {
 	char decrypt[16];
 	time_t expiry;
@@ -135,7 +135,7 @@ static int hash_str(const char *str, char *res)
 
 /*******************************/
 
-void handle_auth_register(int cfd, in_addr_t addr, request *req, char *buf, int *close_conn)
+static void handle_auth_register(int cfd, in_addr_t addr, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	char token[TOKEN_LEN];
@@ -166,7 +166,7 @@ void handle_auth_register(int cfd, in_addr_t addr, request *req, char *buf, int 
 	SEND_RESPONSE();
 }
 
-void handle_auth_login(int cfd, in_addr_t addr, request *req, char *buf, int *close_conn)
+static void handle_auth_login(int cfd, in_addr_t addr, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	char token[TOKEN_LEN];
@@ -195,7 +195,7 @@ void handle_auth_login(int cfd, in_addr_t addr, request *req, char *buf, int *cl
 
 /****************/
 
-void handle_user_get_info(int cfd, request *req, char *buf, int *close_conn)
+static void handle_user_get_info(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_user *ru = &(req->body->r_user);
@@ -212,7 +212,7 @@ void handle_user_get_info(int cfd, request *req, char *buf, int *close_conn)
 	user_free(user);
 }
 
-void handle_user_search(int cfd, request *req, char *buf, int *close_conn)
+static void handle_user_search(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	int limit = (req->header).limit > 0 ? (req->header).limit : 0;
@@ -239,7 +239,7 @@ void handle_user_search(int cfd, request *req, char *buf, int *close_conn)
 
 /****************/
 
-void handle_conv_create(int cfd, request *req, char *buf, int *close_conn)
+static void handle_conv_create(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	uint32_t id = conv_create(db, (req->header).user_id, (req->body->r_conv).gname, &rc);
@@ -250,7 +250,7 @@ void handle_conv_create(int cfd, request *req, char *buf, int *close_conn)
 	SEND_RESPONSE();
 }
 
-void handle_conv_drop(int cfd, request *req, char *buf, int *close_conn)
+static void handle_conv_drop(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_conv *rconv = &(req->body->r_conv);
@@ -268,7 +268,7 @@ void handle_conv_drop(int cfd, request *req, char *buf, int *close_conn)
 	SEND_RESPONSE();
 }
 
-void handle_conv_join(int cfd, request *req, char *buf, int *close_conn)
+static void handle_conv_join(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_conv *rconv = &(req->body->r_conv);
@@ -286,7 +286,7 @@ void handle_conv_join(int cfd, request *req, char *buf, int *close_conn)
 	SEND_RESPONSE();
 }
 
-void handle_conv_quit(int cfd, request *req, char *buf, int *close_conn)
+static void handle_conv_quit(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_conv *rconv = &(req->body->r_conv);
@@ -309,7 +309,7 @@ void handle_conv_quit(int cfd, request *req, char *buf, int *close_conn)
 	SEND_RESPONSE();
 }
 
-void handle_conv_get_info(int cfd, request *req, char *buf, int *close_conn)
+static void handle_conv_get_info(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	conv_schema *conv = conv_get_info(db, (req->body->r_conv).conv_id, &rc);
@@ -323,7 +323,7 @@ void handle_conv_get_info(int cfd, request *req, char *buf, int *close_conn)
 	SEND_RESPONSE();
 }
 
-void handle_conv_get_members(int cfd, request *req, char *buf, int *close_conn)
+static void handle_conv_get_members(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_conv *rconv = &(req->body->r_conv);
@@ -352,7 +352,7 @@ void handle_conv_get_members(int cfd, request *req, char *buf, int *close_conn)
 	sll_remove(&ls);
 }
 
-void handle_conv_get_list(int cfd, request *req, char *buf, int *close_conn)
+static void handle_conv_get_list(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	int limit = (req->header).limit > 0 ? (req->header).limit : 0;
@@ -378,7 +378,7 @@ void handle_conv_get_list(int cfd, request *req, char *buf, int *close_conn)
 
 /****************/
 
-void handle_chat_create(int cfd, request *req, char *buf, int *close_conn)
+static void handle_chat_create(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_chat *rchat = &(req->body->r_chat);
@@ -398,7 +398,7 @@ void handle_chat_create(int cfd, request *req, char *buf, int *close_conn)
 	SEND_RESPONSE();
 }
 
-void handle_chat_drop(int cfd, request *req, char *buf, int *close_conn)
+static void handle_chat_drop(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_chat *rchat = &(req->body->r_chat);
@@ -416,7 +416,7 @@ void handle_chat_drop(int cfd, request *req, char *buf, int *close_conn)
 	SEND_RESPONSE();
 }
 
-void handle_chat_get_list(int cfd, request *req, char *buf, int *close_conn)
+static void handle_chat_get_list(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	int limit = (req->header).limit > 0 ? (req->header).limit : 0;
@@ -442,7 +442,7 @@ void handle_chat_get_list(int cfd, request *req, char *buf, int *close_conn)
 
 /****************/
 
-void handle_msg_get_all(int cfd, request *req, char *buf, int *close_conn)
+static void handle_msg_get_all(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	int limit = (req->header).limit > 0 ? (req->header).limit : 0;
@@ -490,7 +490,7 @@ void handle_msg_get_all(int cfd, request *req, char *buf, int *close_conn)
 	sll_remove(&ls);
 }
 
-void handle_msg_get_detail(int cfd, request *req, char *buf, int *close_conn)
+static void handle_msg_get_detail(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 
@@ -547,14 +547,14 @@ void process_fname(const char *fname, char *res)
 	strcpy(res + (HASHED_LEN << 1), i == 0 ? "" : (fname + i));
 }
 
-#define ERROR_HANDLING() \
+#define FILE_ERROR_HANDLING() \
 	close(fd);           \
 	remove(fname);       \
 	close_sock(cfd);     \
 	*close_conn = 1;     \
 	return;
 
-void handle_msg_send(int cfd, request *req, char *buf, int *close_conn)
+static void handle_msg_send(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_msg *rm = &(req->body->r_msg);
@@ -622,7 +622,7 @@ void handle_msg_send(int cfd, request *req, char *buf, int *close_conn)
 			if (rc == 0)
 			{
 				puts("poll() timed out");
-				ERROR_HANDLING();
+				FILE_ERROR_HANDLING();
 			}
 			nbytes = read(cfd, buf, BUFSIZ);
 			if (nbytes < 0)
@@ -630,20 +630,20 @@ void handle_msg_send(int cfd, request *req, char *buf, int *close_conn)
 				if (errno != EWOULDBLOCK)
 				{
 					puts("read() error");
-					ERROR_HANDLING();
+					FILE_ERROR_HANDLING();
 				}
 				continue;
 			}
 			if (nbytes == 0 && fsize > 0)
 			{
 				puts("file not received");
-				ERROR_HANDLING();
+				FILE_ERROR_HANDLING();
 				return;
 			}
 			if (write(fd, buf, nbytes) != nbytes)
 			{
 				perror("write() to fs failed");
-				ERROR_HANDLING();
+				FILE_ERROR_HANDLING();
 			}
 			fsize -= nbytes;
 			if (fsize <= 0)
@@ -678,7 +678,7 @@ void handle_msg_send(int cfd, request *req, char *buf, int *close_conn)
 		RESPONSE_ERR(400, 4, 2);
 }
 
-void handle_msg_delete(int cfd, request *req, char *buf, int *close_conn)
+static void handle_msg_delete(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	msg_schema *msg = msg_get_detail(db, (req->body->r_msg).msg_id, &rc);
@@ -710,7 +710,7 @@ void handle_msg_delete(int cfd, request *req, char *buf, int *close_conn)
 	msg_free(msg);
 }
 
-void handle_notify_new_msg(int cfd, request *req, char *buf, int *close_conn)
+static void handle_notify_new_msg(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	sllnode_t *ls = msg_get_msg_sent(db, (req->header).user_id, &rc);
@@ -732,7 +732,7 @@ void handle_notify_new_msg(int cfd, request *req, char *buf, int *close_conn)
 	sll_remove(&ls);
 }
 
-void handle_notify_del_msg(int cfd, request *req, char *buf, int *close_conn)
+static void handle_notify_del_msg(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	uint32_t conv_id = (req->body->r_msg).conv_id;
@@ -757,7 +757,7 @@ void handle_notify_del_msg(int cfd, request *req, char *buf, int *close_conn)
 	sll_remove(&ls);
 }
 
-void handle_msg_download_file(int cfd, request *req, char *buf, int *close_conn)
+static void handle_msg_download_file(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	msg_schema *msg = msg_get_detail(db, (req->body->r_msg).msg_id, &rc);
@@ -783,7 +783,7 @@ void handle_msg_download_file(int cfd, request *req, char *buf, int *close_conn)
 	if (msg->content_type != MSG_FILE)
 		RESPONSE_ERR_FREE(400, 4, 6, msg, msg_free);
 
-	make_response_msg_download_file(200, buf);
+	make_response_msg_download_file(200, msg->content_length, msg->content+strlen("./storage/"), buf);
 	if (write(cfd, buf, BUFSIZ) != BUFSIZ)
 	{
 		msg_free(msg);
@@ -821,27 +821,26 @@ void handle_msg_download_file(int cfd, request *req, char *buf, int *close_conn)
 	{
 		if ((nbytes = read(fd, buf, BUFSIZ)) < 0)
 		{
-			perror("read() from file failed");
-			ERROR_HANDLING();
+			perror("read() from fs failed");
+			break;
 		}
 
 		int rc = poll(&pfd, 1, 10 * 1000);
 		if (rc < 0 || (pfd.revents != POLLOUT))
 		{
 			perror("poll() failed");
-			close(fd);
-			RESPONSE_ERR(500, 4, 2);
+			break;
 		}
 		if (rc == 0)
 		{
 			puts("poll() timed out");
-			ERROR_HANDLING();
+			break;
 		}
 
 		if (write(cfd, buf, nbytes) != nbytes)
 		{
 			perror("write() send file failed");
-			ERROR_HANDLING();
+			break;
 		}
 		fsize -= nbytes;
 		if (fsize <= 0)

@@ -201,9 +201,9 @@ int main(int argc, char **argv)
 
 void close_sock(int fd)
 {
+	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
 	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK);
 	close(fd);
-	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
 	fdset_clr(fd);
 }
 

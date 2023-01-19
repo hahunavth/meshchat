@@ -236,7 +236,10 @@ void response_parse_msg(response *res, const char *body)
 		break;
 	case 2:
 		rm->msg_id = parse_uint32_from_buf(body);
-		;
+	case 3:
+		break;
+	case 6:
+		rm->msg_content = string_new_n(body, header->body_len);
 		break;
 	default:
 		response_body_destroy(rb, header->group);
@@ -588,7 +591,21 @@ inline void make_response_msg_notify_del(uint32_t status_code, uint32_t count, c
 	make_response_id_list(4, 5, status_code, ls, count, res);
 }
 
-inline void make_response_msg_download_file(uint32_t status_code, char *res)
+inline void make_response_msg_download_file(uint32_t status_code, uint32_t fsize, const char *fname, char *res)
 {
-	make_response_empty_body(4, 6, status_code, res);
+	uint32_t fname_len = strlen(fname);
+	response_header header = {
+			.group = 4,
+			.action = 6,
+			.content_type = 1,
+			.status_code = status_code,
+			.content_len = fsize,
+			.body_len = fname_len,
+			.count = 0};
+	make_response_header(&header, res);
+
+	char *body = res + RESPONSE_HEADER_LEN;
+	memset(body, 0, RESPONSE_BODY_LEN);
+
+	memcpy(body, fname, fname_len);
 }

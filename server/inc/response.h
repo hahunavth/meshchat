@@ -107,7 +107,7 @@ void make_responses_msg_send(uint32_t status, uint32_t msg_id, char *res);
 void make_response_msg_delete(uint32_t status, char *res);
 void make_response_msg_notify_new(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
 void make_response_msg_notify_del(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
-void make_response_msg_download_file(uint32_t status, char *res);
+void make_response_msg_download_file(uint32_t status_code, uint32_t fsize, const char *fname, char *res);
 
 void response_destroy(response *res);
 
