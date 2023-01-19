@@ -253,6 +253,9 @@ void request_parse_msg(request *req, const char *body)
 		break;
 	case 4:
 		break;
+	case 6:
+		(rb->r_msg).msg_id = parse_uint32_from_buf(body);
+		break;
 	default:
 		request_body_destroy(rb, header->group);
 		return;
