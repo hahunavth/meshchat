@@ -801,15 +801,15 @@ static void handle_msg_download_file(int cfd, request *req, char *buf, int *clos
 	if (fd < 0)
 	{
 		perror("open() failed");
-		RESPONSE_ERR(500, 4, 6);
+		return;
 	}
 
-	rc = stat(msg, &sb);
+	rc = fstat(fd, &sb);
 	if (rc < 0)
 	{
-		close(fd);
 		perror("stat() failed");
-		RESPONSE_ERR(500, 4, 6);
+		close(fd);
+		return;
 	}
 
 	ssize_t fsize = sb.st_size;
