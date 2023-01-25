@@ -5,6 +5,13 @@ import com.meshchat.client.cnative.req.RequestAuth;
 import com.meshchat.client.cnative.res.ResponseUser;
 import jnr.ffi.Runtime;
 
+/**
+ * TCPNativeClient <br>
+ * - Wrap CAPIServiceLib: Tạo request và trả về response <br>
+ * hoặc throw APICallException<br>
+ *<br>
+ * - Không sửa thay đổi DataStore (thay đổi ở ViewModel) <br>
+ */
 public class TCPNativeClient extends TCPBasedClient implements Runnable {
 
     CAPIServiceLib lib;
@@ -85,13 +92,6 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         auth.phone.set(phone);
         auth.email.set(email);
         stt = this.lib._register(this.sockfd, auth);
-//        if (stt == 201) {
-//            ResponseUser user = new ResponseUser(rt);
-//            stt = this.lib._get_user_info(this.sockfd, this.lib._get_uid(), user);
-//            System.out.println(user.uname);
-//            return true;
-//        }
-        System.out.println(stt);
         return stt == 201;
     }
 
@@ -103,7 +103,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             e.printStackTrace();
         }
         stt = this.lib._login(this.lib.get_sockfd(), uname, pass);
-        System.out.println(stt);
+
         return stt == 200;
     }
 

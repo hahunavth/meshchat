@@ -36,6 +36,7 @@ public abstract class TCPBasedClient {
         if (this.isConnected) {
             throw new Error("Cannot set port when connecting");
         }
+        this.port = port;
     }
 
     public boolean isCloseFlag() {

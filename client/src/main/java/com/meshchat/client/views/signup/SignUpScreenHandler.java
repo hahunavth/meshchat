@@ -6,6 +6,7 @@ import com.meshchat.client.viewmodels.SignUpViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
@@ -32,7 +33,9 @@ public class SignUpScreenHandler extends BaseScreenHandler implements Initializa
     @FXML
     private TextField password;
     @FXML
-    private Button a; // signin
+    private TextField email;
+    @FXML
+    private Button a; // TODO: rename to login
     @FXML
     private Button signup;
 
@@ -44,29 +47,44 @@ public class SignUpScreenHandler extends BaseScreenHandler implements Initializa
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.viewModel = new SignUpViewModel();
-        this.accord.setExpandedPane(this.acc_tiled_pane);
-        signup.setOnAction((a) -> {
-            if(viewModel.handleSignUp(
-                    username.getText(),
-                    password.getText(),
-                    "abc@def.cofffff"
-            )) {
-                System.out.println(this.port.getText());
-                this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
-            } else {
-                DialogScreenHandler screenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
-                screenHandler.getViewModel().setMessage("Cannot register user!");
-                screenHandler.show();
-            }
-        });
-        a.setOnAction((a) -> {
-            ModelSingleton.getInstance().stackNavigation.goBack().show();
-        });
+        this.viewModel = new SignUpViewModel(); // init viewModel
+        this.accord.setExpandedPane(this.acc_tiled_pane); // expand acc pane first
+
+        signup.setOnAction(this::onSignupPressed);
+        a.setOnAction(this::onLoginPressed);
+    }
+
+    /**
+     * on submit pressed
+     * 1. connect server
+     * 2. send signup request
+     * 3. navigate to login screen or show failed dialog
+     */
+    public void onSignupPressed(ActionEvent event) {
+        ModelSingleton.getInstance().initClient(this.address.getText(), Integer.parseInt(this.port.getText()));
+        if(viewModel.handleSignUp(
+                username.getText(),
+                password.getText(),
+                email.getText()
+        )) {
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.LOGIN).show();
+        } else {
+            DialogScreenHandler screenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
+            screenHandler.getViewModel().setMessage("Register failed!");
+            screenHandler.show();
+        }
+    }
+
+    /**
+     * Go to login screen
+     */
+    public void onLoginPressed(ActionEvent event) {
+        ModelSingleton.getInstance().stackNavigation.goBack().show();
     }
 
     @Override
     public void show() {
+        // close connection when show signup screen
         ModelSingleton.getInstance().tcpClient.close();
         super.show();
     }
