@@ -25,7 +25,7 @@ static void write_uint32_to_buf(char *buf, uint32_t num)
 	memcpy(buf, &num, 4);
 }
 
-static uint32_t *parse_uint32_list(char *buf, uint32_t count)
+static uint32_t *parse_uint32_list(const char *buf, uint32_t count)
 {
 	size_t sz = count << 2;
 	uint32_t *ls = (uint32_t *)malloc(sz); // 4xcount
@@ -66,19 +66,19 @@ response *response_parse(const char *buf)
 
 	switch (header->group)
 	{
-	case 0:
+	case 0x00:
 		response_parse_auth(res, buf + RESPONSE_HEADER_LEN);
 		break;
-	case 1:
+	case 0x01:
 		response_parse_user(res, buf + RESPONSE_HEADER_LEN);
 		break;
-	case 2:
+	case 0x02:
 		response_parse_conv(res, buf + RESPONSE_HEADER_LEN);
 		break;
-	case 3:
+	case 0x03:
 		response_parse_chat(res, buf + RESPONSE_HEADER_LEN);
 		break;
-	case 4:
+	case 0x04:
 		response_parse_msg(res, buf + RESPONSE_HEADER_LEN);
 		break;
 	}
@@ -127,7 +127,7 @@ void response_parse_user(response *res, const char *body)
 
 	switch (header->action)
 	{
-	case 1:
+	case 0x01:
 	{
 		uint32_t bodylen = header->body_len;
 		char _body[bodylen + 1];
@@ -144,7 +144,7 @@ void response_parse_user(response *res, const char *body)
 		(rb->r_user).email = string_new(email);
 	}
 	break;
-	case 2:
+	case 0x02:
 		(rb->r_user).idls = parse_uint32_list(body, header->count);
 		break;
 	default:
@@ -164,15 +164,15 @@ void response_parse_conv(response *res, const char *body)
 
 	switch (header->action)
 	{
-	case 0:
+	case 0x00:
 		(rb->r_conv).conv_id = parse_uint32_from_buf(body);
 		break;
-	case 4:
+	case 0x04:
 		(rb->r_conv).admin_id = parse_uint32_from_buf(body);
 		(rb->r_conv).gname = string_new_n(body + 4, (header->body_len) - 4);
 		break;
-	case 5:
-	case 6:
+	case 0x05:
+	case 0x06:
 		(rb->r_conv).idls = parse_uint32_list(body, header->count);
 		break;
 	default:
@@ -192,11 +192,17 @@ void response_parse_chat(response *res, const char *body)
 
 	switch (header->action)
 	{
-	case 0:
+	case 0x00:
 		(rb->r_chat).chat_id = parse_uint32_from_buf(body);
 		break;
-	case 2:
+	case 0x01:
+		break;
+	case 0x02:
 		(rb->r_chat).idls = parse_uint32_list(body, header->count);
+		break;
+	case 0x03:
+		(rb->r_chat).member_id1 = parse_uint32_from_buf(body);
+		(rb->r_chat).member_id2 = parse_uint32_from_buf(body+4);
 		break;
 	default:
 		response_body_destroy(rb, header->group);
@@ -217,12 +223,12 @@ void response_parse_msg(response *res, const char *body)
 
 	switch (header->action)
 	{
-	case 0:
-	case 4:
-	case 5:
+	case 0x00:
+	case 0x04:
+	case 0x05:
 		rm->idls = parse_uint32_list(body, header->count);
 		break;
-	case 1:
+	case 0x01:
 		rm->msg_id = parse_uint32_from_buf(body);
 		rm->from_uid = parse_uint32_from_buf(body + 4);
 		rm->reply_to = parse_uint32_from_buf(body + 8);
@@ -234,11 +240,11 @@ void response_parse_msg(response *res, const char *body)
 		rm->content_length = parse_uint32_from_buf(body + 26);
 		rm->msg_content = string_new_n(body + 30, header->body_len - 20);
 		break;
-	case 2:
+	case 0x02:
 		rm->msg_id = parse_uint32_from_buf(body);
-	case 3:
+	case 0x03:
 		break;
-	case 6:
+	case 0x06:
 		rm->msg_content = string_new_n(body, header->body_len);
 		break;
 	default:
@@ -255,14 +261,14 @@ void response_body_destroy(response_body *body, int8_t group)
 		return;
 	switch (group)
 	{
-	case 0:
+	case 0x00:
 	{
 		response_auth ra = body->r_auth;
 		if (ra.token)
 			string_remove(ra.token);
 	}
 	break;
-	case 1:
+	case 0x01:
 	{
 		response_user ru = body->r_user;
 		if (ru.idls)
@@ -275,7 +281,7 @@ void response_body_destroy(response_body *body, int8_t group)
 			string_remove(ru.email);
 	}
 	break;
-	case 2:
+	case 0x02:
 	{
 		response_conv rc = body->r_conv;
 		if (rc.idls)
@@ -284,11 +290,11 @@ void response_body_destroy(response_body *body, int8_t group)
 			string_remove(rc.gname);
 	}
 	break;
-	case 3:
+	case 0x03:
 		if ((body->r_chat).idls)
 			free((body->r_chat).idls);
 		break;
-	case 4:
+	case 0x04:
 	{
 		response_msg rm = body->r_msg;
 		if (rm.idls)
@@ -536,6 +542,26 @@ inline void make_response_chat_delete(uint32_t status_code, char *res)
 inline void make_response_chat_get_list(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)
 {
 	make_response_id_list(3, 2, status_code, ls, count, res);
+}
+
+void make_response_chat_get_info(uint32_t status_code, uint32_t member_id1, uint32_t member_id2, char *res)
+{
+	response_header header = {
+			.group = 3,
+			.action = 3,
+			.content_type = 0,
+			.status_code = status_code,
+			.content_len = 8,
+			.body_len = 8,
+			// .offset = 0,
+			.count = 0};
+	make_response_header(&header, res);
+
+	char *body = res + RESPONSE_HEADER_LEN;
+	memset(body, 0, RESPONSE_BODY_LEN);
+
+	write_uint32_to_buf(body, member_id1);
+	write_uint32_to_buf(body+4, member_id2);
 }
 
 inline void make_response_msg_get_all(uint32_t status_code, uint32_t count, const uint32_t *ls, char *res)

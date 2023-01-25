@@ -316,9 +316,9 @@ int _join_conv(const int sockfd, const uint32_t conv_id, const uint32_t user2_id
   FREE_AND_RETURN_STT(res);
 }
 
-int _quit_conv(const int sockfd, const uint32_t conv_id)
+int _quit_conv(const int sockfd, const uint32_t conv_id, const uint32_t user2_id)
 {
-  make_request_conv_quit(__token, __uid, conv_id, buf);
+  make_request_conv_quit(__token, __uid, conv_id, user2_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -326,7 +326,12 @@ int _quit_conv(const int sockfd, const uint32_t conv_id)
   {
   case 200:
     break;
-
+  case 204:
+    // admin cannot self-quit
+    break;
+  case 403:
+    // forbidden operation
+    break;
     UNHANDLE_OTHER_STT_CODE(res);
   }
 
@@ -453,6 +458,25 @@ int _get_chat_list(const int sockfd, const int limit, const int offset, uint32_t
   case 400:
     break;
 
+    UNHANDLE_OTHER_STT_CODE(res);
+  }
+
+  FREE_AND_RETURN_STT(res);
+}
+
+int _get_chat_info(const int sockfd, const uint32_t chat_id)
+{
+  make_request_chat_get_info(__token, __uid, chat_id, buf);
+
+  response *res = api_call(sockfd, buf);
+
+  HANDLE_RES_STT(res)
+  {
+  case 200:
+    break;
+  case 403:
+    // not a member
+    break;
     UNHANDLE_OTHER_STT_CODE(res);
   }
 

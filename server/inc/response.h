@@ -51,6 +51,7 @@ typedef struct
 {
 	uint32_t *idls;
 	uint32_t chat_id;
+	uint32_t member_id1, member_id2;
 } response_chat;
 
 typedef struct
@@ -101,6 +102,7 @@ void make_response_conv_get_list(uint32_t status, uint32_t count, const uint32_t
 void make_response_chat_create(uint32_t status, uint32_t chat_id, char *res);
 void make_response_chat_delete(uint32_t status, char *res);
 void make_response_chat_get_list(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
+void make_response_chat_get_info(uint32_t status, uint32_t member_id1, uint32_t member_id2, char *res);
 void make_response_msg_get_all(uint32_t status, uint32_t count, const uint32_t *ls, char *res);
 void make_response_msg_get_detail(uint32_t status, const response_msg *msg, char *res);
 void make_responses_msg_send(uint32_t status, uint32_t msg_id, char *res);

@@ -47,7 +47,6 @@ void test_response_empty_body()
 
 	res = response_parse(buf);
 	response_header *header = &(res->header);
-	response_body *body = res->body;
 
 	assert(header->group == 1);
 	assert(header->action == 0);

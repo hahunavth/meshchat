@@ -1,4 +1,5 @@
 #include "handler.h"
+#include "utils/string.h"
 
 #include <arpa/inet.h>
 #include <fcntl.h>

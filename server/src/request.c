@@ -56,19 +56,19 @@ request *request_parse(const char *buf)
 
 	switch (header->group)
 	{
-	case 0:
+	case 0x00:
 		request_parse_auth(req, buf + REQUEST_HEADER_LEN);
 		break;
-	case 1:
+	case 0x01:
 		request_parse_user(req, buf + REQUEST_HEADER_LEN);
 		break;
-	case 2:
+	case 0x02:
 		request_parse_conv(req, buf + REQUEST_HEADER_LEN);
 		break;
-	case 3:
+	case 0x03:
 		request_parse_chat(req, buf + REQUEST_HEADER_LEN);
 		break;
-	case 4:
+	case 0x04:
 		request_parse_msg(req, buf + REQUEST_HEADER_LEN);
 		break;
 	}
@@ -153,12 +153,12 @@ void request_parse_user(request *req, const char *body)
 
 	switch (header->action)
 	{
-	case 0:
+	case 0x00:
 		break;
-	case 1:
+	case 0x01:
 		(rb->r_user).user_id = parse_uint32_from_buf(body);
 		break;
-	case 2:
+	case 0x02:
 		(rb->r_user).uname = string_new_n(body, header->body_len);
 		break;
 	default:
@@ -178,20 +178,20 @@ void request_parse_conv(request *req, const char *body)
 
 	switch (header->action)
 	{
-	case 0:
+	case 0x00:
 		(rb->r_conv).gname = string_new_n(body, header->body_len);
 		break;
-	case 1:
-	case 3:
-	case 4:
-	case 5:
+	case 0x01:
+	case 0x04:
+	case 0x05:
 		(rb->r_conv).conv_id = parse_uint32_from_buf(body);
 		break;
-	case 2:
+	case 0x02:
+	case 0x03:
 		(rb->r_conv).conv_id = parse_uint32_from_buf(body);
 		(rb->r_conv).user_id = parse_uint32_from_buf(body + 4);
 		break;
-	case 6:
+	case 0x06:
 		break;
 	default:
 		request_body_destroy(rb, header->group);
@@ -210,13 +210,14 @@ void request_parse_chat(request *req, const char *body)
 
 	switch (header->action)
 	{
-	case 0:
+	case 0x00:
 		(rb->r_chat).user_id2 = parse_uint32_from_buf(body);
 		break;
-	case 1:
+	case 0x01:
+	case 0x03:
 		(rb->r_chat).chat_id = parse_uint32_from_buf(body);
 		break;
-	case 2:
+	case 0x02:
 		break;
 	default:
 		request_body_destroy(rb, header->group);
@@ -235,25 +236,25 @@ void request_parse_msg(request *req, const char *body)
 
 	switch (header->action)
 	{
-	case 0:
-	case 5:
+	case 0x00:
+	case 0x05:
 		(rb->r_msg).conv_id = parse_uint32_from_buf(body);
 		(rb->r_msg).chat_id = parse_uint32_from_buf(body + 4);
 		break;
-	case 1:
-	case 3:
+	case 0x01:
+	case 0x03:
 		(rb->r_msg).msg_id = parse_uint32_from_buf(body);
 		;
 		break;
-	case 2:
+	case 0x02:
 		(rb->r_msg).conv_id = parse_uint32_from_buf(body);
 		(rb->r_msg).chat_id = parse_uint32_from_buf(body + 4);
 		(rb->r_msg).reply_id = parse_uint32_from_buf(body + 8);
 		(rb->r_msg).msg_content = string_new_n(body + 12, header->body_len - 12);
 		break;
-	case 4:
+	case 0x04:
 		break;
-	case 6:
+	case 0x06:
 		(rb->r_msg).msg_id = parse_uint32_from_buf(body);
 		break;
 	default:
@@ -270,7 +271,7 @@ void request_body_destroy(request_body *body, int8_t group)
 		return;
 	switch (group)
 	{
-	case 0:
+	case 0x00:
 	{
 		request_auth ra = body->r_auth;
 		if (ra.uname)
@@ -283,23 +284,23 @@ void request_body_destroy(request_body *body, int8_t group)
 			string_remove(ra.email);
 	}
 	break;
-	case 1:
+	case 0x01:
 	{
 		request_user ru = body->r_user;
 		if (ru.uname)
 			string_remove(ru.uname);
 	}
 	break;
-	case 2:
+	case 0x02:
 	{
 		request_conv rc = body->r_conv;
 		if (rc.gname)
 			string_remove(rc.gname);
 	}
 	break;
-	case 3:
+	case 0x03:
 		break;
-	case 4:
+	case 0x04:
 	{
 		request_msg rm = body->r_msg;
 		if (rm.msg_content)
@@ -525,9 +526,10 @@ void make_request_conv_join(const char *token, uint32_t user_id, uint32_t conv_i
 	write_uint32_to_buf(res + REQUEST_HEADER_LEN + 4, user_id2);
 }
 
-inline void make_request_conv_quit(const char *token, uint32_t user_id, uint32_t conv_id, char *res)
+void make_request_conv_quit(const char *token, uint32_t user_id, uint32_t conv_id, uint32_t user_id2, char *res)
 {
 	make_request_uint32(token, 2, 3, user_id, conv_id, res);
+	write_uint32_to_buf(res + REQUEST_HEADER_LEN + 4, user_id2);
 }
 
 inline void make_request_conv_get_info(const char *token, uint32_t user_id, uint32_t conv_id, char *res)
@@ -558,6 +560,11 @@ inline void make_request_chat_delete(const char *token, uint32_t user_id, uint32
 inline void make_request_chat_get_list(const char *token, uint32_t user_id, int32_t limit, int32_t offset, char *res)
 {
 	make_request_page(token, 3, 2, user_id, limit, offset, res);
+}
+
+inline void make_request_chat_get_info(const char* token, uint32_t user_id, uint32_t chat_id, char *res)
+{
+	make_request_uint32(token, 3, 3, user_id, chat_id, res);
 }
 
 void make_request_msg_get_all(const char *token, uint32_t user_id, int32_t limit, int32_t offset, uint32_t conv_id, uint32_t chat_id, char *res)

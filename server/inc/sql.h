@@ -99,6 +99,7 @@ void conv_free(conv_schema *conv);
 uint32_t chat_create(sqlite3 *db, uint32_t member1, uint32_t member2, int *lastrc);
 int chat_is_member(sqlite3 *db, uint32_t chat_id, uint32_t user_id, int *lastrc);
 void chat_drop(sqlite3 *db, uint32_t chat_id, int *lastrc);
+chat_schema *chat_get_info(sqlite3 *db, uint32_t chat_id, int *lastrc);
 
 void chat_free(chat_schema *chat);
 

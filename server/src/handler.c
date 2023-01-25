@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,12 +39,12 @@ static void (*close_sock)(int);
 		}                                      \
 	}
 
-#define RESPONSE_ERR(status, group, action)                      \
-	{                                                            \
-		printf("response errror on line %d\n", __LINE__);        \
-		make_err_response((uint32_t)status, group, action, buf); \
-		SEND_RESPONSE();                                         \
-		return;                                                  \
+#define RESPONSE_ERR(status, group, action)                                        \
+	{                                                                              \
+		printf("response errror on line %d\n", __LINE__);                          \
+		make_err_response((uint32_t)status, (uint8_t)group, (uint8_t)action, buf); \
+		SEND_RESPONSE();                                                           \
+		return;                                                                    \
 	}
 
 #define RESPONSE_ERR_FREE(status, group, action, resource, freefn) \
@@ -290,16 +291,24 @@ static void handle_conv_quit(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_conv *rconv = &(req->body->r_conv);
-	int is_admin = conv_is_admin(db, rconv->conv_id, (req->header).user_id, &rc);
-	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 2, 4);
 
 	int is_member = conv_is_member(db, rconv->conv_id, (req->header).user_id, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 2, 4);
+		RESPONSE_ERR(500, 2, 3);
+	if (!is_member)
+		RESPONSE_ERR(403, 2, 3);
 
-	if ((!is_member) || (is_member & is_admin))
-		RESPONSE_ERR(403, 2, 4);
+	int is_admin = conv_is_admin(db, rconv->conv_id, (req->header).user_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR(500, 2, 3);
+
+	if (rconv->user_id != (req->header).user_id)
+	{
+		if (!is_admin)
+			RESPONSE_ERR(403, 2, 3);
+	}
+	else if (is_admin)
+		RESPONSE_ERR(204, 2, 3);
 
 	conv_quit(db, (req->header).user_id, (req->body->r_conv).conv_id, &rc);
 	if (sql_is_err(rc))
@@ -329,13 +338,13 @@ static void handle_conv_get_members(int cfd, request *req, char *buf, int *close
 	request_conv *rconv = &(req->body->r_conv);
 	int is_member = conv_is_member(db, rconv->conv_id, (req->header).user_id, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR(500, 2, 4);
+		RESPONSE_ERR(500, 2, 5);
 	if (!is_member)
-		RESPONSE_ERR(403, 2, 4);
+		RESPONSE_ERR(403, 2, 5);
 
 	sllnode_t *ls = conv_get_members(db, rconv->conv_id, &rc);
 	if (sql_is_err(rc))
-		RESPONSE_ERR_FREE(500, 2, 4, &ls, sll_remove);
+		RESPONSE_ERR_FREE(500, 2, 5, &ls, sll_remove);
 
 	size_t len = sll_length(ls);
 	uint32_t idls[len];
@@ -438,6 +447,23 @@ static void handle_chat_get_list(int cfd, request *req, char *buf, int *close_co
 	SEND_RESPONSE();
 
 	sll_remove(&ls);
+}
+
+static void handle_chat_get_info(int cfd, request *req, char *buf, int *close_conn)
+{
+	int rc;
+	request_chat *rchat = &(req->body->r_chat);
+	chat_schema *chat = chat_get_info(db, rchat->chat_id, &rc);
+	if (sql_is_err(rc))
+		RESPONSE_ERR_FREE(500, 3, 3, chat, chat_free);
+
+	if ((chat->member1 != (req->header).user_id) && (chat->member2 != (req->header).user_id))
+		RESPONSE_ERR_FREE(403, 3, 3, chat, chat_free);
+
+	make_response_chat_get_info(200, chat->member1, chat->member2, buf);
+	SEND_RESPONSE();
+
+	chat_free(chat);
 }
 
 /****************/
@@ -548,10 +574,10 @@ void process_fname(const char *fname, char *res)
 }
 
 #define FILE_ERROR_HANDLING() \
-	close(fd);           \
-	remove(fname);       \
-	close_sock(cfd);     \
-	*close_conn = 1;     \
+	close(fd);                \
+	remove(fname);            \
+	close_sock(cfd);          \
+	*close_conn = 1;          \
 	return;
 
 static void handle_msg_send(int cfd, request *req, char *buf, int *close_conn)
@@ -783,7 +809,7 @@ static void handle_msg_download_file(int cfd, request *req, char *buf, int *clos
 	if (msg->content_type != MSG_FILE)
 		RESPONSE_ERR_FREE(400, 4, 6, msg, msg_free);
 
-	make_response_msg_download_file(200, msg->content_length, msg->content+strlen("./storage/"), buf);
+	make_response_msg_download_file(200, msg->content_length, msg->content + strlen("./storage/"), buf);
 	if (write(cfd, buf, BUFSIZ) != BUFSIZ)
 	{
 		msg_free(msg);
@@ -980,6 +1006,8 @@ void handle_req(int epoll_fd, int cfd)
 					case 0x02:
 						handle_chat_get_list(cfd, req, buf, &close_conn);
 						break;
+					case 0x03:
+						handle_chat_get_info(cfd, req, buf, &close_conn);
 					}
 					break;
 				case 0x04:

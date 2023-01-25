@@ -585,6 +585,49 @@ void chat_drop(sqlite3 *db, uint32_t chat_id, int *lastrc)
 	*lastrc = SQLITE_OK;
 }
 
+chat_schema *chat_get_info(sqlite3 *db, uint32_t chat_id, int *lastrc)
+{
+	chat_schema *res = (chat_schema *)calloc(1, sizeof(chat_schema));
+	if (!res)
+	{
+		*lastrc = SQLITE_NOMEM;
+		return NULL;
+	}
+
+	char query[QUERY_SMALL];
+	memset(query, 0, QUERY_SMALL);
+	snprintf(query, QUERY_SMALL, "SELECT * FROM chats WHERE id=%" PRIu32 "", chat_id);
+
+	sqlite3_stmt *stmt;
+	int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+	if (rc != SQLITE_OK)
+	{
+		*lastrc = rc;
+		free(res);
+		return NULL;
+	}
+
+	if ((rc = sqlite3_step(stmt)) != SQLITE_ROW)
+	{
+		if (rc == SQLITE_DONE)
+			*lastrc = SQLITE_EMPTY;
+		else
+			*lastrc = rc;
+		sqlite3_finalize(stmt);
+		free(res);
+		return NULL;
+	}
+
+	res->id = chat_id;
+	res->member1 = sqlite3_column_int(stmt, 1);
+	res->member2 = sqlite3_column_int(stmt, 2);
+
+	sqlite3_finalize(stmt);
+
+	*lastrc = SQLITE_OK;
+	return res;
+}
+
 void chat_free(chat_schema *chat)
 {
 	if (!chat)

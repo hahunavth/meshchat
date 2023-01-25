@@ -94,13 +94,14 @@ void make_request_user_search(const char* token, uint32_t user_id, const char *u
 void make_request_conv_create(const char* token, uint32_t user_id, const char* gname, char *res);
 void make_request_conv_drop(const char* token, uint32_t user_id, uint32_t conv_id, char *res);
 void make_request_conv_join(const char* token, uint32_t user_id, uint32_t conv_id, uint32_t user_id2, char *res);
-void make_request_conv_quit(const char* token, uint32_t user_id, uint32_t conv_id, char *res);
+void make_request_conv_quit(const char* token, uint32_t user_id, uint32_t conv_id, uint32_t user_id2, char *res);
 void make_request_conv_get_info(const char* token, uint32_t user_id, uint32_t conv_id, char *res);
 void make_request_conv_get_members(const char* token, uint32_t user_id, uint32_t conv_id, char *res);
 void make_request_conv_get_list(const char* token, uint32_t user_id, int32_t limit, int32_t offset, char *res);
 void make_request_chat_create(const char* token, uint32_t user_id, uint32_t user_id2, char *res);
 void make_request_chat_delete(const char* token, uint32_t user_id, uint32_t chat_id, char *res);
 void make_request_chat_get_list(const char* token, uint32_t user_id, int32_t limit, int32_t offset, char *res);
+void make_request_chat_get_info(const char* token, uint32_t user_id, uint32_t chat_id, char *res);
 void make_request_msg_get_all(const char* token, uint32_t user_id, int32_t limit, int32_t offset, uint32_t conv_id, uint32_t chat_id, char *res);
 void make_request_msg_get_detail(const char* token, uint32_t user_id, uint32_t msg_id, char *res);
 void make_requests_msg_send_text(const char *token, uint32_t user_id, uint32_t conv_id, uint32_t chat_id, uint32_t reply_to, const char *msg, char *res);
