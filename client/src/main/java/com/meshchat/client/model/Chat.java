@@ -8,9 +8,16 @@ import java.util.List;
 
 public class Chat extends ChatGen {
     public long id;
-    private final UserEntity user2;
+    private UserEntity user2;
+
+    public Chat () {
+    }
 
     public Chat(UserEntity user2) {
+        this.user2 = user2;
+    }
+
+    public void setUser2(UserEntity user2) {
         this.user2 = user2;
     }
 

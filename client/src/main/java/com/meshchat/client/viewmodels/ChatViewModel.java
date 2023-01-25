@@ -1,5 +1,6 @@
 package com.meshchat.client.viewmodels;
 
+import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.model.Chat;
 import com.meshchat.client.model.Conv;
 
@@ -21,6 +22,17 @@ public class ChatViewModel extends BaseViewModel {
 
     public Map<Long, Conv> getConvMap () {
         return this.dataStore.getConvMap();
+    }
+
+    /**
+     * Fetch chat list and add to DataStore
+     */
+    public void fetchChatList() {
+        List<Long> chatIdls = ModelSingleton.getInstance().tcpClient._get_chat_list();
+        chatIdls.forEach((chatId) -> {
+            Chat chat = ModelSingleton.getInstance().tcpClient._get_chat_info(chatId);
+            this.dataStore.addChat(chatId, chat);
+        });
     }
 
 //    @Override

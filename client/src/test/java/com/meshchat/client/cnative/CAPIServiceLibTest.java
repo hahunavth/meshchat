@@ -80,11 +80,11 @@ class CAPIServiceLibTest {
         System.out.println("_get_user_info: " + responseUser.toString());
         System.out.println("_get_user_info: " + stt);
 //
-        NativeLongByReference gid = new NativeLongByReference(1);
+        NativeLongByReference gid = new NativeLongByReference(-100);
         stt = this.lib._create_conv(fd, "My first conv", gid);
         System.out.println("_create_conv: " + stt);
-        System.out.println("_create_conv: " + gid);
-        assertTrue(gid.longValue() > 0);
+        System.out.println("_create_conv: " + gid.intValue());
+        assertTrue(gid.intValue() > 0);
         assertEquals(201, stt);
 //
         stt = this.lib._logout(fd);

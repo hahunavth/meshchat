@@ -54,13 +54,8 @@ public class ChatScreenHandler extends BaseScreenHandler {
         viewModel.getChatMap().forEach((id, chat) -> {
             this.addChatItem(chat);
         });
-//        tabPane.selectionModelProperty().addListener((o, ov, nv) -> {
-//            if (nv.getSelectedItem().equals(chat)) {
-//                search.setText("Find new user to chat");
-//            } else {
-//                search.setText("Create new conversation");
-//            }
-//        });
+        viewModel.fetchChatList();
+
         search.setOnMouseClicked((a) -> {
             if (chat.isSelected()) {
                 ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.SEARCH_USER).show();

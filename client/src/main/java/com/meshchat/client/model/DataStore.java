@@ -1,7 +1,6 @@
 package com.meshchat.client.model;
 
 import com.meshchat.client.db.entities.UserEntity;
-import com.meshchat.client.net.client.simple.TCPSimpleClient;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 

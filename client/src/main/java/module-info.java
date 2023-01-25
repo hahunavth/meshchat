@@ -36,7 +36,6 @@ module com.meshchat.client {
 
     exports com.meshchat.client;
     exports com.meshchat.client.cnative;
-    exports com.meshchat.client.experiments;
     exports com.meshchat.client.viewmodels;
 //    exports com.meshchat.client.launchers;
     exports com.meshchat.client.views.layout;
@@ -45,7 +44,6 @@ module com.meshchat.client {
     exports com.meshchat.client.views.settings;
     exports com.meshchat.client.views.navigation;
     exports com.meshchat.client.views.base;
-    exports com.meshchat.client.experiments.libs;
     exports com.meshchat.client.views.components;
     exports com.meshchat.client.views.splash;
 }

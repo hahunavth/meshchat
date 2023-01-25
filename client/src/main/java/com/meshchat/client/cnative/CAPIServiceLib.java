@@ -30,6 +30,10 @@ import jnr.ffi.types.u_int32_t;
  * uint16_t * -> @Out @u_int16_t NativeIntByReference <br>
  * uint32_t[] -> @Out @u_int32_t long[] <br>
  * struct * -> @Out ... <br>
+ * <br>
+ * Note: <br>
+ * - Lấy giá trị của instance NativeLongByReference bằng method intValue() <br>
+ * (do sử dụng longValue() làm sai giá trị!)
  */
 public interface CAPIServiceLib {
     /**

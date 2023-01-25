@@ -4,11 +4,18 @@ import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.cnative.CAPIServiceLib;
 import com.meshchat.client.cnative.req.RequestAuth;
 import com.meshchat.client.cnative.res.ResponseUser;
+import com.meshchat.client.db.entities.UserEntity;
+import com.meshchat.client.exceptions.APICallException;
+import com.meshchat.client.model.Chat;
 import com.meshchat.client.model.Conv;
 import javafx.util.Pair;
 import jnr.ffi.NativeLong;
 import jnr.ffi.Runtime;
 import jnr.ffi.byref.NativeLongByReference;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * TCPNativeClient <br>
@@ -112,6 +119,39 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return stt == 200;
     }
 
+    public long get_uid() {
+        return this.lib._get_uid();
+    }
+
+    public long _create_chat(long u2id) throws APICallException {
+        NativeLongByReference chat_id = new NativeLongByReference();
+        int stt = this.lib._create_chat(this.lib.get_sockfd(), u2id, chat_id);
+        switch (stt) {
+            case 201:
+                return chat_id.intValue();
+            default:
+                throw new APICallException(stt, "Cannot create chat");
+        }
+    }
+
+    public List<Long> _get_chat_list() {
+        long[] idls = new long[10];
+        NativeLongByReference len = new NativeLongByReference(0);
+        this.lib._get_chat_list(this.lib.get_sockfd(), 10, 0, idls, len);
+        // FIXME: map type NativeLongByReference -> uint32_t * error
+        return Arrays.stream(idls).limit(len.intValue()).boxed().toList();
+    }
+
+    public Chat _get_chat_info(long chat_id) {
+        /* FIXME: Require api _get_chat_info in server */
+        Chat chat = new Chat();
+        // TODO: Call api and update chat
+        // fake api call
+        UserEntity user2 = new UserEntity(1, "abc", "123456789", "a@b.c");
+        chat.setUser2(user2);
+        return chat;
+    }
+
     public boolean _create_conv(String gname){
         NativeLongByReference gid = new NativeLongByReference();
         int stt = this.lib._create_conv(this.lib.get_sockfd(), gname, gid);
@@ -120,7 +160,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
                 /* Update dataStore */
                 Conv newConv = new Conv();
                 /* FIXME what should newConv instance be modified before addConv() */
-                ModelSingleton.getInstance().dataStore.addConv(gid.longValue(), newConv);
+                ModelSingleton.getInstance().dataStore.addConv(gid.intValue(), newConv);
                 return true;
             case 500:
             default:
