@@ -46,10 +46,10 @@ public class LoginScreenHandler extends BaseScreenHandler implements Initializab
         this.viewModel = new LoginViewModel();
         this.accord.setExpandedPane(this.acc_tiled_pane);
         login.setOnAction((a) -> {
-//            ModelSingleton.getInstance().initClient("127.0.0.1", 9000);
-//            System.out.println(this.port.getText());
+            ModelSingleton.getInstance().initClient(this.address.getText(), Integer.parseInt(this.port.getText()));
+
             if (
-                this.viewModel.handleLogin("127.0.0.1", 9000, this.username.getText(), this.password.getText())
+                this.viewModel.handleLogin(this.username.getText(), this.password.getText())
             ) {
                 this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
             } else {

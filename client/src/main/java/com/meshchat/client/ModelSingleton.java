@@ -30,6 +30,7 @@ public class ModelSingleton {
         this.tcpClient.setPort(port);
         Thread clientThread = new Thread(tcpClient);
         clientThread.start();
+        // TODO: handle connection failed: throw exception
     }
 
     public static ModelSingleton getInstance() {
