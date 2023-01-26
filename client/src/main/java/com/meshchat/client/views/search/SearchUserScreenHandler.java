@@ -9,4 +9,8 @@ public class SearchUserScreenHandler extends BaseScreenHandler {
     }
 
 
+    @Override
+    public void onShow() {
+
+    }
 }

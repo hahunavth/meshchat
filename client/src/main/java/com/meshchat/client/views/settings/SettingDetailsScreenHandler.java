@@ -13,4 +13,8 @@ public class SettingDetailsScreenHandler extends BaseScreenHandler implements La
     public SettingDetailsScreenHandler() {
         super(Config.SETTING_DETAILS_PATH);
     }
+
+    public void onShow() {
+
+    }
 }

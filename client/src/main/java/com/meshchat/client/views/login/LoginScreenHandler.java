@@ -69,4 +69,9 @@ public class LoginScreenHandler extends BaseScreenHandler implements Initializab
         ModelSingleton.getInstance().tcpClient.close();
         super.show();
     }
+
+    @Override
+    public void onShow() {
+
+    }
 }

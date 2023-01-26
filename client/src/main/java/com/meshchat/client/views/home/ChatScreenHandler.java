@@ -12,6 +12,8 @@ import com.meshchat.client.views.components.ChatItem;
 import com.meshchat.client.views.components.ChatItemChat;
 import com.meshchat.client.views.components.ChatItemConv;
 import com.meshchat.client.views.navigation.StackNavigation;
+import javafx.collections.MapChangeListener;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -54,7 +56,17 @@ public class ChatScreenHandler extends BaseScreenHandler {
         viewModel.getChatMap().forEach((id, chat) -> {
             this.addChatItem(chat);
         });
-        viewModel.fetchChatList();
+
+        viewModel.getChatMap().addListener((MapChangeListener<? super Long, ? super Chat>) (e) -> {
+            Long key = e.getKey();
+            if (e.wasAdded()) {
+                Chat chat = e.getValueAdded();
+                this.addChatItem(chat);
+            } else if (e.wasRemoved()) {
+                // TODO: IMPL
+//                this.removeChatItem(key, MessageViewModel.Type.CHAT);
+            }
+        });
 
         search.setOnMouseClicked((a) -> {
             if (chat.isSelected()) {
@@ -111,4 +123,20 @@ public class ChatScreenHandler extends BaseScreenHandler {
         System.out.println("abc");
     }
 
+    @Override
+    public void onShow() {
+        System.out.println("showwwww");
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                // wait 1 second
+                Thread.sleep(1000);
+                System.out.println("call api");
+                viewModel.fetchChatList();
+                return null;
+            }
+        };
+        // fetch data
+        new Thread(task).start();
+    }
 }

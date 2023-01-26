@@ -1,10 +1,7 @@
 package com.meshchat.client.views.navigation;
 
 import com.meshchat.client.utils.Config;
-import com.meshchat.client.views.base.BaseComponent;
-import com.meshchat.client.views.base.BaseLayout;
-import com.meshchat.client.views.base.BaseScreenHandler;
-import com.meshchat.client.views.base.INavigation;
+import com.meshchat.client.views.base.*;
 import com.meshchat.client.views.components.TabButton;
 import com.meshchat.client.views.layout.TabsLayout;
 import javafx.fxml.FXML;

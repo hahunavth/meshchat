@@ -3,6 +3,7 @@ package com.meshchat.client.viewmodels;
 import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.model.Chat;
 import com.meshchat.client.model.Conv;
+import javafx.collections.ObservableMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,8 +17,8 @@ public class ChatViewModel extends BaseViewModel {
         return list;
     }
 
-    public Map<Long, Chat> getChatMap() {
-        return dataStore.getChatMap();
+    public ObservableMap<Long, Chat> getChatMap() {
+        return dataStore.oChatMap;
     }
 
     public Map<Long, Conv> getConvMap () {
@@ -29,6 +30,7 @@ public class ChatViewModel extends BaseViewModel {
      */
     public void fetchChatList() {
         List<Long> chatIdls = ModelSingleton.getInstance().tcpClient._get_chat_list();
+        System.out.println("Chat list: " + chatIdls);
         chatIdls.forEach((chatId) -> {
             Chat chat = ModelSingleton.getInstance().tcpClient._get_chat_info(chatId);
             this.dataStore.addChat(chatId, chat);

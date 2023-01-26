@@ -135,4 +135,9 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     public void lazyInitialize(Stage stage) {
         this.stage = stage;
     }
+
+    @Override
+    public void onShow() {
+
+    }
 }

@@ -119,6 +119,10 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return stt == 200;
     }
 
+    public boolean _logout() {
+        return this.lib._logout(this.lib.get_sockfd()) == 201;
+    }
+
     public long get_uid() {
         return this.lib._get_uid();
     }
@@ -137,8 +141,8 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     public List<Long> _get_chat_list() {
         long[] idls = new long[10];
         NativeLongByReference len = new NativeLongByReference(0);
+        System.out.println("_get_chat_list sockfd: " + this.lib.get_sockfd());
         this.lib._get_chat_list(this.lib.get_sockfd(), 10, 0, idls, len);
-        // FIXME: map type NativeLongByReference -> uint32_t * error
         return Arrays.stream(idls).limit(len.intValue()).boxed().toList();
     }
 
@@ -168,10 +172,10 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public boolean _quit_conv(long gid){
+    public boolean _quit_conv(long gid, long user2_id){
         int stt;
 //        NativeLongByReference gid = new NativeLongByReference();
-        stt = this.lib._quit_conv(this.lib.get_sockfd(), gid);
+        stt = this.lib._quit_conv(this.lib.get_sockfd(), gid, user2_id);
         return stt == 200;
     }
 

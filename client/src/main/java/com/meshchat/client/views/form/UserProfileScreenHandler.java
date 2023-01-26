@@ -7,4 +7,9 @@ public class UserProfileScreenHandler extends BaseScreenHandler {
     public UserProfileScreenHandler() {
         super(Config.USER_PROFILE_PATH);
     }
+
+    @Override
+    public void onShow() {
+
+    }
 }

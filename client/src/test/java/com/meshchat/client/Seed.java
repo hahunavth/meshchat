@@ -1,13 +1,12 @@
-package com.meshchat.client.viewmodels;
+package com.meshchat.client;
 
-import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.net.client.TCPNativeClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SeedTest {
+public class Seed {
 
     TCPNativeClient client;
     @BeforeEach
@@ -16,6 +15,12 @@ public class SeedTest {
         ModelSingleton.getInstance().initClient("127.0.0.1", 9000);
     }
 
+    /**
+     * Create account: <br>
+     * username: user_* <br>
+     * password: pass* <br>
+     * 0 < * < 100 <br>
+     */
     @Test
     void createAcc () {
         boolean ret;
@@ -25,22 +30,45 @@ public class SeedTest {
         }
     }
 
+    /**
+     * Create chat: <br>
+     * user_1 -> user_2 <br>
+     * user_1 -> user_3 <br>
+     */
     @Test
     void createChat() {
         // login
         boolean ret;
         ret = client._login("user_1", "pass1");
         assertTrue(ret);
-        long uid = client.get_uid();
-        assertTrue(uid > 0);
+        long u1id = client.get_uid();
+        assertTrue(u1id > 0);
         // user_1 chat with user_2 and user_3
         try {
-            long chat_id = client._create_chat(uid + 1);
+            long chat_id = client._create_chat(u1id + 1);
             assertTrue(chat_id > 0);
-            chat_id = client._create_chat(uid + 2);
+            chat_id = client._create_chat(u1id + 2);
             assertTrue(chat_id > 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    @Test
+    void createChat2() {
+        boolean ret;
+        int u1id = 1;
+        ret = client._login("user_4", "pass4");
+        assertTrue(ret);
+        long u4id = client.get_uid();
+        assertTrue(u4id > 0);
+        try {
+            long chat_id = client._create_chat(u1id);
+            assertTrue(chat_id > 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }

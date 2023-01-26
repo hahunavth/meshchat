@@ -16,6 +16,6 @@ public class ConvViewModel extends BaseViewModel{
     }
 
     public void handleDropConv(long id){
-        ModelSingleton.getInstance().tcpClient._quit_conv(id);
+//        ModelSingleton.getInstance().tcpClient._quit_conv(id);
     }
 }

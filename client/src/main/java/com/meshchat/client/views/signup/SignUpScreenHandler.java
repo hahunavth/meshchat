@@ -88,4 +88,9 @@ public class SignUpScreenHandler extends BaseScreenHandler implements Initializa
         ModelSingleton.getInstance().tcpClient.close();
         super.show();
     }
+
+    @Override
+    public void onShow() {
+
+    }
 }

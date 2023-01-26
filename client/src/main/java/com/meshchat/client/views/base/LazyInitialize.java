@@ -7,4 +7,6 @@ import javafx.stage.Stage;
  */
 public interface LazyInitialize {
     void lazyInitialize(Stage stage);
+
+    void onShow();
 }

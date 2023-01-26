@@ -76,7 +76,7 @@ public class DataStore implements Flow.Subscriber<char[]> {
     }
 
     public void addChat(long id, Chat chat) {
-        this.chatMap.put(id, chat);
+        this.oChatMap.put(id, chat);
     }
 
     @Override

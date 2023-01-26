@@ -36,4 +36,9 @@ public class CreateConvForm extends BaseScreenHandler implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
     }
+
+    @Override
+    public void onShow() {
+
+    }
 }

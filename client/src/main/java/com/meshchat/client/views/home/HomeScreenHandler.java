@@ -25,4 +25,5 @@ public class HomeScreenHandler extends HomeLayout implements LazyInitialize {
         this.stage.setTitle("Home");
         this.lazyComponents.forEach((item) -> item.lazyInitialize(stage));
     }
+
 }

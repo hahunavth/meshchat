@@ -1,10 +1,14 @@
 package com.meshchat.client.views.base;
 
+import com.meshchat.client.model.Chat;
+import com.meshchat.client.views.home.ChatScreenHandler;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Chia 1 mh thành layout gồm nhiều session
@@ -12,6 +16,7 @@ import java.util.HashMap;
  */
 public abstract class BaseLayout<T> extends BaseScreenHandler{
 
+    private final List<LazyInitialize> lazyShowList = new ArrayList<>();
     private HashMap<T, Pane> sessionMap;
 
     /**
@@ -50,6 +55,8 @@ public abstract class BaseLayout<T> extends BaseScreenHandler{
      */
     public void addSessionContent(T key, FXMLScreenHandler screenHandler) {
         this.getSessionContainer(key).getChildren().add(screenHandler.getContent());
+        if (screenHandler instanceof ChatScreenHandler)
+            lazyShowList.add((LazyInitialize) screenHandler);
     }
 
     /**
@@ -65,5 +72,11 @@ public abstract class BaseLayout<T> extends BaseScreenHandler{
     @Override
     public void lazyInitialize(Stage stage) {
         this.stage = stage;
+    }
+
+    @Override
+    public void onShow() {
+        System.out.println(lazyShowList);
+        lazyShowList.forEach(LazyInitialize::onShow);
     }
 }

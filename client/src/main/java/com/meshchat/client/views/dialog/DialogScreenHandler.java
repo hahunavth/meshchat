@@ -35,4 +35,9 @@ public class DialogScreenHandler extends BaseScreenHandler implements Initializa
     public DialogViewModel getViewModel() {
         return this.viewModel;
     }
+
+    @Override
+    public void onShow() {
+
+    }
 }
