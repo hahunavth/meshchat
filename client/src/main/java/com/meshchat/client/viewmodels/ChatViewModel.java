@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ChatViewModel extends BaseViewModel {
-    public List<Long> getChatIdList() {
-        List<Long> list = new ArrayList<>(dataStore.getChatMap().keySet());
-        Collections.sort(list);
-        return list;
-    }
+//    public List<Long> getChatIdList() {
+//        List<Long> list = new ArrayList<>(dataStore.getChatMap().keySet());
+//        Collections.sort(list);
+//        return list;
+//    }
 
     public ObservableMap<Long, Chat> getChatMap() {
         return dataStore.oChatMap;
@@ -32,8 +32,12 @@ public class ChatViewModel extends BaseViewModel {
         List<Long> chatIdls = ModelSingleton.getInstance().tcpClient._get_chat_list();
         System.out.println("Chat list: " + chatIdls);
         chatIdls.forEach((chatId) -> {
-            Chat chat = ModelSingleton.getInstance().tcpClient._get_chat_info(chatId);
-            this.dataStore.addChat(chatId, chat);
+            try {
+                Chat chat = ModelSingleton.getInstance().tcpClient._get_chat_info(chatId);
+                this.dataStore.addChat(chatId, chat);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 

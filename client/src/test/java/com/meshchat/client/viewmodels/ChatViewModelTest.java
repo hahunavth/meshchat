@@ -1,10 +1,14 @@
 package com.meshchat.client.viewmodels;
 
 import com.meshchat.client.ModelSingleton;
+import com.meshchat.client.exceptions.APICallException;
+import com.meshchat.client.model.Chat;
 import com.meshchat.client.net.client.TCPNativeClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,8 +39,15 @@ class ChatViewModelTest {
 
     @Test
     void clientGetChatInfoTest() {
-        this.client._get_chat_info()
+        List<Long> chatIdls = client._get_chat_list();
+        System.out.println("Chat list: " + chatIdls);
+        chatIdls.forEach((chatId) -> {
+            try {
+                Chat chat = client._get_chat_info(chatId);
+                System.out.println(chat);
+            } catch (APICallException e) {
+                e.printStackTrace();
+            }
+        });
     }
-
-
 }

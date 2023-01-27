@@ -146,12 +146,26 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return Arrays.stream(idls).limit(len.intValue()).boxed().toList();
     }
 
-    public Chat _get_chat_info(long chat_id) {
-        /* FIXME: Require api _get_chat_info in server */
+    public Chat _get_chat_info(long chat_id) throws APICallException {
         Chat chat = new Chat();
-        // TODO: Call api and update chat
-        this.lib._get_chat_info(this.lib.get_sockfd(), chat_id);
-        UserEntity user2 = new UserEntity(1, "abc", "123456789", "a@b.c");
+        //
+        NativeLongByReference mem1_id = new NativeLongByReference(-1);
+        NativeLongByReference mem2_id = new NativeLongByReference(-1);
+        int stt = this.lib._get_chat_info(this.lib.get_sockfd(), chat_id, mem1_id, mem2_id);
+        if (stt != 200) {
+            throw new APICallException(stt, "Cannot get api");
+        }
+        long u2Id = mem1_id.intValue();
+        if(this.lib._get_uid() == mem1_id.intValue()) {
+            u2Id = mem2_id.intValue();
+        }
+
+        ResponseUser responseUser = new ResponseUser(this.rt);
+        stt = this.lib._get_user_info(this.lib.get_sockfd(), u2Id, responseUser);
+        if (stt != 200) {
+            throw new APICallException(stt, "Cannot get user info");
+        }
+        UserEntity user2 = new UserEntity(u2Id, responseUser.uname.get(), responseUser.phone.get(), responseUser.email.get());
         chat.setUser2(user2);
         return chat;
     }

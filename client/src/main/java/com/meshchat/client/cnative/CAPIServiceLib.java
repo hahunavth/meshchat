@@ -77,7 +77,7 @@ public interface CAPIServiceLib {
      // chat
      int _create_chat(@In int sockfd, @In @u_int32_t long user2_id, @Out @u_int32_t NativeLongByReference  chat_id);
      int _delete_chat(@In int sockfd, @In @u_int32_t long chat_id);
-    int _get_chat_info(@In int sockfd, @In @u_int32_t long chat_id);
+    int _get_chat_info(@In int sockfd, @In @u_int32_t long chat_id, @Out @u_int32_t NativeLongByReference _mem1_id, @Out @u_int32_t NativeLongByReference _mem2_id);
      int _get_chat_list(@In int sockfd, @In @int32_t long limit, @In @int32_t long offset, @Out @u_int32_t long[] _idls, @Out @u_int32_t NativeLongByReference _len);
      // msg
      int _get_msg_all(@In int sockfd, @In @int32_t long limit, @In @int32_t long offset, @In @u_int32_t long conv_id, @In @u_int32_t long  chat_id, @Out @u_int32_t long[] _msg_idls, @Out @u_int32_t NativeLongByReference _len);

@@ -18,10 +18,7 @@ import java.util.concurrent.Flow;
  * <br>
  * <s>Observable pattern:</s>
  */
-public class DataStore implements Flow.Subscriber<char[]> {
-    // reactive streams
-    private Flow.Subscription subscription;
-
+public class DataStore {
     // data
     private final UserProfile userProfile = new UserProfile();
     private final Map<Long, Conv> convMap = new HashMap<>();
@@ -30,6 +27,9 @@ public class DataStore implements Flow.Subscriber<char[]> {
     // observable
     public final ObservableMap<Long, Conv> oConvMap = FXCollections.observableMap(convMap);
     public final ObservableMap<Long, Chat> oChatMap = FXCollections.observableMap(chatMap);
+
+    // cache
+//    public final Map<Long, >
 
     public DataStore() {
         /**
@@ -77,30 +77,5 @@ public class DataStore implements Flow.Subscriber<char[]> {
 
     public void addChat(long id, Chat chat) {
         this.oChatMap.put(id, chat);
-    }
-
-    @Override
-    public void onSubscribe(Flow.Subscription subscription) {
-        System.out.println(subscription);
-        this.subscription = subscription;
-        this.subscription.request(1);
-    }
-
-    @Override
-    public void onNext(char[] item) {
-        System.out.println("Consumer: onNext" + Arrays.toString(item));
-        // receive list of item
-        // send num of accepted items
-        this.subscription.request(1);
-    }
-
-    @Override
-    public void onError(Throwable throwable) {
-        throwable.printStackTrace();
-    }
-
-    @Override
-    public void onComplete() {
-        System.out.println("Consumer: onComplete");
     }
 }
