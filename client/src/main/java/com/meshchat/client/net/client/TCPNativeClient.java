@@ -150,7 +150,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         /* FIXME: Require api _get_chat_info in server */
         Chat chat = new Chat();
         // TODO: Call api and update chat
-        // fake api call
+        this.lib._get_chat_info(this.lib.get_sockfd(), chat_id);
         UserEntity user2 = new UserEntity(1, "abc", "123456789", "a@b.c");
         chat.setUser2(user2);
         return chat;

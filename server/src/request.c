@@ -72,7 +72,7 @@ request *request_parse(const char *buf)
 		request_parse_msg(req, buf + REQUEST_HEADER_LEN);
 		break;
 	}
-	if(!(req->body))
+	if (!(req->body))
 	{
 		free(req);
 		return NULL;
@@ -562,7 +562,7 @@ inline void make_request_chat_get_list(const char *token, uint32_t user_id, int3
 	make_request_page(token, 3, 2, user_id, limit, offset, res);
 }
 
-inline void make_request_chat_get_info(const char* token, uint32_t user_id, uint32_t chat_id, char *res)
+inline void make_request_chat_get_info(const char *token, uint32_t user_id, uint32_t chat_id, char *res)
 {
 	make_request_uint32(token, 3, 3, user_id, chat_id, res);
 }
@@ -687,7 +687,7 @@ void make_request_msg_notify_del(const char *token, uint32_t user_id, uint32_t c
 	write_uint32_to_buf(body + 4, chat_id);
 }
 
-inline void make_request_msg_file_download(const char* token, uint32_t user_id, uint32_t msg_id, char *res)
+inline void make_request_msg_file_download(const char *token, uint32_t user_id, uint32_t msg_id, char *res)
 {
 	make_request_uint32(token, 4, 6, user_id, msg_id, res);
 }

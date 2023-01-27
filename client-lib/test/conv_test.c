@@ -73,11 +73,11 @@ void test_conv_quit(uint32_t conv_id)
   int stt = 0;
 
   // admin quit room mình tạo -> err
-  stt = _quit_conv(get_sockfd(), conv_id);
+  stt = _quit_conv(get_sockfd(), conv_id, _get_uid());
   assert(stt == 403);
 
   // ko có room với id này -> 403
-  stt = _quit_conv(get_sockfd(), 123456);
+  stt = _quit_conv(get_sockfd(), 123456, 2);
   assert(stt == 403);
 
   SUCCESS("conv_test quit_conv pass");

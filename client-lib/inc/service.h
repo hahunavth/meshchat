@@ -67,7 +67,7 @@ extern int _get_conv_list(const int sockfd, const int limit, const int offset, u
 extern int _create_chat(const int sockfd, const uint32_t user2_id, uint32_t *chat_id);
 extern int _delete_chat(const int sockfd, const uint32_t chat_id);
 extern int _get_chat_list(const int sockfd, const int limit, const int offset, uint32_t *_idls, uint32_t *_len);
-extern int _get_chat_info(const int sockfd, const uint32_t chat_id);
+extern int _get_chat_info(const int sockfd, const uint32_t chat_id, uint32_t *_mem1_id, uint32_t *_mem2_id);
 extern int _get_msg_all(const int sockfd, const int limit, const int offset, const uint32_t conv_id, uint32_t chat_id, uint32_t *_msg_idls, uint32_t *_len);
 extern int _get_msg_detail(const int sockfd, const uint32_t msg_id, response_msg *_msg);
 extern int _send_msg_text(const int sockfd, const uint32_t conv_id, const uint32_t chat_id, const uint32_t reply_to, const char *msg, uint32_t *_msg_id);

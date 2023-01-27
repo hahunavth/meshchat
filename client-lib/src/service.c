@@ -464,7 +464,7 @@ int _get_chat_list(const int sockfd, const int limit, const int offset, uint32_t
   FREE_AND_RETURN_STT(res);
 }
 
-int _get_chat_info(const int sockfd, const uint32_t chat_id)
+int _get_chat_info(const int sockfd, const uint32_t chat_id, uint32_t *_mem1_id, uint32_t *_mem2_id)
 {
   make_request_chat_get_info(__token, __uid, chat_id, buf);
 
@@ -473,6 +473,8 @@ int _get_chat_info(const int sockfd, const uint32_t chat_id)
   HANDLE_RES_STT(res)
   {
   case 200:
+    *_mem1_id = (res->body->r_chat).member_id1;
+    *_mem2_id = (res->body->r_chat).member_id2;
     break;
   case 403:
     // not a member
