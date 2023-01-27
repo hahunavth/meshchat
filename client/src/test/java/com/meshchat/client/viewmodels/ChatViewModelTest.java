@@ -34,7 +34,7 @@ class ChatViewModelTest {
     @Test
     void fetchChatList() {
         viewModel.fetchChatList();
-        assertTrue(viewModel.dataStore.oChatMap.size() > 0);
+        assertTrue(viewModel.dataStore.getOChatMap().size() > 0);
     }
 
     @Test

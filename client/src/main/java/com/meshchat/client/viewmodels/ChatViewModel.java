@@ -18,12 +18,12 @@ public class ChatViewModel extends BaseViewModel {
 //    }
 
     public ObservableMap<Long, Chat> getChatMap() {
-        return dataStore.oChatMap;
+        return dataStore.getOChatMap();
     }
 
-    public Map<Long, Conv> getConvMap () {
-        return this.dataStore.getConvMap();
-    }
+//    public Map<Long, Conv> getConvMap () {
+//        return this.dataStore.getConvMap();
+//    }
 
     /**
      * Fetch chat list and add to DataStore

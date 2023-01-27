@@ -9,8 +9,6 @@ import java.util.concurrent.Flow;
 
 /**
  * Reactive programming:
- * @see com.meshchat.client.net.providers.ApiProvider
- * @see TCPSimpleClient
  *
  * @see <a href="https://blog.avenuecode.com/reactive-streams-and-microservices-a-case-study">reactive-streams</a>
  * @see <a href="https://dzone.com/articles/reactive-streams-in-java-9">reactive-streams</a>
@@ -25,11 +23,12 @@ public class DataStore {
     private final Map<Long, Chat> chatMap = new HashMap<>();
 
     // observable
-    public final ObservableMap<Long, Conv> oConvMap = FXCollections.observableMap(convMap);
-    public final ObservableMap<Long, Chat> oChatMap = FXCollections.observableMap(chatMap);
+    private final ObservableMap<Long, Conv> oConvMap = FXCollections.observableMap(convMap);
+    private final ObservableMap<Long, Chat> oChatMap = FXCollections.observableMap(chatMap);
 
     // cache
-//    public final Map<Long, >
+    private final Map<Long, UserProfile> userProfileMap = new HashMap<>();
+    private final ObservableMap<Long, UserProfile> userProfileObservableMap = FXCollections.observableMap(userProfileMap);
 
     public DataStore() {
         /**
@@ -63,19 +62,27 @@ public class DataStore {
         return userProfile;
     }
 
-    public Map<Long, Conv> getConvMap() {
-        return convMap;
+    public ObservableMap<Long, Conv> getOConvMap() {
+        return this.oConvMap;
     }
 
     public void addConv(long id, Conv conv) {
-        this.convMap.put(id, conv);
+        this.oConvMap.put(id, conv);
     }
 
-    public Map<Long, Chat> getChatMap() {
-        return chatMap;
+    public ObservableMap<Long, Chat> getOChatMap() {
+        return this.oChatMap;
     }
 
     public void addChat(long id, Chat chat) {
         this.oChatMap.put(id, chat);
+    }
+
+    public ObservableMap<Long, UserProfile> getUserProfileCache() {
+        return this.userProfileObservableMap;
+    }
+
+    public void addUserProfileCache(UserProfile userProfile) {
+        this.userProfileObservableMap.put(userProfile.getEntity().getId(), userProfile);
     }
 }

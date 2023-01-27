@@ -87,4 +87,14 @@ public class UserEntity implements IEntity {
     public void setEmail(String email) {
         this.email.set(email);
     }
+
+    @Override
+    public String toString() {
+        return "User{ " +
+                "id: " + this.getId() + ", " +
+                "username: " + this.getUsername() + ", " +
+                "email: " + this.getEmail() + ", " +
+                "phone: " + this.getPhone_number() +
+                " }";
+    }
 }
