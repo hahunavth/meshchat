@@ -1,11 +1,11 @@
 package com.meshchat.client.views.factories;
 
 import com.meshchat.client.views.base.ScreenFactory;
-import com.meshchat.client.views.form.CreateConvForm;
+import com.meshchat.client.views.form.CreateConvFormHandler;
 
-public class CreateConvFormScreenFactory implements ScreenFactory<CreateConvForm> {
+public class CreateConvFormScreenFactory implements ScreenFactory<CreateConvFormHandler> {
     @Override
-    public CreateConvForm getScreenHandler() {
-        return new CreateConvForm();
+    public CreateConvFormHandler getScreenHandler() {
+        return new CreateConvFormHandler();
     }
 }

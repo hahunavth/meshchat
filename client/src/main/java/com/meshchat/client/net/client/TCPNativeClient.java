@@ -8,6 +8,8 @@ import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.Chat;
 import com.meshchat.client.model.Conv;
+import com.meshchat.client.model.DataStore;
+import com.meshchat.client.model.UserProfile;
 import javafx.util.Pair;
 import jnr.ffi.NativeLong;
 import jnr.ffi.Runtime;
@@ -123,6 +125,39 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return this.lib._logout(this.lib.get_sockfd()) == 201;
     }
 
+    public UserEntity _get_user_by_id(long uid){
+        DataStore ds = ModelSingleton.getInstance().dataStore;
+        UserProfile up = ds.getUserProfileCache().get(uid);
+        if (up == null){
+            ResponseUser ru = new ResponseUser(this.rt);
+            int stt = this.lib._get_user_info(this.lib.get_sockfd(), uid, ru);
+            switch (stt){
+                case 200:
+                    up = new UserProfile(uid, ru.uname.get(), null, ru.phone.get(), ru.email.get());
+                    ds.addUserProfileCache(up);
+                    return up.getEntity();
+    //            case 404:
+    //                break;
+                default:
+            }
+        }
+        return null;
+    }
+
+    public long[] _get_user_search(String searchTxt, int limit, int offset) throws APICallException{
+        long[] ls = new long[limit];
+        NativeLongByReference len = new NativeLongByReference();
+        int stt = this.lib._get_user_search(this.lib.get_sockfd(), searchTxt, offset, limit, ls, len);
+        switch (stt){
+            case 200:
+            case 404:
+                break;
+            default:
+                throw new APICallException(stt, "Failed to search");
+        }
+        return ls;
+    }
+
     public long get_uid() {
         return this.lib._get_uid();
     }
@@ -170,26 +205,47 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return chat;
     }
 
-    public boolean _create_conv(String gname){
+    public long _create_conv(String gname) throws  APICallException {
         NativeLongByReference gid = new NativeLongByReference();
+        Conv conv = new Conv();
         int stt = this.lib._create_conv(this.lib.get_sockfd(), gname, gid);
         switch (stt){
             case 201:
-                /* Update dataStore */
-                Conv newConv = new Conv();
-                /* FIXME what should newConv instance be modified before addConv() */
-                ModelSingleton.getInstance().dataStore.addConv(gid.intValue(), newConv);
-                return true;
-            case 500:
+                return gid.intValue();
             default:
-                return false;
+                throw new APICallException(stt, "Cannot create chat");
         }
     }
 
+    public void _conv_join(long conv_id, long user_id) throws APICallException{
+        int stt = this.lib._join_conv(this.lib.get_sockfd(), conv_id, user_id);
+        if(stt != 200){
+            throw new APICallException(stt, "Cannot create chat");
+        }
+    }
+
+    public Conv _get_conv_info(long conv_id){
+        DataStore ds = ModelSingleton.getInstance().dataStore;
+        Conv conv = ds.getOConvMap().get(conv_id);
+        if(conv == null){
+            NativeLongByReference admin_id = new NativeLongByReference();
+            CharSequence gname = new StringBuffer();
+            int stt = this.lib._get_conv_info(this.lib.get_sockfd(), conv_id, admin_id, gname);
+            switch (stt){
+                case 200:
+                    conv.setAdmin(_get_user_by_id(admin_id.intValue()));
+                    conv.setName(gname.toString());
+                    ds.addConv(conv_id, conv);
+                    return conv;
+                default:
+            }
+        }
+        return conv;
+    }
+
     public boolean _quit_conv(long gid, long user2_id){
-        int stt;
 //        NativeLongByReference gid = new NativeLongByReference();
-        stt = this.lib._quit_conv(this.lib.get_sockfd(), gid, user2_id);
+        int stt = this.lib._quit_conv(this.lib.get_sockfd(), gid, user2_id);
         return stt == 200;
     }
 

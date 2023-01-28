@@ -1,12 +1,11 @@
-package com.meshchat.client.views.search;
+package com.meshchat.client.views.form;
 
 import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.utils.Config;
-import com.meshchat.client.viewmodels.SearchUserViewModel;
+import com.meshchat.client.viewmodels.CreateConvViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -16,69 +15,68 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-public class SearchUserScreenHandler extends BaseScreenHandler implements Initializable {
+public class CreateConvFormHandler extends BaseScreenHandler implements Initializable {
 
     @FXML
-    private TextField searchField;
+    private TextField gname;
 
     @FXML
-    private Button searchBtn;
+    private Button addBtn;
 
     @FXML
-    private TableView<UserEntity> usersTbl;
+    private TableView<UserEntity> memberTbl;
 
     @FXML
-    private Button selectBtn;
+    private Button createBtn;
 
     @FXML
     private Button cancelBtn;
 
-    private SearchUserViewModel viewModel;
+    private CreateConvViewModel viewModel;
 
     private DialogScreenHandler dialogScreenHandler;
 
-    public SearchUserScreenHandler() {
-        super(Config.SEARCH_USER_PATH);
+    public CreateConvFormHandler() {
+        super(Config.CREATE_CONV_FORM_PATH);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        viewModel = new SearchUserViewModel();
+        viewModel = new CreateConvViewModel();
         dialogScreenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
-        searchBtn.setOnAction(a -> {
-            String searchTxt = searchField.getText();
-            if(searchTxt.length() == 0) return;
-            ArrayList<UserEntity> searchRes = viewModel.handleSearch(searchTxt, 0, 20);
-            usersTbl.getItems().clear();
-            usersTbl.getItems().addAll(searchRes);
+        createBtn.setOnAction((a)->{
+            long conv_id = viewModel.handleCreate(gname.getText());
+            if(conv_id <0){
+                dialogScreenHandler.getViewModel().setMessage("Cannot create conversation");
+                dialogScreenHandler.show();
+            }
         });
 
-        selectBtn.setOnAction(a -> {
-            UserEntity selectedUser = usersTbl.getSelectionModel().getSelectedItem();
-            /* Return selected User to create conv screen or home screen */
+        cancelBtn.setOnAction((a)->{
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
         });
 
-        cancelBtn.setOnAction(a -> {
-            /* Return to create conv screen or home screen */
+        addBtn.setOnAction((a)->{
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_USER).show();
         });
     }
 
     @Override
-    public void show() {
+    public void show(){
         TableColumn<UserEntity, Long> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         TableColumn<UserEntity, TextField> phoneCol = new TableColumn<>("Phone");
         phoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
         TableColumn<UserEntity, TextField> emailCol = new TableColumn<>("email");
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
-        usersTbl.getColumns().addAll(idCol, phoneCol, emailCol);
+//        TableColumn<UserEntity, TextField> removeCol = new TableColumn<>();
+        memberTbl.getColumns().addAll(idCol, phoneCol, emailCol);
+        memberTbl.setItems(viewModel.getSelectedUsers());
     }
 
     @Override
-    public void onShow(){
-
+    public void onShow() {
     }
 }
