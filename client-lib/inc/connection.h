@@ -1,6 +1,7 @@
 #ifndef __CLIENT_LIB_INC_CONNECTION_H__
 #define __CLIENT_LIB_INC_CONNECTION_H__
 
+#include <pthread.h>
 #include "common.h"
 #include "errno.h"
 
@@ -35,6 +36,12 @@
     perror(tmp);                                                                     \
   }                                                                                  \
   break;
+
+// synchronized
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+#define LOCK pthread_mutex_lock(&mutex);
+#define UNLOCK pthread_mutex_unlock(&mutex);
 
 // send and recv
 static int __sockfd = -1;

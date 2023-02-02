@@ -1,5 +1,6 @@
 {
   "files.associations": {
+    "*.embeddedhtml": "html",
     "stdio.h": "c",
     "blowfish.h": "c",
     "sll.h": "c",
@@ -23,6 +24,9 @@
     "singleton.h": "c",
     "time.h": "c",
     "service.h": "c",
-    "connection.h": "c"
+    "connection.h": "c",
+    "stat.h": "c",
+    "pthread.h": "c",
+    "errno.h": "c"
   }
 }

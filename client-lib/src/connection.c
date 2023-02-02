@@ -34,9 +34,13 @@
  */
 int connect_server(const char *addr, uint16_t port)
 {
+  LOCK;
   __sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (__sockfd < 0)
+  {
+    UNLOCK;
     return -1;
+  }
 
   // set recv timeout
   struct timeval tv;
@@ -53,9 +57,10 @@ int connect_server(const char *addr, uint16_t port)
   {
     close(__sockfd);
     __sockfd = -1;
+    UNLOCK;
     return -1;
   }
-
+  UNLOCK;
   return __sockfd;
 }
 
@@ -68,8 +73,10 @@ void close_conn()
 {
   printf(YELLOW "Closing connection...\n" RESET);
   fflush(stdout);
+  LOCK;
   close(__sockfd);
   __sockfd = -1;
+  UNLOCK;
 }
 
 int __send(const int sockfd, const char *buff)
@@ -77,7 +84,9 @@ int __send(const int sockfd, const char *buff)
   if (sockfd == -1)
     return -1;
 
+  LOCK;
   int bytes_sent = send(sockfd, buff, BUFSIZ, 0);
+  UNLOCK;
   if ((bytes_sent) < 0)
   {
     close_conn();
@@ -98,7 +107,10 @@ int __recv(char *buff)
     return -1;
 
   int bytes_recv;
-  if ((bytes_recv = recv(__sockfd, buff, BUFSIZ, 0)) < 0)
+  LOCK;
+  bytes_recv = recv(__sockfd, buff, BUFSIZ, 0);
+  UNLOCK;
+  if ((bytes_recv) < 0)
   {
     // free(buff);
     perror("\nError: ");
@@ -125,10 +137,11 @@ response *api_call(const int sockfd, const char *req)
 
   if (req == NULL)
     perror("API_CALL:ERROR: Request is NULL\n");
-
+  LOCK;
   sz = send(sockfd, req, BUFSIZ, 0);
   if ((sz) < 0)
   {
+    UNLOCK;
     HANDLE_SOCKET_ERRNO_AND_RETURN_NULL;
   }
   memset(buf, 0, BUFSIZ);
@@ -136,16 +149,19 @@ response *api_call(const int sockfd, const char *req)
   sz = recv(sockfd, buf, BUFSIZ, 0);
   if ((sz) < 0)
   {
+    UNLOCK;
     HANDLE_SOCKET_ERRNO_AND_RETURN_NULL;
   }
   else if (sz == 0)
   {
     printf(YELLOW "Connection closed\n" RESET);
+    UNLOCK;
     return NULL;
   }
   else
   {
     response *res = response_parse(buf);
+    UNLOCK;
     return res;
   }
 }

@@ -41,16 +41,20 @@ void __parse_uint32_list(char *buf, uint32_t *ls, uint32_t count)
 
 void __set_auth(const response_auth *auth)
 {
+  LOCK;
   __uid = auth->user_id;
   memcpy(__token, auth->token, TOKEN_LEN);
   is_auth = 1;
+  UNLOCK;
 }
 
 void __clear_auth()
 {
+  LOCK;
   __uid = 0;
   memset(__token, 0, TOKEN_LEN);
   is_auth = 0;
+  UNLOCK;
 }
 
 int get_auth(char *_token, uint32_t *_uid)
