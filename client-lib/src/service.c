@@ -1,21 +1,10 @@
-#include "common.h"
-#include <errno.h>
 #include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <signal.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
 #include <sys/stat.h>
-#include <unistd.h>
-#include <assert.h>
+
+#include "common.h"
 #include "service.h"
 #include "connection.h"
+#include "auth.h"
 
 uint32_t parse_uint32_from_buf(char *buf);
 
@@ -25,7 +14,7 @@ void __auth_cpy(response_auth *dest, const response_auth *src)
   memcpy(dest->token, src->token, TOKEN_LEN);
 }
 
-void __parse_uint32_list(char *buf, uint32_t *ls, uint32_t count)
+uint32_t *__parse_uint32_list(char *buf, uint32_t *ls, uint32_t count)
 {
   size_t sz = count << 2;
   // uint32_t *ls = (uint32_t *)malloc(sz); // 4xcount
@@ -39,42 +28,6 @@ void __parse_uint32_list(char *buf, uint32_t *ls, uint32_t count)
   return ls;
 }
 
-void __set_auth(const response_auth *auth)
-{
-  LOCK;
-  __uid = auth->user_id;
-  memcpy(__token, auth->token, TOKEN_LEN);
-  is_auth = 1;
-  UNLOCK;
-}
-
-void __clear_auth()
-{
-  LOCK;
-  __uid = 0;
-  memset(__token, 0, TOKEN_LEN);
-  is_auth = 0;
-  UNLOCK;
-}
-
-int get_auth(char *_token, uint32_t *_uid)
-{
-  if (is_auth)
-  {
-    memcpy(_token, __token, TOKEN_LEN);
-    *_uid = __uid;
-    return 1;
-  }
-  return 0;
-}
-
-int is_authenticated()
-{
-  return is_auth;
-}
-
-uint32_t _get_uid() { return __uid; }
-char *_get_token() { return __token; }
 /**
  * @brief Send request to server and receive response
  *
@@ -200,7 +153,7 @@ int __logout(const char *token, const char *user_id)
 
 int _logout(const int sockfd)
 {
-  make_request_user_logout(__token, __uid, buf);
+  make_request_user_logout(_get_token(), _get_uid(), buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -219,7 +172,7 @@ int _logout(const int sockfd)
 int _get_user_info(const int sockfd, const uint32_t user2_id,
                    response_user *_res)
 {
-  make_request_user_get_info(__token, __uid, user2_id, buf);
+  make_request_user_get_info(_get_token(), _get_uid(), user2_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -244,7 +197,7 @@ int _get_user_info(const int sockfd, const uint32_t user2_id,
 int _get_user_search(const int sockfd, const char *uname, const int32_t offset, int32_t limit,
                      uint32_t *_idls, uint32_t *_len)
 {
-  make_request_user_search(__token, __uid, uname, limit, offset, buf);
+  make_request_user_search(_get_token(), _get_uid(), uname, limit, offset, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -264,7 +217,7 @@ int _get_user_search(const int sockfd, const char *uname, const int32_t offset, 
 int _create_conv(const int sockfd, const char *gname,
                  uint32_t *_gid)
 {
-  make_request_conv_create(__token, __uid, gname, buf);
+  make_request_conv_create(_get_token(), _get_uid(), gname, buf);
   puts("_create_conv: Make request");
   response *res = api_call(sockfd, buf);
   puts("_create_conv: Call api");
@@ -282,7 +235,7 @@ int _create_conv(const int sockfd, const char *gname,
 
 int _drop_conv(const int sockfd, const uint32_t conv_id)
 {
-  make_request_conv_drop(__token, __uid, conv_id, buf);
+  make_request_conv_drop(_get_token(), _get_uid(), conv_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -301,7 +254,7 @@ int _drop_conv(const int sockfd, const uint32_t conv_id)
 
 int _join_conv(const int sockfd, const uint32_t conv_id, const uint32_t user2_id)
 {
-  make_request_conv_join(__token, __uid, conv_id, user2_id, buf);
+  make_request_conv_join(_get_token(), _get_uid(), conv_id, user2_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -322,7 +275,7 @@ int _join_conv(const int sockfd, const uint32_t conv_id, const uint32_t user2_id
 
 int _quit_conv(const int sockfd, const uint32_t conv_id, const uint32_t user2_id)
 {
-  make_request_conv_quit(__token, __uid, conv_id, user2_id, buf);
+  make_request_conv_quit(_get_token(), _get_uid(), conv_id, user2_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -345,7 +298,7 @@ int _quit_conv(const int sockfd, const uint32_t conv_id, const uint32_t user2_id
 int _get_conv_info(const int sockfd, const uint32_t conv_id,
                    uint32_t *_admin_id, char *_gname)
 {
-  make_request_conv_get_info(__token, __uid, conv_id, buf);
+  make_request_conv_get_info(_get_token(), _get_uid(), conv_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -368,7 +321,7 @@ int _get_conv_info(const int sockfd, const uint32_t conv_id,
 int _get_conv_members(const int sockfd, const uint32_t conv_id,
                       uint32_t *_res, uint32_t *_len)
 {
-  make_request_conv_get_members(__token, __uid, conv_id, buf);
+  make_request_conv_get_members(_get_token(), _get_uid(), conv_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -388,7 +341,7 @@ int _get_conv_members(const int sockfd, const uint32_t conv_id,
 
 int _get_conv_list(const int sockfd, const int limit, const int offset, uint32_t *_idls, uint32_t *_len)
 {
-  make_request_conv_get_list(__token, __uid, limit, offset, buf);
+  make_request_conv_get_list(_get_token(), _get_uid(), limit, offset, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -407,7 +360,7 @@ int _get_conv_list(const int sockfd, const int limit, const int offset, uint32_t
 
 int _create_chat(const int sockfd, const uint32_t user2_id, uint32_t *_chat_id)
 {
-  make_request_chat_create(__token, __uid, user2_id, buf);
+  make_request_chat_create(_get_token(), _get_uid(), user2_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -432,7 +385,7 @@ int _create_chat(const int sockfd, const uint32_t user2_id, uint32_t *_chat_id)
 
 int _delete_chat(const int sockfd, const uint32_t chat_id)
 {
-  make_request_chat_delete(__token, __uid, chat_id, buf);
+  make_request_chat_delete(_get_token(), _get_uid(), chat_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -449,7 +402,7 @@ int _delete_chat(const int sockfd, const uint32_t chat_id)
 
 int _get_chat_list(const int sockfd, const int limit, const int offset, uint32_t *_idls, uint32_t *_len)
 {
-  make_request_chat_get_list(__token, __uid, limit, offset, buf);
+  make_request_chat_get_list(_get_token(), _get_uid(), limit, offset, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -470,7 +423,7 @@ int _get_chat_list(const int sockfd, const int limit, const int offset, uint32_t
 
 int _get_chat_info(const int sockfd, const uint32_t chat_id, uint32_t *_mem1_id, uint32_t *_mem2_id)
 {
-  make_request_chat_get_info(__token, __uid, chat_id, buf);
+  make_request_chat_get_info(_get_token(), _get_uid(), chat_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -493,7 +446,7 @@ int _get_msg_all(const int sockfd, const int limit, const int offset,
                  const uint32_t conv_id, const uint32_t chat_id,
                  uint32_t *_msg_idls, uint32_t *_len)
 {
-  make_request_msg_get_all(__token, __uid, limit, offset, conv_id, chat_id, buf);
+  make_request_msg_get_all(_get_token(), _get_uid(), limit, offset, conv_id, chat_id, buf);
 
   response *res = api_call(sockfd, buf);
   printf("res: %d\n", res->header.count);
@@ -514,7 +467,7 @@ int _get_msg_all(const int sockfd, const int limit, const int offset,
 
 int _get_msg_detail(const int sockfd, const uint32_t msg_id, response_msg *_msg)
 {
-  make_request_msg_get_detail(__token, __uid, msg_id, buf);
+  make_request_msg_get_detail(_get_token(), _get_uid(), msg_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -554,7 +507,7 @@ int _get_msg_detail_raw(const int sockfd, const uint32_t msg_id,
                         uint32_t *_content_type, uint32_t *_content_length,
                         char *_msg_content)
 {
-  make_request_msg_get_detail(__token, __uid, msg_id, buf);
+  make_request_msg_get_detail(_get_token(), _get_uid(), msg_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -586,7 +539,7 @@ int _send_msg_text(const int sockfd,
                    const uint32_t chat_id, const uint32_t reply_to, const char *msg,
                    uint32_t *_msg_id)
 {
-  make_requests_msg_send_text(__token, __uid, conv_id, chat_id, reply_to, msg, buf);
+  make_requests_msg_send_text(_get_token(), _get_uid(), conv_id, chat_id, reply_to, msg, buf);
   response *res = api_call(sockfd, buf);
 
   HANDLE_RES_STT(res)
@@ -626,7 +579,7 @@ int _send_msg_file(
     return errno;
   }
 
-  make_requests_msg_send_file(__token, __uid, conv_id, chat_id, reply_to, sb.st_size, msg, buf);
+  make_requests_msg_send_file(_get_token(), _get_uid(), conv_id, chat_id, reply_to, sb.st_size, msg, buf);
   if (write(sockfd, buf, BUFSIZ) < 0)
   {
     perror("write() failed");
@@ -677,7 +630,7 @@ int _send_msg_file(
 
 int _delete_msg(const int sockfd, const uint32_t msg_id)
 {
-  make_request_msg_delete(__token, __uid, msg_id, buf);
+  make_request_msg_delete(_get_token(), _get_uid(), msg_id, buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -694,7 +647,7 @@ int _delete_msg(const int sockfd, const uint32_t msg_id)
 
 int _notify_new_msg(const int sockfd, const uint32_t user_id, uint32_t *_idls, uint32_t *_len)
 {
-  make_request_msg_notify_new(__token, __uid, buf);
+  make_request_msg_notify_new(_get_token(), _get_uid(), buf);
 
   response *res = api_call(sockfd, buf);
 
@@ -720,7 +673,7 @@ int _notify_new_msg(const int sockfd, const uint32_t user_id, uint32_t *_idls, u
 
 int _notify_del_msg(const int sockfd, const uint32_t conv_id, const uint32_t chat_id, uint32_t *_idls, uint32_t *_len)
 {
-  make_request_msg_notify_del(__token, __uid, conv_id, chat_id, buf);
+  make_request_msg_notify_del(_get_token(), _get_uid(), conv_id, chat_id, buf);
 
   response *res = api_call(sockfd, buf);
 

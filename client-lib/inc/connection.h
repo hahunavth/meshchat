@@ -1,9 +1,9 @@
 #ifndef __CLIENT_LIB_INC_CONNECTION_H__
 #define __CLIENT_LIB_INC_CONNECTION_H__
 
-#include <pthread.h>
 #include "common.h"
 #include "errno.h"
+#include "utils.h"
 
 /**
  * Handle res exception and handle each status
@@ -37,18 +37,8 @@
   }                                                                                  \
   break;
 
-// synchronized
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-#define LOCK pthread_mutex_lock(&mutex);
-#define UNLOCK pthread_mutex_unlock(&mutex);
-
 // send and recv
 static int __sockfd = -1;
 static char buf[BUFSIZ];
-// auth
-static uint32_t __uid;
-static char __token[TOKEN_LEN];
-static int is_auth = 0;
 
 #endif

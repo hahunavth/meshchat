@@ -2,6 +2,7 @@
 #define __CLIENT_LIB_INC_SERVICE_H__
 
 #include "common.h"
+#include "auth.h"
 #include <inttypes.h>
 
 /**

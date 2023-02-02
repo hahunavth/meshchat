@@ -27,6 +27,7 @@
     "connection.h": "c",
     "stat.h": "c",
     "pthread.h": "c",
-    "errno.h": "c"
+    "errno.h": "c",
+    "utils.h": "c"
   }
 }
