@@ -1,6 +1,7 @@
 package com.meshchat.client.cnative;
 
 import com.meshchat.client.cnative.req.RequestAuth;
+import com.meshchat.client.cnative.res.ResponseMsg;
 import com.meshchat.client.cnative.res.ResponseUser;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.LibraryOption;
@@ -33,7 +34,8 @@ import jnr.ffi.types.u_int32_t;
  * <br>
  * Note: <br>
  * - Lấy giá trị của instance NativeLongByReference bằng method intValue() <br>
- * (do sử dụng longValue() làm sai giá trị!)
+ * (do sử dụng longValue() làm sai giá trị!) <br>
+ * - Do not use @Out @u_int32_t NativeLongByReference (x @u_int32_t)
  */
 public interface CAPIServiceLib {
     /**
@@ -80,9 +82,15 @@ public interface CAPIServiceLib {
     int _get_chat_info(@In int sockfd, @In @u_int32_t long chat_id, @Out @u_int32_t NativeLongByReference _mem1_id, @Out @u_int32_t NativeLongByReference _mem2_id);
      int _get_chat_list(@In int sockfd, @In @int32_t long limit, @In @int32_t long offset, @Out @u_int32_t long[] _idls, @Out @u_int32_t NativeLongByReference _len);
      // msg
-     int _get_msg_all(@In int sockfd, @In @int32_t long limit, @In @int32_t long offset, @In @u_int32_t long conv_id, @In @u_int32_t long  chat_id, @Out @u_int32_t long[] _msg_idls, @Out @u_int32_t NativeLongByReference _len);
-     // TODO: int _get_msg_detail(@In int sockfd, @In @u_int32_t long msg_id, response_msg *_msg);
-     int _send_msg_text(@In int sockfd, @In @u_int32_t long conv_id, @In @u_int32_t long chat_id, @In @u_int32_t long reply_to, @In CharSequence msg, @Out @u_int32_t NativeLongByReference _msg_id);
+     int _get_msg_all(@In int sockfd, @In @int32_t long limit, @In @int32_t long offset, @In @u_int32_t long conv_id, @In @u_int32_t long  chat_id, @Out @u_int32_t long[] _msg_idls, @Out NativeLongByReference _len);
+    int _get_msg_detail(@In int sockfd, @In @u_int32_t long msg_id, ResponseMsg _msg);
+    int _get_msg_detail_raw(@In int sockfd, @In @u_int32_t long msg_id,
+                            @Out NativeLongByReference _chat_id, @Out NativeLongByReference _conv_id, @Out  NativeLongByReference _reply_to,
+                            @Out NativeLongByReference _from_uid, @Out NativeLongByReference _created_at,
+                            @Out NativeLongByReference _content_type, @Out NativeLongByReference _content_length,
+                            @Out byte[] _msg_content);
+
+    int _send_msg_text(@In int sockfd, @In @u_int32_t long conv_id, @In @u_int32_t long chat_id, @In @u_int32_t long reply_to, @In CharSequence msg, @Out @u_int32_t NativeLongByReference _msg_id);
      int _delete_msg(@In int sockfd, @In @u_int32_t long msg_id);
      // notify
      int _notify_new_msg(@In int sockfd, @In @u_int32_t long user_id, @Out @u_int32_t long[] _idls, @Out @u_int32_t NativeLongByReference _len);

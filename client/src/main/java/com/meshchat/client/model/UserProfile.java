@@ -9,14 +9,14 @@ public class UserProfile extends BaseModel {
         this.entity.setId(id);
         this.entity.setUsername(username);
         this.entity.setPassword(password);
-        this.entity.setPhone_number(phone_number);
+        this.entity.setPhone(phone_number);
         this.entity.setEmail(email);
     }
 
     public UserProfile(long id, String username, String phone_number, String email) {
         this.entity.setId(id);
         this.entity.setUsername(username);
-        this.entity.setPhone_number(phone_number);
+        this.entity.setPhone(phone_number);
         this.entity.setEmail(email);
     }
 

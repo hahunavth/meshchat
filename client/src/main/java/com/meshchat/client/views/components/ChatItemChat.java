@@ -43,6 +43,4 @@ public class ChatItemChat extends ChatItem<Chat> {
     public void onClick (EventHandler<? super MouseEvent> eventHandler) {
         item.setOnMouseClicked(eventHandler);
     }
-
-
 }

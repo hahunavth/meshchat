@@ -3,18 +3,20 @@ package com.meshchat.client.net.client;
 import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.cnative.CAPIServiceLib;
 import com.meshchat.client.cnative.req.RequestAuth;
+import com.meshchat.client.cnative.res.ResponseMsg;
 import com.meshchat.client.cnative.res.ResponseUser;
+import com.meshchat.client.db.entities.MsgEntity;
 import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.exceptions.APICallException;
-import com.meshchat.client.model.Chat;
-import com.meshchat.client.model.Conv;
-import com.meshchat.client.model.DataStore;
-import com.meshchat.client.model.UserProfile;
+import com.meshchat.client.model.*;
 import javafx.util.Pair;
 import jnr.ffi.NativeLong;
+import jnr.ffi.Pointer;
 import jnr.ffi.Runtime;
+import jnr.ffi.Struct;
 import jnr.ffi.byref.NativeLongByReference;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -176,7 +178,6 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     public List<Long> _get_chat_list() {
         long[] idls = new long[10];
         NativeLongByReference len = new NativeLongByReference(0);
-        System.out.println("_get_chat_list sockfd: " + this.lib.get_sockfd());
         this.lib._get_chat_list(this.lib.get_sockfd(), 10, 0, idls, len);
         return Arrays.stream(idls).limit(len.intValue()).boxed().toList();
     }
@@ -202,6 +203,8 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
         UserEntity user2 = new UserEntity(u2Id, responseUser.uname.get(), responseUser.phone.get(), responseUser.email.get());
         chat.setUser2(user2);
+        chat.id = chat_id;
+
         return chat;
     }
 
@@ -249,4 +252,117 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return stt == 200;
     }
 
+
+
+    public Message _send_msg(ChatRoomType type, long room_id, long replyTo, String msg) throws Exception {
+        long conv_id = 0;
+        long chat_id = 0;
+        switch (type) {
+            case CHAT -> {
+                chat_id = room_id;
+            }
+            case CONV -> {
+                conv_id = room_id;
+            }
+            default -> throw new Exception("Invalid ChatRoomType");
+        }
+
+        NativeLongByReference msg_id = new NativeLongByReference(-1);
+        int stt;
+        stt = this.lib._send_msg_text(this.lib.get_sockfd(), conv_id, chat_id, replyTo, msg, msg_id);
+
+        switch (stt) {
+            case 201:
+                int _msg_id = msg_id.intValue();
+                return new Message(_msg_id, this.get_uid(), replyTo, msg, 0, false);
+            default:
+                throw new APICallException(stt, "Cannot send msg");
+        }
+    }
+
+    public List<Long> _get_msg_all(ChatRoomType type, int roomId, int limit, int offset) throws APICallException {
+
+        int conv_id = 0;
+        int chat_id = 0;
+        switch (type) {
+            case CHAT -> {
+                chat_id = roomId;
+            }
+            case CONV -> {
+                conv_id = roomId;
+            }
+        }
+
+        int stt = 0;
+        long[] idls = new long[limit];
+        NativeLongByReference _len = new NativeLongByReference(-1); // FIXME: CAUSE COREDUMP -> disable set _len in service
+        Arrays.fill(idls, -1);
+
+        stt = this.lib._get_msg_all(
+                this.lib.get_sockfd(),
+                limit,
+                offset,
+                conv_id,
+                chat_id,
+                idls,
+                _len
+        );
+
+        if (stt != 200) {
+            throw new APICallException(stt, "Cannot get all msg");
+        }
+
+        return Arrays.stream(idls).limit(_len.intValue()).boxed().toList();
+//        List<Long> _idls = new ArrayList<>();
+//        for(int i = 0; i < idls.length; i++) {
+//            if (idls[i] < 0)
+//                break;
+//            _idls.add(idls[i]);
+//        }
+//        return _idls;
+    }
+
+    public MsgEntity _get_msg_detail(long msg_id) throws APICallException {
+        NativeLongByReference chatId = new NativeLongByReference(-1);
+        NativeLongByReference convId = new NativeLongByReference(-1);
+        NativeLongByReference replyTo = new NativeLongByReference(-1);
+        NativeLongByReference fromUid = new NativeLongByReference(-1);
+        NativeLongByReference createdAt = new NativeLongByReference(-1);
+        NativeLongByReference contentType = new NativeLongByReference(-1);
+        NativeLongByReference contentLength = new NativeLongByReference(-1);
+        byte[] msgContent = new byte[1000];
+        int stt = this.lib._get_msg_detail_raw(this.lib.get_sockfd(),
+                msg_id,
+                chatId,
+                convId,
+                replyTo,
+                fromUid,
+                createdAt,
+                contentType,
+                contentLength,
+                msgContent
+                );
+        switch (stt) {
+            case 200:
+                MsgEntity msgEntity = new MsgEntity();
+                msgEntity.setId(msg_id);
+                msgEntity.setChat_id(chatId.intValue());
+                msgEntity.setConv_id(convId.intValue());
+                msgEntity.setReply_to(replyTo.intValue());
+                msgEntity.setFrom_user_id(fromUid.intValue());
+                msgEntity.setCreated_at(createdAt.intValue());
+                msgEntity.setType(contentType.byteValue());
+                String _msgContent = new String(msgContent, StandardCharsets.UTF_8);
+                int nullIndex = _msgContent.indexOf('\0');
+                if (nullIndex != -1) {
+                    _msgContent = _msgContent.substring(0, nullIndex);
+                }
+                msgEntity.setContent(_msgContent);
+                return msgEntity;
+            case 404:
+            default:
+                throw new APICallException(stt, "Cannot get msg detail");
+        }
+
+    }
 }

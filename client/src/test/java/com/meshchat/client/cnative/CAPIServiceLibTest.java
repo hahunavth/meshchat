@@ -1,7 +1,9 @@
 package com.meshchat.client.cnative;
 
 import com.meshchat.client.cnative.req.RequestAuth;
+import com.meshchat.client.cnative.res.ResponseMsg;
 import com.meshchat.client.cnative.res.ResponseUser;
+import com.meshchat.client.db.entities.MsgEntity;
 import com.meshchat.client.utils.Config;
 import jnr.ffi.NativeLong;
 import jnr.ffi.Runtime;
@@ -112,5 +114,29 @@ class CAPIServiceLibTest {
         }
 
         this.lib.close_conn();
+    }
+
+    @Test
+    void TestMsgGetDetail() {
+        int socketfd = this.lib.connect_server("127.0.0.1", 9000);
+        assertTrue(socketfd > 0);
+        int uid = this.lib._login(this.lib.get_sockfd(), "user_1", "pass");
+        assertTrue(uid > 0);
+//        ResponseMsg msg = new ResponseMsg(rt);
+//        this.lib._get_msg_detail(this.lib.get_sockfd(), 3, msg);
+////        msg.msg_type.set(64 + msg.msg_type.byteValue());
+////        msg.msg_id.set(3);
+//        System.out.println("msg_id: " + msg.msg_id.intValue());
+//        System.out.println("from_uid: " + msg.from_uid.intValue());
+//        System.out.println("reply_to: " + msg.reply_to.intValue());
+//        System.out.println("created_at: " + msg.created_at.intValue());
+//        System.out.println("msg_content: " + msg.msg_content.get());
+//        System.out.println("content_length: " + msg.content_length.get());
+//        System.out.println("chat_id: " + msg.chat_id.intValue());
+//        System.out.println("conv_id: " + msg.conv_id.intValue());
+//        System.out.println("msg_type: " + msg.msg_type.byteValue());
+//        MsgEntity msgEntity = new MsgEntity(msg);
+//        System.out.println(msgEntity);
+
     }
 }

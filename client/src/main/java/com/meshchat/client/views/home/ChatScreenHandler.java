@@ -3,6 +3,7 @@ package com.meshchat.client.views.home;
 import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.model.Chat;
 import com.meshchat.client.model.Conv;
+import com.meshchat.client.net.client.ChatRoomType;
 import com.meshchat.client.utils.Config;
 import com.meshchat.client.viewmodels.ChatViewModel;
 import com.meshchat.client.viewmodels.MessageViewModel;
@@ -53,14 +54,17 @@ public class ChatScreenHandler extends BaseScreenHandler {
     public void initialize() {
         chatItemList = new ArrayList<>();
         viewModel = new ChatViewModel();
+        // init chat
         viewModel.getChatMap().forEach((id, chat) -> {
             this.addChatItem(chat);
         });
-
+        // event add chat
         viewModel.getChatMap().addListener((MapChangeListener<? super Long, ? super Chat>) (e) -> {
             Long key = e.getKey();
             if (e.wasAdded()) {
                 Chat chat = e.getValueAdded();
+                chat.id = key;
+                System.out.println(chat.id);
                 this.addChatItem(chat);
             } else if (e.wasRemoved()) {
                 // TODO: IMPL
@@ -92,7 +96,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
         // TODO: implement this event
         chatItem.onClick((e) -> {
             System.out.println("Clicked");
-            messageScreenHandler.getViewModel().setRoomInfo(MessageViewModel.Type.CONV, chatRoom.id);
+            messageScreenHandler.getViewModel().setRoomInfo(ChatRoomType.CONV, chatRoom.id);
         });
         addChatItem(chatItem);
     }
@@ -101,7 +105,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
         ChatItem chatItem = new ChatItemChat(chatRoom);
         // TODO: implement this event
         chatItem.onClick((e) -> {
-            messageScreenHandler.getViewModel().setRoomInfo(MessageViewModel.Type.CHAT, chatRoom.id);
+            messageScreenHandler.getViewModel().setRoomInfo(ChatRoomType.CHAT, chatRoom.id);
         });
         addChatItem(chatItem);
     }

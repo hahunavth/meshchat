@@ -1,14 +1,18 @@
 package com.meshchat.client.views.home;
 
 import com.meshchat.client.ModelSingleton;
+import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.Message;
+import com.meshchat.client.net.client.ChatRoomType;
 import com.meshchat.client.utils.Config;
 import com.meshchat.client.viewmodels.MessageViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.LazyInitialize;
 import com.meshchat.client.views.components.MsgItem;
+import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.factories.MsgItemComponentFactory;
 import com.meshchat.client.views.navigation.StackNavigation;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -23,6 +27,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class MessageScreenHandler extends BaseScreenHandler implements LazyInitialize {
 
@@ -57,46 +62,66 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         this.viewModel = new MessageViewModel();
         msgList.heightProperty().addListener(observable -> scroll.setVvalue(1D));
         this.username.textProperty().bindBidirectional(this.viewModel.getName());
+        // on change room update all
+        this.viewModel.getRoomId().addListener((observable, oldValue, newValue) -> {
+            this.onShow();
+        });
         //
         this.viewModel.getMsgList().forEach((item) -> {
             MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataStore.getUserProfile().getEntity().getId());
             addMsg(msgItem);
         });
         this.viewModel.getMsgList().addListener((ListChangeListener<? super Message>) e -> {
-            e.next();
+            while (e.next()) {
+                if (e.wasAdded()) {
+                    System.out.println("add");
+                    List<Message> ins = (List<Message>) e.getAddedSubList();
+                    ins.forEach(item -> {
+                        MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataStore.getUserProfile().getEntity().getId());
+                        addMsg(msgItem);
+                    });
+                }
+                if (e.wasRemoved()) {
+                    // on remove -> remove all
+                    System.out.println("remove all");
+                    this.msgItemList.removeAll(this.msgItemList);
+                    this.msgList.getChildren().forEach(i -> {
+                        Platform.runLater(() -> {
+                            this.msgList.getChildren().removeAll(this.msgList.getChildren());
+//                            this.msgList.getChildren().remove(i);
+                        });
+                    });
+//                    e.next();
+                }
+                if (e.wasUpdated()) {
+                    // handle msg was deleted
+                }
+                if (e.wasReplaced()) {
 
-            if (e.wasAdded()) {
-                List<Message> ins = (List<Message>) e.getAddedSubList();
-                ins.forEach(item -> {
-                    MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataStore.getUserProfile().getEntity().getId());
-                    addMsg(msgItem);
-                });
-            }
-            if (e.wasRemoved()) {
-                List<Message> ins = (List<Message>) e.getRemoved();
-                ins.forEach(item -> {
-                    for(int i = 0; i < this.msgItemList.size(); i++) {
-                        if (this.msgItemList.get(i).getProps().equals(item)) {
-                            this.msgItemList.remove(i);
-                            this.msgList.getChildren().remove(i);
-                            break;
-                        }
-                    }
-                });
-            }
-            if (e.wasUpdated()) {
-                // handle msg was deleted
+                }
+                if (e.wasPermutated()) {
+
+                }
             }
         });
 
         // fixme: not working
         infoBtn.setOnMouseClicked(a -> {
-            System.out.println("dfasdfaghsfejkrtetukuh");
-            if (this.viewModel.getType() == MessageViewModel.Type.CHAT)
+            if (this.viewModel.getType() == ChatRoomType.CHAT)
                 ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.USER_INFO);
-            else if (this.viewModel.getType() == MessageViewModel.Type.CONV)
+            else if (this.viewModel.getType() == ChatRoomType.CONV)
                 ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.CONV_INFO);
         });
+
+        this.viewModel.setRoomInfoHandler((e) -> {
+                    try {
+                        this.viewModel.fetchMsgList();
+                    } catch (APICallException ex) {
+                        DialogScreenHandler screenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
+                        screenHandler.getViewModel().setMessage(ex.getMessage());
+                        screenHandler.show();
+                    }
+                });
     }
 
     public MessageViewModel getViewModel() {
@@ -105,8 +130,11 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     protected void addMsg(MsgItem item) {
         this.msgItemList.add(item);
-        this.msgList.getChildren().add(item.getContent());
+        Platform.runLater(() -> {
+            this.msgList.getChildren().add(item.getContent());
+        });
     }
+
 
 //    public void addMsg (String content, Long from_uid, Long uid, Long msg_id) {
 //         TODO: handle msg id
@@ -138,6 +166,10 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     @Override
     public void onShow() {
-
+        try {
+        } catch (Exception e) {
+            e.printStackTrace();
+            // todo: dialog
+        }
     }
 }

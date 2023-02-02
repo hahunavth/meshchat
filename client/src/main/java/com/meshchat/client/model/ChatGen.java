@@ -15,7 +15,7 @@ public abstract class ChatGen extends BaseModel {
     private final ObservableMap<Long, Message> oMsgMap = FXCollections.observableMap(msgMap);
 
     public void addMessage(long id, long from_uid, long reply_to, String content, long created_at, boolean isDeleted) {
-        this.msgMap.put(id, new Message(id, from_uid, reply_to, content, created_at, isDeleted));
+        this.oMsgMap.put(id, new Message(id, from_uid, reply_to, content, created_at, isDeleted));
     }
 
     public void deleteMessage(long id) {

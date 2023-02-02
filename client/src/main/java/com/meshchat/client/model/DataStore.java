@@ -1,6 +1,9 @@
 package com.meshchat.client.model;
 
+import com.meshchat.client.ModelSingleton;
+import com.meshchat.client.db.entities.MsgEntity;
 import com.meshchat.client.db.entities.UserEntity;
+import com.meshchat.client.net.client.ChatRoomType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -84,5 +87,24 @@ public class DataStore {
 
     public void addUserProfileCache(UserProfile userProfile) {
         this.userProfileObservableMap.put(userProfile.getEntity().getId(), userProfile);
+    }
+
+    public void resetMsgList() {
+
+    }
+
+    public void addMsg(MsgEntity msg) {
+        System.out.println(msg);
+        ChatGen room = null;
+        if (msg.getChat_id() != 0) {
+            room = this.getOChatMap().get(msg.getChat_id());
+        } else if (msg.getConv_id() != 0) {
+            room = this.getOConvMap().get(msg.getChat_id());
+        } else {
+            System.out.println("addMsg invalid type");
+        }
+        if (room != null)
+            // FIXME: HARDCODE isDeleted
+            room.addMessage(msg.getId(), msg.getFrom_user_id(), msg.getReply_to(), msg.getContent(), msg.getCreated_at(), false);
     }
 }

@@ -17,6 +17,16 @@ public class Message extends BaseModel {
         this.isDeleted.set(isDeleted);
     }
 
+    public Message(MsgEntity entity) {
+        this.entity.setId(entity.getId());
+        this.entity.setType(entity.getType());
+        this.entity.setConv_id(entity.getConv_id());
+        this.entity.setChat_id(entity.getChat_id());
+        this.entity.setContent(entity.getContent());
+        this.entity.setCreated_at(entity.getCreated_at());
+        this.entity.setReply_to(entity.getReply_to());
+    }
+
     public MsgEntity getEntity() {
         return entity;
     }

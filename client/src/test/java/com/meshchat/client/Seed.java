@@ -1,6 +1,8 @@
 package com.meshchat.client;
 
+import com.meshchat.client.net.client.ChatRoomType;
 import com.meshchat.client.net.client.TCPNativeClient;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +15,11 @@ public class Seed {
     void setUp() {
         client = ModelSingleton.getInstance().tcpClient;
         ModelSingleton.getInstance().initClient("127.0.0.1", 9000);
+    }
+
+    @AfterEach
+    void tearDown() {
+        client.close();
     }
 
     /**
@@ -70,5 +77,19 @@ public class Seed {
         }
     }
 
-
+    @Test
+    void createMsg() {
+        boolean ret;
+        int u1id = 1;
+        ret = client._login("user_4", "pass4");
+        assertTrue(ret);
+        long u4id = client.get_uid();
+        assertTrue(u4id > 0);
+        try {
+            long chat_id = 3;
+            this.client._send_msg(ChatRoomType.CHAT, chat_id, 0, "Hello");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

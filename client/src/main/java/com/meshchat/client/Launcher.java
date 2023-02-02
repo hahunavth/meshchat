@@ -41,7 +41,7 @@ public class Launcher extends Application {
                         ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.USER_INFO, new UserProfileScreenFactory());
                         ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.DIALOG, new DialogScreenFactory());
                         notifyProcess(0.3);
-                        ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SEARCH_USER);
+//                        ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SEARCH_USER);
                         notifyProcess(0.4);
                         ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SIGNUP);
                         // preload screen

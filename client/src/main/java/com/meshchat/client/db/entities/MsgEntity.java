@@ -1,5 +1,6 @@
 package com.meshchat.client.db.entities;
 
+import com.meshchat.client.cnative.res.ResponseMsg;
 import javafx.beans.property.*;
 
 public class MsgEntity {
@@ -21,6 +22,31 @@ public class MsgEntity {
         conv_id = new SimpleLongProperty();
         content = new SimpleStringProperty();
         type = new SimpleIntegerProperty();
+    }
+
+    public MsgEntity(ResponseMsg msg) {
+        this.id = new SimpleLongProperty(msg.msg_id.intValue());
+        this.from_user_id = new SimpleLongProperty(msg.from_uid.intValue());
+        this.reply_to = new SimpleLongProperty(msg.reply_to.intValue());
+        this.created_at = new SimpleLongProperty(msg.created_at.intValue());
+        this.chat_id = new SimpleLongProperty(msg.chat_id.intValue());
+        this.conv_id = new SimpleLongProperty(msg.conv_id.intValue());
+        this.content = new SimpleStringProperty(msg.msg_content.get());
+        this.type = new SimpleIntegerProperty(msg.msg_type.byteValue());
+    }
+
+    @Override
+    public String toString() {
+        return "MsgEntity {" +
+                "id: " + this.id.get() + ", " +
+                "from_user_id: " + this.from_user_id.get() + ", " +
+                "reply_to: " + this.reply_to.get() + ", " +
+                "created_at: " + this.created_at.get() + ", " +
+                "chat_id: " + this.chat_id.get() + ", " +
+                "conv_id: " + this.conv_id.get() + ", " +
+                "content: " + this.content.get() + ", " +
+                "type: " + this.type.get() + ", " +
+                "}";
     }
 
     public long getId() {
