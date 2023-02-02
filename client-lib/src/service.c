@@ -498,8 +498,8 @@ int _get_msg_all(const int sockfd, const int limit, const int offset,
   {
   case 200:
     memcpy(_msg_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
-    // if (_len)
-    // *_len = res->header.count;
+    if (_len)
+      *_len = res->header.count;
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -532,6 +532,39 @@ int _get_msg_detail(const int sockfd, const uint32_t msg_id, response_msg *_msg)
     _msg->content_type = res->body->r_msg.content_type;
     _msg->created_at = res->body->r_msg.created_at;
     _msg->from_uid = res->body->r_msg.from_uid;
+    break;
+  case 404:
+    break;
+  case 500:
+    break;
+
+    UNHANDLE_OTHER_STT_CODE(res);
+  }
+
+  FREE_AND_RETURN_STT(res);
+}
+
+int _get_msg_detail_raw(const int sockfd, const uint32_t msg_id,
+                        uint32_t *_chat_id, uint32_t *_conv_id, uint32_t *_reply_to,
+                        uint32_t *_from_uid, uint32_t *_created_at,
+                        uint32_t *_content_type, uint32_t *_content_length,
+                        char *_msg_content)
+{
+  make_request_msg_get_detail(__token, __uid, msg_id, buf);
+
+  response *res = api_call(sockfd, buf);
+
+  HANDLE_RES_STT(res)
+  {
+  case 200:
+    *_chat_id = res->body->r_msg.chat_id;
+    *_conv_id = res->body->r_msg.conv_id;
+    *_reply_to = res->body->r_msg.reply_to;
+    *_from_uid = res->body->r_msg.from_uid;
+    *_created_at = res->body->r_msg.created_at;
+    *_content_type = res->body->r_msg.content_type;
+    *_content_length = res->body->r_msg.content_length;
+    memcpy(_msg_content, res->body->r_msg.msg_content, res->body->r_msg.content_length);
     break;
   case 404:
     break;

@@ -1,4 +1,4 @@
-.PHONY: config build test clean migrateup migratedown init_server build_native_lib
+.PHONY: config build test clean migrateup migratedown init_server build_native_lib seed start_server
 
 config:
 ifdef DEBUG
@@ -23,6 +23,12 @@ endif
 
 clean:
 	rm -rf ./build/*
+
+seed:
+	cd ./build/; make; ./test/seed;
+
+start_server:
+	cd ../server/; make; cd build; make; cd ..; ./server;
 
 init_server:
 	cd ../server/; make; cd build; make; cd .. ; make migratedown && make migrateup && ./server

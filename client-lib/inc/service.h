@@ -76,4 +76,10 @@ extern int _delete_msg(const int sockfd, const uint32_t msg_id);
 extern int _notify_new_msg(const int sockfd, const uint32_t user_id, uint32_t *_idls, uint32_t *_len);
 extern int _notify_del_msg(const int sockfd, const uint32_t conv_id, const uint32_t chat_id, uint32_t *_idls, uint32_t *_len);
 
+extern int _get_msg_detail_raw(const int sockfd, const uint32_t msg_id,
+                               uint32_t *_chat_id, uint32_t *_conv_id, uint32_t *_reply_to,
+                               uint32_t *_from_uid, uint32_t *_created_at,
+                               uint32_t *_content_type, uint32_t *_content_length,
+                               char *_msg_content);
+
 #endif
