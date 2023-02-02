@@ -42,6 +42,13 @@ add_test(
 	COMMAND $<TARGET_FILE:notify_test>
 )
 
+add_executable(seed seed.c)
+target_link_libraries(seed PUBLIC cli_service)
+add_test(
+	NAME seed
+	COMMAND $<TARGET_FILE:seed>
+)
+
 #
 # add_custom_command(
 

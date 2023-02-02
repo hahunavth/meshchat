@@ -486,18 +486,20 @@ int _get_chat_info(const int sockfd, const uint32_t chat_id, uint32_t *_mem1_id,
 }
 
 int _get_msg_all(const int sockfd, const int limit, const int offset,
-                 const uint32_t conv_id, uint32_t chat_id,
+                 const uint32_t conv_id, const uint32_t chat_id,
                  uint32_t *_msg_idls, uint32_t *_len)
 {
   make_request_msg_get_all(__token, __uid, limit, offset, conv_id, chat_id, buf);
 
   response *res = api_call(sockfd, buf);
+  printf("res: %d\n", res->header.count);
 
   HANDLE_RES_STT(res)
   {
   case 200:
     memcpy(_msg_idls, res->body->r_msg.idls, sizeof(uint32_t) * (res->header.count));
-    *_len = res->header.count;
+    // if (_len)
+    // *_len = res->header.count;
     break;
 
     UNHANDLE_OTHER_STT_CODE(res);
@@ -520,6 +522,7 @@ int _get_msg_detail(const int sockfd, const uint32_t msg_id, response_msg *_msg)
       _msg->msg_content = malloc(res->body->r_msg.content_length + 1);
     }
     memcpy(_msg->msg_content, res->body->r_msg.msg_content, res->body->r_msg.content_length);
+    _msg->msg_id = msg_id;
     _msg->chat_id = res->body->r_msg.chat_id;
     _msg->conv_id = res->body->r_msg.conv_id;
     _msg->msg_id = res->body->r_msg.msg_id;
