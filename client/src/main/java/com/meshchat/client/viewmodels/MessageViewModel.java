@@ -105,6 +105,13 @@ public class MessageViewModel extends BaseViewModel {
         thread.start();
     }
 
+    public void sendMsg(String msg) throws Exception {
+        if(room_id.get() != 0) {
+            Message _msg = ModelSingleton.getInstance().tcpClient._send_msg(type, room_id.get(), 0, msg);
+            msgListMap.add(_msg);
+        }
+    }
+
     public ObservableList<Message> getMsgList() {
         return this.msgListMap;
     }

@@ -15,6 +15,7 @@ import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -122,6 +123,19 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
                         screenHandler.show();
                     }
                 });
+
+        this.submitBtn.setOnMouseClicked(this::onSubmit);
+        this.input.setOnAction(this::onSubmit);
+    }
+
+    public void onSubmit(Event event) {
+        try {
+            System.out.println("onSubmit");
+            this.viewModel.sendMsg(input.getText());
+            this.input.setText("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public MessageViewModel getViewModel() {
@@ -144,11 +158,6 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     public void disableMsg (Long msg_id) {
         // TODO: implement
         System.out.println("Todo");
-    }
-
-    public void setOnSubmit (EventHandler<ActionEvent> e) {
-        this.input.setOnAction(e);
-//        this.submitBtn.setOnMouseClicked(e);
     }
 
     public String getText() {
