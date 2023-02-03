@@ -1,6 +1,7 @@
 package com.meshchat.client.viewmodels;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
+import com.meshchat.client.Launcher;
 import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.Chat;
 import com.meshchat.client.net.client.ChatRoomType;
@@ -15,15 +16,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ChatViewModelTest {
 
+    @Inject
     TCPNativeClient client;
     ChatViewModel viewModel;
 
     @BeforeEach
     void setUp() {
-        client = ModelSingleton.getInstance().tcpClient;
-        viewModel = new ChatViewModel();
+        viewModel = Launcher.injector.getInstance(ChatViewModel.class);
 
-        ModelSingleton.getInstance().initClient("127.0.0.1", 9000);
+        client.initClient("127.0.0.1", 9000);
         client._login("user_2", "pass");
     }
 
@@ -35,7 +36,7 @@ class ChatViewModelTest {
     @Test
     void fetchChatList() {
         viewModel.fetchChatList();
-        assertTrue(viewModel.dataStore.getOChatMap().size() > 0);
+        assertTrue(viewModel.getDataStore().getOChatMap().size() > 0);
     }
 
     @Test

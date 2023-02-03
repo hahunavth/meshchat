@@ -1,12 +1,13 @@
 package com.meshchat.client.views.home;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
 import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.Message;
 import com.meshchat.client.net.client.ChatRoomType;
 import com.meshchat.client.utils.Config;
-import com.meshchat.client.viewmodels.MessageViewModel;
+import com.meshchat.client.viewmodels.interfaces.IMessageViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
+import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.base.LazyInitialize;
 import com.meshchat.client.views.components.MsgItem;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
@@ -14,9 +15,7 @@ import com.meshchat.client.views.factories.MsgItemComponentFactory;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -28,7 +27,6 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class MessageScreenHandler extends BaseScreenHandler implements LazyInitialize {
 
@@ -48,19 +46,17 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     @FXML
     private Button infoBtn;
 
-    private MessageViewModel viewModel;
+    private IMessageViewModel viewModel;
     private MsgItemComponentFactory msgItemComponentFactory;
     private List<MsgItem> msgItemList = new ArrayList<>();
 
-    public MessageScreenHandler() {
-        super(Config.MSG_FLOW_PATH);
-    }
+    @Inject
+    public MessageScreenHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, IMessageViewModel viewModel) {
+        super(Config.MSG_FLOW_PATH, navigation);
 
-    @FXML
-    public void initialize () {
         // if add msg -> scroll to bottom
         this.msgItemComponentFactory = new MsgItemComponentFactory();
-        this.viewModel = new MessageViewModel();
+        this.viewModel = viewModel;
         msgList.heightProperty().addListener(observable -> scroll.setVvalue(1D));
         this.username.textProperty().bindBidirectional(this.viewModel.getName());
         // on change room update all
@@ -69,63 +65,64 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         });
         //
         this.viewModel.getMsgList().forEach((item) -> {
-            MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataStore.getUserProfile().getEntity().getId());
+            MsgItem msgItem = msgItemComponentFactory.getItem(item, this.viewModel.getCurrentUserId());
             addMsg(msgItem);
         });
-        this.viewModel.getMsgList().addListener((ListChangeListener<? super Message>) e -> {
-            while (e.next()) {
-                if (e.wasAdded()) {
-                    System.out.println("add");
-                    List<Message> ins = (List<Message>) e.getAddedSubList();
-                    ins.forEach(item -> {
-                        MsgItem msgItem = msgItemComponentFactory.getItem(item, ModelSingleton.getInstance().dataStore.getUserProfile().getEntity().getId());
-                        addMsg(msgItem);
-                    });
-                }
-                if (e.wasRemoved()) {
-                    // on remove -> remove all
-                    System.out.println("remove all");
-                    this.msgItemList.removeAll(this.msgItemList);
-                    this.msgList.getChildren().forEach(i -> {
-                        Platform.runLater(() -> {
-                            this.msgList.getChildren().removeAll(this.msgList.getChildren());
-//                            this.msgList.getChildren().remove(i);
-                        });
-                    });
-//                    e.next();
-                }
-                if (e.wasUpdated()) {
-                    // handle msg was deleted
-                }
-                if (e.wasReplaced()) {
-
-                }
-                if (e.wasPermutated()) {
-
-                }
-            }
-        });
-
+        this.viewModel.getMsgList().addListener(this::onMsgListChange);
         // fixme: not working
-        infoBtn.setOnMouseClicked(a -> {
-            if (this.viewModel.getType() == ChatRoomType.CHAT)
-                ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.USER_INFO);
-            else if (this.viewModel.getType() == ChatRoomType.CONV)
-                ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.CONV_INFO);
-        });
-
-        this.viewModel.setRoomInfoHandler((e) -> {
-                    try {
-                        this.viewModel.fetchMsgList();
-                    } catch (APICallException ex) {
-                        DialogScreenHandler screenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
-                        screenHandler.getViewModel().setMessage(ex.getMessage());
-                        screenHandler.show();
-                    }
-                });
-
+        this.infoBtn.setOnMouseClicked(this::onInfoBtnPressed);
+        this.viewModel.setRoomInfoHandler(this::handleFetchRoomInfo);
         this.submitBtn.setOnMouseClicked(this::onSubmit);
         this.input.setOnAction(this::onSubmit);
+    }
+
+    public void onMsgListChange(ListChangeListener.Change<? extends Message> e) {
+        while (e.next()) {
+            if (e.wasAdded()) {
+                System.out.println("add");
+                List<Message> ins = (List<Message>) e.getAddedSubList();
+                ins.forEach(item -> {
+                    MsgItem msgItem = msgItemComponentFactory.getItem(item, this.viewModel.getCurrentUserId());
+                    addMsg(msgItem);
+                });
+            }
+            if (e.wasRemoved()) {
+                // on remove -> remove all
+                this.msgItemList.removeAll(this.msgItemList);
+                this.msgList.getChildren().forEach(i -> {
+                    Platform.runLater(() -> {
+                        this.msgList.getChildren().removeAll(this.msgList.getChildren());
+                    });
+                });
+//                    e.next();
+            }
+            if (e.wasUpdated()) {
+                // handle msg was deleted
+            }
+            if (e.wasReplaced()) {
+
+            }
+            if (e.wasPermutated()) {
+
+            }
+        }
+    }
+
+    public void onInfoBtnPressed (Event event) {
+        if (this.viewModel.getType() == ChatRoomType.CHAT)
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.USER_INFO);
+        else if (this.viewModel.getType() == ChatRoomType.CONV)
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.CONV_INFO);
+    }
+
+    public void handleFetchRoomInfo(Event e) {
+        try {
+            this.viewModel.fetchMsgList();
+        } catch (APICallException ex) {
+            DialogScreenHandler screenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
+            screenHandler.getViewModel().setMessage(ex.getMessage());
+            screenHandler.show();
+        }
     }
 
     public void onSubmit(Event event) {
@@ -138,7 +135,7 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         }
     }
 
-    public MessageViewModel getViewModel() {
+    public IMessageViewModel getViewModel() {
         return viewModel;
     }
 

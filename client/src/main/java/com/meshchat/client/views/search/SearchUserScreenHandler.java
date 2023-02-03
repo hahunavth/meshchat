@@ -1,25 +1,23 @@
 package com.meshchat.client.views.search;
 
+import com.google.inject.Inject;
 import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.utils.Config;
-import com.meshchat.client.viewmodels.SearchUserViewModel;
+import com.meshchat.client.viewmodels.interfaces.ISearchUserViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
+import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.ResourceBundle;
 
-public class SearchUserScreenHandler extends BaseScreenHandler implements Initializable {
+public class SearchUserScreenHandler extends BaseScreenHandler {
 
     @FXML
     private TextField searchField;
@@ -36,18 +34,15 @@ public class SearchUserScreenHandler extends BaseScreenHandler implements Initia
     @FXML
     private Button cancelBtn;
 
-    private SearchUserViewModel viewModel;
+    private ISearchUserViewModel viewModel;
 
     private DialogScreenHandler dialogScreenHandler;
 
-    public SearchUserScreenHandler() {
-        super(Config.SEARCH_USER_PATH);
-    }
+    @Inject
+    public SearchUserScreenHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, ISearchUserViewModel viewModel) {
+        super(Config.SEARCH_USER_PATH, navigation);
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        viewModel = new SearchUserViewModel();
-        dialogScreenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
+        this.viewModel = viewModel;
         searchBtn.setOnAction(a -> {
             String searchTxt = searchField.getText();
             if(searchTxt.length() == 0) return;
@@ -75,6 +70,7 @@ public class SearchUserScreenHandler extends BaseScreenHandler implements Initia
         TableColumn<UserEntity, TextField> emailCol = new TableColumn<>("email");
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
         usersTbl.getColumns().addAll(idCol, phoneCol, emailCol);
+        super.show();
     }
 
     @Override

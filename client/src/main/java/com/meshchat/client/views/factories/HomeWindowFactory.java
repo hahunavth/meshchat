@@ -1,5 +1,6 @@
 package com.meshchat.client.views.factories;
 
+import com.meshchat.client.Launcher;
 import com.meshchat.client.utils.Config;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.ScreenFactory;
@@ -33,8 +34,8 @@ public class HomeWindowFactory implements ScreenFactory<BaseScreenHandler> {
         layout.lazyShowList.add(homeScreenHandler);
 
         navigation.addScreenHandler(Config.MSG_ICON_PATH, homeScreenHandler);
-        navigation.addScreenHandler(Config.USER_PROFILE_ICON_PATH, new UserProfileScreenHandler());
-        navigation.addScreenHandler(Config.SETTING_ICON_PATH, new SettingDetailsScreenHandler());
+        navigation.addScreenHandler(Config.USER_PROFILE_ICON_PATH, Launcher.injector.getInstance(UserProfileScreenHandler.class));
+//        navigation.addScreenHandler(Config.SETTING_ICON_PATH, Launcher.injector.getInstance(SettingDetailsScreenHandler.class));
 
         return layout;
     }

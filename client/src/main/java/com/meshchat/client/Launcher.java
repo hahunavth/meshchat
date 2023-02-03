@@ -10,6 +10,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
 import javafx.stage.Stage;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 import java.io.IOException;
 
@@ -26,29 +28,28 @@ public class Launcher extends Application {
             protected Void call() {
                 {
                     try {
+                        StackNavigation navigation = injector.getInstance(StackNavigation.class);
                         // init
-                        ModelSingleton modelSingleton = ModelSingleton.getInstance();
                         notifyProcess(0.1);     // set progress bar
-                        ModelSingleton.getInstance().stackNavigation = new StackNavigation();
                         // add navigation option
                         notifyProcess(0.2);
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.HOME, new HomeWindowFactory());
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.LOGIN, new LoginWindowFactory());
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.SIGNUP, new SignUpScreenFactory());
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.SEARCH_USER, new SearchUserWindowFactory());
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.CREATE_CONV, new CreateConvFormScreenFactory());
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.CONV_INFO, new ConvInfoWindowFactory());
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.USER_INFO, new UserProfileScreenFactory());
-                        ModelSingleton.getInstance().stackNavigation.addScreenFactory(StackNavigation.WINDOW_LIST.DIALOG, new DialogScreenFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.HOME, new HomeWindowFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.LOGIN, new LoginWindowFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.SIGNUP, new SignUpScreenFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.SEARCH_USER, new SearchUserWindowFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.CREATE_CONV, new CreateConvFormScreenFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.CONV_INFO, new ConvInfoWindowFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.USER_INFO, new UserProfileScreenFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.DIALOG, new DialogScreenFactory());
                         notifyProcess(0.3);
-//                        ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SEARCH_USER);
+                        navigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SEARCH_USER);
                         notifyProcess(0.4);
-                        ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SIGNUP);
+                        navigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SIGNUP);
                         // preload screen
                         notifyProcess(0.6);
-                        ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.LOGIN);
+                        navigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.LOGIN);
                         notifyProcess(0.8);
-                        ModelSingleton.getInstance().stackNavigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.HOME);
+                        navigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.HOME);
                         //
                         notifyProcess(1);
                     } catch (Exception e) {
@@ -81,6 +82,7 @@ public class Launcher extends Application {
     public void start(Stage stage) throws IOException {
 
         try {
+            StackNavigation navigation = injector.getInstance(StackNavigation.class);
             // close all on exit app
 //            stage.setOnCloseRequest((event -> {
 //                Platform.exit();
@@ -92,9 +94,9 @@ public class Launcher extends Application {
             ready.addListener((ov, t, t1) -> {
                 if (Boolean.TRUE.equals(t1)) {
                     Platform.runLater(() -> {
-                        ModelSingleton.getInstance().stackNavigation.lazyInitialize();
+                        navigation.lazyInitialize();
                         // default screen: login
-                        ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.LOGIN).show();
+                        navigation.navigate(StackNavigation.WINDOW_LIST.LOGIN).show();
                         //
                     });
                 }
@@ -105,6 +107,8 @@ public class Launcher extends Application {
         }
     }
 
+    // IoC setup
+    public static Injector injector = Guice.createInjector(new DIModule());
     public static void main(String[] args) {
         // set splash screen
         System.setProperty("javafx.preloader", SplashPreloader.class.getCanonicalName());

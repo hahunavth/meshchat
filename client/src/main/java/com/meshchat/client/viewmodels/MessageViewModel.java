@@ -1,10 +1,14 @@
 package com.meshchat.client.viewmodels;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
+import com.meshchat.client.binding.IDataSource;
+import com.meshchat.client.binding.ITCPService;
 import com.meshchat.client.db.entities.MsgEntity;
 import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.*;
 import com.meshchat.client.net.client.ChatRoomType;
+import com.meshchat.client.net.client.TCPNativeClient;
+import com.meshchat.client.viewmodels.interfaces.IMessageViewModel;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -14,7 +18,7 @@ import javafx.event.EventHandler;
 
 import java.util.List;
 
-public class MessageViewModel extends BaseViewModel {
+public class MessageViewModel extends BaseViewModel implements IMessageViewModel {
     private ChatRoomType type;
     private final SimpleLongProperty room_id = new SimpleLongProperty();    // chat id or conv id
     private StringProperty name = new SimpleStringProperty();
@@ -22,21 +26,26 @@ public class MessageViewModel extends BaseViewModel {
     private MapChangeListener<Long, Message> newMsgListener;
     private EventHandler roomInfoHandler;
 
-    public ChatGen getChatGen() {
-        if(type==ChatRoomType.CONV)
-            return this.dataStore.getOConvMap().get(room_id.get());
-        else if(type == ChatRoomType.CHAT)
-            return this.dataStore.getOChatMap().get(room_id.get());
-        else
-            throw new Error("Not implemented");
+    @Inject
+    public MessageViewModel(@IDataSource DataStore dataStore, @ITCPService TCPNativeClient client) {
+        super(dataStore, client);
     }
+
+//    public ChatGen getChatGen() {
+//        if(type==ChatRoomType.CONV)
+//            return this.getDataStore().getOConvMap().get(room_id.get());
+//        else if(type == ChatRoomType.CHAT)
+//            return this.getDataStore().getOChatMap().get(room_id.get());
+//        else
+//            throw new Error("Not implemented");
+//    }
 
     public void removeListenerFromChatOrConv () {
         if (this.newMsgListener != null) {
             ChatGen room;
             // add msg list
-            if (type == ChatRoomType.CHAT) room = ModelSingleton.getInstance().dataStore.getOChatMap().get(room_id.get());
-            else room = ModelSingleton.getInstance().dataStore.getOChatMap().get(room_id.get());
+            if (type == ChatRoomType.CHAT) room = this.getDataStore().getOChatMap().get(room_id.get());
+            else room = this.getDataStore().getOChatMap().get(room_id.get());
             room.getOMsgMap().removeListener(this.newMsgListener);
         }
     }
@@ -46,12 +55,12 @@ public class MessageViewModel extends BaseViewModel {
      * @param type
      * @param room_id
      */
-    public void setRoomInfo (ChatRoomType type, Long room_id) {
+    public void setRoomInfo (ChatRoomType type, Long room_id, ChatGen chatRoom) {
         this.type = type;
         this.room_id.set(room_id);
-        if (this.getChatGen() != null) {
+//        if (this.getChatGen() != null) {
             // set room name
-            this.name.set(this.getChatGen().getName().get());
+//            this.name.set(this.getChatGen().getName().get());
             // add message
 //            this.msgListMap.removeAll(this.msgListMap);
 //            System.out.println(this.msgListMap.size());
@@ -59,17 +68,17 @@ public class MessageViewModel extends BaseViewModel {
 //                this.msgListMap.add(msg);
 //            });
             // listen when msg list change
-            this.getChatGen().getOMsgMap().addListener((MapChangeListener<? super Long, ? super Message>) (e) -> {
-                if (e.wasAdded()) {
-                    this.msgListMap.add(e.getValueAdded());
-                }
-                if (e.wasRemoved()) {
-                    this.msgListMap.remove(e.getValueAdded());
-                }
-                System.out.println("event .............");
-            });
-        }
-
+//            this.getChatGen().getOMsgMap().addListener((MapChangeListener<? super Long, ? super Message>) (e) -> {
+//                if (e.wasAdded()) {
+//                    this.msgListMap.add(e.getValueAdded());
+//                }
+//                if (e.wasRemoved()) {
+//                    this.msgListMap.remove(e.getValueAdded());
+//                }
+//                System.out.println("event .............");
+//            });
+//        }
+        this.name.set(chatRoom.getName().get());
         if (this.roomInfoHandler != null) {
             System.out.println("Handle set room info");
             this.roomInfoHandler.handle(null);
@@ -85,18 +94,18 @@ public class MessageViewModel extends BaseViewModel {
             @Override
             protected Void call() throws Exception {
                 msgListMap.removeAll(msgListMap);
-                List<Long> msgIdList = ModelSingleton.getInstance().tcpClient._get_msg_all(type, room_id.intValue(), 10, 0);
+                List<Long> msgIdList = getTcpClient()._get_msg_all(type, room_id.intValue(), 10, 0);
                 System.out.println(msgIdList);
                 msgIdList.forEach(id -> {
                     MsgEntity msgEntity = null;
                     try {
-                        msgEntity = ModelSingleton.getInstance().tcpClient._get_msg_detail(id);
+                        msgEntity = getTcpClient()._get_msg_detail(id);
                     } catch (APICallException e) {
                         throw new RuntimeException(e);
                     }
                     msgListMap.add(new Message(msgEntity));
                     // TODO: DO NOT USE DATA SOURCE FOR STORE MSG LIST
-                    // dataStore.addMsg(msgEntity);
+                    // getDataStore().addMsg(msgEntity);
                 });
                 return null;
             }
@@ -107,7 +116,7 @@ public class MessageViewModel extends BaseViewModel {
 
     public void sendMsg(String msg) throws Exception {
         if(room_id.get() != 0) {
-            Message _msg = ModelSingleton.getInstance().tcpClient._send_msg(type, room_id.get(), 0, msg);
+            Message _msg = this.getTcpClient()._send_msg(type, room_id.get(), 0, msg);
             msgListMap.add(_msg);
         }
     }
@@ -126,5 +135,8 @@ public class MessageViewModel extends BaseViewModel {
 
     public StringProperty getName() {
         return this.name;
+    }
+    public long getCurrentUserId() {
+        return this.getTcpClient().get_uid();
     }
 }

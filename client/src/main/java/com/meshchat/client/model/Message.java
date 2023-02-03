@@ -25,6 +25,7 @@ public class Message extends BaseModel {
         this.entity.setContent(entity.getContent());
         this.entity.setCreated_at(entity.getCreated_at());
         this.entity.setReply_to(entity.getReply_to());
+        this.entity.setFrom_user_id(entity.getFrom_user_id());
     }
 
     public MsgEntity getEntity() {

@@ -1,23 +1,21 @@
 package com.meshchat.client.views.signup;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
+import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.utils.Config;
-import com.meshchat.client.viewmodels.SignUpViewModel;
+import com.meshchat.client.viewmodels.interfaces.ISignUpViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
+import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class SignUpScreenHandler extends BaseScreenHandler implements Initializable {
+public class SignUpScreenHandler extends BaseScreenHandler {
     @FXML
     private Accordion accord;
     @FXML
@@ -39,15 +37,13 @@ public class SignUpScreenHandler extends BaseScreenHandler implements Initializa
     @FXML
     private Button signup;
 
-    private SignUpViewModel viewModel;
+    private ISignUpViewModel viewModel;
 
-    public SignUpScreenHandler() {
-        super(Config.SIGNUP_PATH);
-    }
+    @Inject
+    public SignUpScreenHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, ISignUpViewModel viewModel) {
+        super(Config.SIGNUP_PATH, navigation);
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        this.viewModel = new SignUpViewModel(); // init viewModel
+        this.viewModel = viewModel; // init viewModel
         this.accord.setExpandedPane(this.acc_tiled_pane); // expand acc pane first
 
         signup.setOnAction(this::onSignupPressed);
@@ -61,16 +57,18 @@ public class SignUpScreenHandler extends BaseScreenHandler implements Initializa
      * 3. navigate to login screen or show failed dialog
      */
     public void onSignupPressed(ActionEvent event) {
-        ModelSingleton.getInstance().initClient(this.address.getText(), Integer.parseInt(this.port.getText()));
-        if(viewModel.handleSignUp(
-                username.getText(),
-                password.getText(),
-                email.getText()
-        )) {
+        this.viewModel.initClient(this.address.getText(), Integer.parseInt(this.port.getText()));
+
+        try {
+            viewModel.handleSignUp(
+                    username.getText(),
+                    password.getText(),
+                    email.getText()
+            );
             this.getNavigation().navigate(StackNavigation.WINDOW_LIST.LOGIN).show();
-        } else {
+        } catch (APICallException e) {
             DialogScreenHandler screenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
-            screenHandler.getViewModel().setMessage("Register failed!");
+            screenHandler.getViewModel().setMessage(e.getMessage());
             screenHandler.show();
         }
     }
@@ -79,13 +77,13 @@ public class SignUpScreenHandler extends BaseScreenHandler implements Initializa
      * Go to login screen
      */
     public void onLoginPressed(ActionEvent event) {
-        ModelSingleton.getInstance().stackNavigation.goBack().show();
+        this.getNavigation().goBack().show();
     }
 
     @Override
     public void show() {
         // close connection when show signup screen
-        ModelSingleton.getInstance().tcpClient.close();
+        this.viewModel.closeClient();
         super.show();
     }
 

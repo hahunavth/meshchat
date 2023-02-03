@@ -8,9 +8,9 @@ import com.meshchat.client.views.components.MsgItemRight;
 public class MsgItemComponentFactory {
     public MsgItem getItem(Message message, Long uid) {
         if(uid.equals(message.getEntity().getFrom_user_id()))
-            return (new MsgItemRight(message));
-        else
             return (new MsgItemLeft(message));
+        else
+            return (new MsgItemRight(message));
     }
 
 }

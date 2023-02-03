@@ -1,6 +1,6 @@
 package com.meshchat.client.net.client;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
 import com.meshchat.client.db.entities.MsgEntity;
 import com.meshchat.client.exceptions.APICallException;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * NOTE: run seed first
  */
 class TCPNativeClientTest {
-    TCPNativeClient client;
+    @Inject
+    public TCPNativeClient client;
     @BeforeEach
     void setUp() {
-        client = ModelSingleton.getInstance().tcpClient;
-        ModelSingleton.getInstance().initClient("127.0.0.1", 9000);
+        client.initClient("127.0.0.1", 9000);
         client._login("user_1", "pass");
     }
 

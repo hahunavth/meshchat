@@ -1,6 +1,9 @@
 package com.meshchat.client.views.navigation;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.base.LazyInitialize;
@@ -12,7 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+@Singleton
 public class StackNavigation extends FactoryBasedNavigation<StackNavigation.WINDOW_LIST> implements INavigation<StackNavigation.WINDOW_LIST> {
+
+    @Inject
+    private TCPNativeClient tcpClient;
 
     public enum WINDOW_LIST {
         HOME,
@@ -86,7 +93,7 @@ public class StackNavigation extends FactoryBasedNavigation<StackNavigation.WIND
         // handle close
         stage.setOnCloseRequest((e) -> {
             if (this.windowStack.size() <= 1) {
-                ModelSingleton.getInstance().close();
+                this.tcpClient.close();
                 stage.close();
                 Platform.exit();
                 System.exit(0);

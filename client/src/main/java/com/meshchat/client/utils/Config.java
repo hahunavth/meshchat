@@ -41,7 +41,7 @@ public class Config {
      */
     // icons
     public final static String MSG_ICON_PATH = "/com/meshchat/client/assets/message.png";
-    public final static String USER_PROFILE_ICON_PATH = "/com/meshchat/client/assets/message.png";
+    public final static String USER_PROFILE_ICON_PATH = "/com/meshchat/client/assets/avatar.png";
     public final static String SETTING_ICON_PATH = "/com/meshchat/client/assets/setting.png";
     // css
     public final static String STYLE_PATH = "/com/meshchat/client/styles/style.css";

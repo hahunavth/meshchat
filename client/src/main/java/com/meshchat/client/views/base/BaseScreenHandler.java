@@ -1,6 +1,9 @@
 package com.meshchat.client.views.base;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.meshchat.client.Launcher;
+import com.meshchat.client.binding.IStackNavigation;
 import com.meshchat.client.utils.Config;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.application.Platform;
@@ -18,12 +21,19 @@ import java.util.Objects;
  */
 public abstract class BaseScreenHandler extends FXMLScreenHandler implements LazyInitialize, IShowable {
 
+    @Inject
+    public INavigation<StackNavigation.WINDOW_LIST> navigation;
+
     protected Stage stage;            // if not exists -> create new, exists -> pass through constructor on init
     private Scene scene;                    // if not exists -> create new when show screen
-    private final INavigation<StackNavigation.WINDOW_LIST> navigation = ModelSingleton.getInstance().stackNavigation;
 
     public BaseScreenHandler(String screenPath) {
         super(screenPath);
+    }
+
+    public BaseScreenHandler(String screenPath, INavigation<StackNavigation.WINDOW_LIST> navigation) {
+        super(screenPath);
+        this.navigation = navigation;
     }
 
     /**

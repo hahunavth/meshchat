@@ -1,21 +1,16 @@
 package com.meshchat.client.views.login;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
 import com.meshchat.client.utils.Config;
-import com.meshchat.client.viewmodels.LoginViewModel;
+import com.meshchat.client.viewmodels.interfaces.ILoginViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
+import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.TilePane;
-import javafx.stage.Stage;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class LoginScreenHandler extends BaseScreenHandler implements Initializable {
+public class LoginScreenHandler extends BaseScreenHandler {
 
     @FXML
     private Accordion accord;
@@ -35,38 +30,38 @@ public class LoginScreenHandler extends BaseScreenHandler implements Initializab
     private Button login;
     @FXML
     private Button signup;
-    private LoginViewModel viewModel;
+    private ILoginViewModel viewModel;
 
-    public LoginScreenHandler() {
+    @Inject
+    public LoginScreenHandler(ILoginViewModel viewModel) {
         super(Config.LOGIN_PATH);
-    }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        this.viewModel = new LoginViewModel();
+        this.viewModel = viewModel;
         this.accord.setExpandedPane(this.acc_tiled_pane);
-        login.setOnAction((a) -> {
-            ModelSingleton.getInstance().initClient(this.address.getText(), Integer.parseInt(this.port.getText()));
-
-            if (
-                this.viewModel.handleLogin(this.username.getText(), this.password.getText())
-            ) {
-                this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
-            } else {
-                DialogScreenHandler dialogScreenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
-                dialogScreenHandler.getViewModel().setMessage("Cannot login");
-                dialogScreenHandler.show();
-            }
-        });
+        login.setOnAction(this::onLoginClicked);
 
         signup.setOnAction((a) -> {
-            ModelSingleton.getInstance().stackNavigation.navigate(StackNavigation.WINDOW_LIST.SIGNUP).show();
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SIGNUP).show();
         });
+    }
+
+    public void onLoginClicked(Event e) {
+        this.viewModel.initClient(this.address.getText(), Integer.parseInt(this.port.getText()));
+
+        if (
+                this.viewModel.handleLogin(this.username.getText(), this.password.getText())
+        ) {
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
+        } else {
+            DialogScreenHandler dialogScreenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
+            dialogScreenHandler.getViewModel().setMessage("Cannot login");
+            dialogScreenHandler.show();
+        }
     }
 
     @Override
     public void show() {
-        ModelSingleton.getInstance().tcpClient.close();
+        this.viewModel.closeClient();
         super.show();
     }
 

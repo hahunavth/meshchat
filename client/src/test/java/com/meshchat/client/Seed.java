@@ -1,5 +1,6 @@
 package com.meshchat.client;
 
+import com.google.inject.Inject;
 import com.meshchat.client.net.client.ChatRoomType;
 import com.meshchat.client.net.client.TCPNativeClient;
 import org.junit.jupiter.api.AfterEach;
@@ -10,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class Seed {
 
+    @Inject
     TCPNativeClient client;
     @BeforeEach
     void setUp() {
-        client = ModelSingleton.getInstance().tcpClient;
-        ModelSingleton.getInstance().initClient("127.0.0.1", 9000);
+        client.initClient("127.0.0.1", 9000);
     }
 
     @AfterEach

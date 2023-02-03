@@ -1,23 +1,18 @@
 package com.meshchat.client.net.client;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.meshchat.client.cnative.CAPIServiceLib;
 import com.meshchat.client.cnative.req.RequestAuth;
-import com.meshchat.client.cnative.res.ResponseMsg;
 import com.meshchat.client.cnative.res.ResponseUser;
 import com.meshchat.client.db.entities.MsgEntity;
 import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.*;
-import javafx.util.Pair;
-import jnr.ffi.NativeLong;
-import jnr.ffi.Pointer;
 import jnr.ffi.Runtime;
-import jnr.ffi.Struct;
 import jnr.ffi.byref.NativeLongByReference;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,17 +23,38 @@ import java.util.List;
  *<br>
  * - Không sửa thay đổi DataStore (thay đổi ở ViewModel) <br>
  */
+@Singleton
 public class TCPNativeClient extends TCPBasedClient implements Runnable {
 
     CAPIServiceLib lib;
     Runtime rt;
 
+    @Inject
+    DataStore ds;
+
     private int sockfd = -1;
+
+    @Inject
+    public TCPNativeClient(DataStore ds) {
+        super("127.0.0.1", 9000);
+        this.ds = ds;
+        this.lib = CAPIServiceLib.load();
+        this.rt = Runtime.getRuntime(lib);
+    }
 
     public TCPNativeClient(String host, int port) {
         super(host, port);
         this.lib = CAPIServiceLib.load();
         this.rt = Runtime.getRuntime(lib);
+    }
+
+    public void initClient(String host, int port) {
+        this.setCloseFlag(false);
+        this.setHost(host);
+        this.setPort(port);
+        Thread clientThread = new Thread(this);
+        clientThread.start();
+        // TODO: handle connection failed: throw exception
     }
 
     @Override
@@ -65,13 +81,17 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
 
     @Override
     public void close() {
-        this.lib.close_conn();
-        sockfd = this.lib.get_sockfd();
-        if(this.isConnected()) {
-            this.setConnected(false);
-            this.setCloseFlag(true);
+        if (this.lib != null) {
+            this.lib.close_conn();
+            sockfd = this.lib.get_sockfd();
+            if(this.isConnected()) {
+                this.setConnected(false);
+                this.setCloseFlag(true);
+            } else {
+                this.setCloseFlag(true);
+            }
         } else {
-            this.setCloseFlag(true);
+            System.out.println("Lib is null");
         }
     }
 
@@ -100,7 +120,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     }
 
 
-    public boolean _register(String uname, String pass, String phone, String email) {
+    public void _register(String uname, String pass, String phone, String email) throws APICallException {
         int stt;
         RequestAuth auth = new RequestAuth(rt);
         auth.uname.set(uname);
@@ -108,7 +128,15 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         auth.phone.set(phone);
         auth.email.set(email);
         stt = this.lib._register(this.sockfd, auth);
-        return stt == 201;
+
+        switch (stt) {
+            case 201:
+                break;
+            case 404:
+            default:
+                throw new APICallException(stt, "Cannot register");
+        }
+
     }
 
     public boolean _login(String uname, String pass) {
@@ -128,7 +156,6 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     }
 
     public UserEntity _get_user_by_id(long uid){
-        DataStore ds = ModelSingleton.getInstance().dataStore;
         UserProfile up = ds.getUserProfileCache().get(uid);
         if (up == null){
             ResponseUser ru = new ResponseUser(this.rt);
@@ -220,6 +247,13 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
+    public List<Long> _get_conv_list() {
+        long[] idls = new long[10];
+        NativeLongByReference len = new NativeLongByReference(0);
+        this.lib._get_conv_list(this.lib.get_sockfd(), 10, 0, idls, len);
+        return Arrays.stream(idls).limit(len.intValue()).boxed().toList();
+    }
+
     public void _conv_join(long conv_id, long user_id) throws APICallException{
         int stt = this.lib._join_conv(this.lib.get_sockfd(), conv_id, user_id);
         if(stt != 200){
@@ -228,7 +262,6 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     }
 
     public Conv _get_conv_info(long conv_id){
-        DataStore ds = ModelSingleton.getInstance().dataStore;
         Conv conv = ds.getOConvMap().get(conv_id);
         if(conv == null){
             NativeLongByReference admin_id = new NativeLongByReference();

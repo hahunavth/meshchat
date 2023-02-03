@@ -1,38 +1,35 @@
 package com.meshchat.client.views.dialog;
 
+import com.google.inject.Inject;
 import com.meshchat.client.utils.Config;
-import com.meshchat.client.viewmodels.DialogViewModel;
+import com.meshchat.client.viewmodels.interfaces.IDialogViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
+import com.meshchat.client.views.base.INavigation;
+import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class DialogScreenHandler extends BaseScreenHandler implements Initializable {
+public class DialogScreenHandler extends BaseScreenHandler {
 
     @FXML
     private Text message;
     @FXML
     private Button okBtn;
 
-    private DialogViewModel viewModel;
-    public DialogScreenHandler() {
-        super(Config.DIALOG_PATH);
-    }
+    private IDialogViewModel viewModel;
+    @Inject
+    public DialogScreenHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, IDialogViewModel viewModel) {
+        super(Config.DIALOG_PATH, navigation);
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        this.viewModel = new DialogViewModel("");
+        this.viewModel = viewModel;
         this.message.textProperty().bindBidirectional(this.viewModel.getMessage());
         this.okBtn.setOnMouseClicked((e) -> {
             this.getNavigation().goBack().show();
         });
     }
 
-    public DialogViewModel getViewModel() {
+    public IDialogViewModel getViewModel() {
         return this.viewModel;
     }
 

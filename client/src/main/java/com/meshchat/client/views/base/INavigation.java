@@ -7,6 +7,7 @@ import javafx.stage.Stage;
  * basic navigation
  * @param <T>
  */
+
 public interface INavigation<T> {
     BaseScreenHandler navigate(T screenName);
     BaseScreenHandler navigate(T screenName, Stage stage);

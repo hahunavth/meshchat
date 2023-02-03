@@ -1,23 +1,23 @@
 package com.meshchat.client.views.form;
 
+import com.google.inject.Inject;
+import com.meshchat.client.Launcher;
 import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.utils.Config;
 import com.meshchat.client.viewmodels.CreateConvViewModel;
+import com.meshchat.client.viewmodels.interfaces.ICreateConvViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
+import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class CreateConvFormHandler extends BaseScreenHandler implements Initializable {
+public class CreateConvFormHandler extends BaseScreenHandler {
 
     @FXML
     private TextField gname;
@@ -34,25 +34,27 @@ public class CreateConvFormHandler extends BaseScreenHandler implements Initiali
     @FXML
     private Button cancelBtn;
 
-    private CreateConvViewModel viewModel;
+    private ICreateConvViewModel viewModel;
 
     private DialogScreenHandler dialogScreenHandler;
 
-    public CreateConvFormHandler() {
-        super(Config.CREATE_CONV_FORM_PATH);
-    }
+    @Inject
+    public CreateConvFormHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, ICreateConvViewModel viewModel) {
+        super(Config.CREATE_CONV_FORM_PATH, navigation);
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        viewModel = new CreateConvViewModel();
+        this.viewModel = viewModel;
+
         dialogScreenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
+        ICreateConvViewModel finalViewModel = viewModel;
         createBtn.setOnAction((a)->{
-            long conv_id = viewModel.handleCreate(gname.getText());
+            long conv_id = finalViewModel.handleCreate(gname.getText());
             if(conv_id <0){
                 dialogScreenHandler.getViewModel().setMessage("Cannot create conversation");
                 dialogScreenHandler.show();
             }
         });
+
+        viewModel = Launcher.injector.getInstance(CreateConvViewModel.class);
 
         cancelBtn.setOnAction((a)->{
             this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
@@ -74,6 +76,7 @@ public class CreateConvFormHandler extends BaseScreenHandler implements Initiali
 //        TableColumn<UserEntity, TextField> removeCol = new TableColumn<>();
         memberTbl.getColumns().addAll(idCol, phoneCol, emailCol);
         memberTbl.setItems(viewModel.getSelectedUsers());
+        super.show();
     }
 
     @Override

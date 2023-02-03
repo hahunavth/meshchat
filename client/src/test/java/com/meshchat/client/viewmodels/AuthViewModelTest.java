@@ -1,6 +1,9 @@
 package com.meshchat.client.viewmodels;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Inject;
+import com.meshchat.client.Launcher;
+import com.meshchat.client.exceptions.APICallException;
+import com.meshchat.client.net.client.TCPNativeClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,21 +14,23 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class AuthViewModelTest {
 
+    @Inject
+    TCPNativeClient client;
+
     SignUpViewModel viewModel;
     LoginViewModel loginViewModel;
 
     @BeforeEach
     void setUp() {
-        viewModel = new SignUpViewModel();
-        loginViewModel = new LoginViewModel();
+        viewModel = Launcher.injector.getInstance(SignUpViewModel.class);
+        loginViewModel = Launcher.injector.getInstance(LoginViewModel.class);
         // connect
-        ModelSingleton.getInstance().initClient("127.0.0.1", 9000);
+        client.initClient("127.0.0.1", 9000);
     }
     @Test
-    void handleSignUp() {
+    void handleSignUp() throws APICallException {
         // sign up new account
-        boolean stt = viewModel.handleSignUp("abc", "def", "a@b.c");
-        assertTrue(stt);
+        viewModel.handleSignUp("abc", "def", "a@b.c");
     }
 
     @Test

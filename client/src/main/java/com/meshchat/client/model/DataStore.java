@@ -1,6 +1,6 @@
 package com.meshchat.client.model;
 
-import com.meshchat.client.ModelSingleton;
+import com.google.inject.Singleton;
 import com.meshchat.client.db.entities.MsgEntity;
 import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.net.client.ChatRoomType;
@@ -8,7 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
 import java.util.*;
-import java.util.concurrent.Flow;
 
 /**
  * Reactive programming:
@@ -19,6 +18,7 @@ import java.util.concurrent.Flow;
  * <br>
  * <s>Observable pattern:</s>
  */
+@Singleton
 public class DataStore {
     // data
     private final UserProfile userProfile = new UserProfile();
