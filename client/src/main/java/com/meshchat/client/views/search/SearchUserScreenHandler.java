@@ -20,23 +20,23 @@ import java.util.ArrayList;
 public class SearchUserScreenHandler extends BaseScreenHandler {
 
     @FXML
-    private TextField searchField;
+    TextField searchField;
 
     @FXML
-    private Button searchBtn;
+    Button searchBtn;
 
     @FXML
-    private TableView<UserEntity> usersTbl;
+    TableView<UserEntity> usersTbl;
 
     @FXML
-    private Button selectBtn;
+    Button selectBtn;
 
     @FXML
-    private Button cancelBtn;
+    Button cancelBtn;
 
-    private ISearchUserViewModel viewModel;
+    ISearchUserViewModel viewModel;
 
-    private DialogScreenHandler dialogScreenHandler;
+    DialogScreenHandler dialogScreenHandler;
 
     @Inject
     public SearchUserScreenHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, ISearchUserViewModel viewModel) {
@@ -49,16 +49,6 @@ public class SearchUserScreenHandler extends BaseScreenHandler {
             ArrayList<UserEntity> searchRes = viewModel.handleSearch(searchTxt, 0, 20);
             usersTbl.getItems().clear();
             usersTbl.getItems().addAll(searchRes);
-        });
-
-        selectBtn.setOnAction(a -> {
-            UserEntity selectedUser = usersTbl.getSelectionModel().getSelectedItem();
-            viewModel.addSelectedUser(selectedUser);
-            viewModel.clearSelectUserViewModel();
-        });
-
-        cancelBtn.setOnAction(a -> {
-            viewModel.clearSelectUserViewModel();
         });
     }
 

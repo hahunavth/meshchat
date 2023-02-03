@@ -6,15 +6,18 @@ import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.DataStore;
 import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.viewmodels.interfaces.ICreateConvViewModel;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
 public class CreateConvViewModel extends BaseViewModel implements ICreateConvViewModel {
-    private HashSet<UserEntity> selectedUsers;
+    private ObservableList<UserEntity> selectedUsers;
     @Inject
     public CreateConvViewModel(DataStore dataStore, TCPNativeClient client) {
         super(dataStore, client);
+        selectedUsers = FXCollections.observableArrayList();
     }
 
     public long handleCreate(String gname)  {
@@ -37,17 +40,15 @@ public class CreateConvViewModel extends BaseViewModel implements ICreateConvVie
 
 
     @Override
-    public ArrayList<UserEntity> getSelectedUsers() {
-        ArrayList<UserEntity> userls = new ArrayList<>();
-        selectedUsers.forEach(user->{
-            userls.add(user);
-        });
-        return userls;
+    public ObservableList<UserEntity> getSelectedUsers() {
+        return selectedUsers;
     }
 
     @Override
     public void addSelectedUser(UserEntity user) {
-        selectedUsers.add(user);
+        if(!selectedUsers.contains(user)){
+            selectedUsers.add(user);
+        }
     }
 
     @Override

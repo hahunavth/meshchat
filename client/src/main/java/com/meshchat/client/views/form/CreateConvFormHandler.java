@@ -78,6 +78,7 @@ public class CreateConvFormHandler extends BaseScreenHandler {
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
 //        TableColumn<UserEntity, TextField> removeCol = new TableColumn<>();
         memberTbl.getColumns().addAll(idCol, phoneCol, emailCol);
+        memberTbl.setItems(viewModel.getSelectedUsers());
         super.show();
     }
 

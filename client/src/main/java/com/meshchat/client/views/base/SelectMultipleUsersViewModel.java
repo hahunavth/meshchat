@@ -1,9 +1,10 @@
 package com.meshchat.client.views.base;
 
 import com.meshchat.client.db.entities.UserEntity;
+import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 
 public interface SelectMultipleUsersViewModel extends SelectUserViewModel{
-    ArrayList<UserEntity> getSelectedUsers();
+    ObservableList<UserEntity> getSelectedUsers();
 }

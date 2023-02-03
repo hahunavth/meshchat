@@ -97,4 +97,14 @@ public class UserEntity implements IEntity {
                 "phone: " + this.getPhone() +
                 " }";
     }
+
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof UserEntity){
+            if(((UserEntity)o).getId() == this.getId()){
+                return true;
+            }
+        }
+        return false;
+    }
 }
