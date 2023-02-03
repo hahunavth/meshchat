@@ -22,6 +22,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -47,7 +48,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
     private Tab conv;
 
     @FXML
-    private TextField search;
+    private Button newBtn;
 
     private MessageScreenHandler messageScreenHandler;
     private ObservableList<FXMLScreenHandler> chatItemList;
@@ -88,7 +89,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
             }
         });
 
-        search.setOnMouseClicked((a) -> {
+        newBtn.setOnMouseClicked((a) -> {
             if (chat.isSelected()) {
                 this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_USER).show();
             }
@@ -123,11 +124,6 @@ public class ChatScreenHandler extends BaseScreenHandler {
             messageScreenHandler.getViewModel().setRoomInfo(ChatRoomType.CHAT, chatRoom.id, chatRoom);
         });
         addChatItem(chatItem);
-    }
-
-    @FXML
-    public void onSearchNewUser() {
-        System.out.println("abc");
     }
 
     @Override

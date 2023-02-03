@@ -26,8 +26,8 @@ public class ChatItemConv extends ChatItem<Conv> {
     public ChatItemConv(Conv chatRoom) {
         super(Config.CHAT_ITEM_PATH);
         this.setProps(chatRoom);
-        this.name.textProperty().bindBidirectional(this.getProps().getName());
-        // todo: generate round image base on this
+        this.name.setText(this.getProps().getName().get());
+        this.setName(this.getProps().getName().get());
     }
 
     @Override

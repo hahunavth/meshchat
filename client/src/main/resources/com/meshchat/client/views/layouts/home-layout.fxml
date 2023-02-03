@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 
-<HBox alignment="CENTER" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<HBox alignment="CENTER" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <opaqueInsets>
       <Insets />
    </opaqueInsets>
    <children>
       <Pane fx:id="sidebar" prefHeight="720.0" />
       <Pane fx:id="content" prefHeight="720.0" prefWidth="600.0" HBox.hgrow="ALWAYS" />
-      <Pane fx:id="info" prefHeight="720.0" prefWidth="240.0" />
+      <Pane fx:id="info" prefHeight="720.0" prefWidth="13.0" />
    </children>
 </HBox>

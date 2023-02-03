@@ -12,18 +12,15 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" style="-fx-background-color: #f8f8fa;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" style="-fx-background-color: #f8f8fa;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox alignment="CENTER" prefHeight="82.0" prefWidth="687.0" style="-fx-background-color: white;">
          <children>
-            <ImageView fitHeight="50.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../assets/avatar2.png" />
-               </image>
+            <Button fx:id="avatar" disable="true" ellipsisString="" mnemonicParsing="false" prefHeight="52.0" prefWidth="52.0" style="-fx-background-radius: 100; -fx-border-radius: 100; -fx-background-color: #abc; -fx-font-size: 23px;">
                <HBox.margin>
-                  <Insets left="24.0" />
+                  <Insets left="12.0" right="4.0" />
                </HBox.margin>
-            </ImageView>
+            </Button>
             <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="4.0">
                <children>
                   <Text fx:id="username" strokeType="OUTSIDE" strokeWidth="0.0" text="User 1">
@@ -41,9 +38,9 @@
             </VBox>
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                <children>
-                  <Button fx:id="infoBtn" mnemonicParsing="false" style="-fx-padding: 0;">
+                  <Button fx:id="infoBtn" defaultButton="true" mnemonicParsing="false" style="-fx-padding: 0;">
                      <graphic>
-                        <ImageView fitHeight="37.0" fitWidth="29.0" opacity="0.31" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fitHeight="37.0" fitWidth="29.0" opacity="0.31" pickOnBounds="true" preserveRatio="true" smooth="false">
                            <image>
                               <Image url="@../../assets/3dot.png" />
                            </image>
@@ -78,7 +75,7 @@
                   <Font name="Chilanka Regular" size="13.0" />
                </font>
             </TextField>
-            <Button fx:id="submitBtn" mnemonicParsing="false" style="-fx-padding: 4px;">
+            <Button fx:id="submitBtn" defaultButton="true" mnemonicParsing="false" style="-fx-padding: 4px;">
                <graphic>
                   <ImageView fx:id="send" fitHeight="29.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true">
                      <image>

@@ -26,7 +26,7 @@ public class ChatItemChat extends ChatItem<Chat> {
         super(Config.CHAT_ITEM_PATH);
         this.setProps(chatRoom);
         this.name.setText(this.getProps().getUser2().getUsername());
-        // todo: generate round image base on this
+        this.setName(this.getProps().getUser2().getUsername());
     }
 
     @Override

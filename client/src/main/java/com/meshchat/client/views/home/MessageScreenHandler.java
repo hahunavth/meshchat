@@ -31,6 +31,9 @@ import java.util.List;
 public class MessageScreenHandler extends BaseScreenHandler implements LazyInitialize {
 
     @FXML
+    private Button avatar;
+
+    @FXML
     private VBox msgList;
     @FXML
     private ImageView send;
@@ -59,6 +62,7 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         this.viewModel = viewModel;
         msgList.heightProperty().addListener(observable -> scroll.setVvalue(1D));
         this.username.textProperty().bindBidirectional(this.viewModel.getName());
+        this.avatar.textProperty().bindBidirectional(this.viewModel.getName());
         // on change room update all
         this.viewModel.getRoomId().addListener((observable, oldValue, newValue) -> {
             this.onShow();
@@ -70,9 +74,9 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         });
         this.viewModel.getMsgList().addListener(this::onMsgListChange);
         // fixme: not working
-        this.infoBtn.setOnMouseClicked(this::onInfoBtnPressed);
+        this.infoBtn.setOnAction(this::onInfoBtnPressed);
         this.viewModel.setRoomInfoHandler(this::handleFetchRoomInfo);
-        this.submitBtn.setOnMouseClicked(this::onSubmit);
+        this.submitBtn.setOnAction(this::onSubmit);
         this.input.setOnAction(this::onSubmit);
     }
 
@@ -109,10 +113,11 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     }
 
     public void onInfoBtnPressed (Event event) {
+        System.out.println("Info btn pressed");
         if (this.viewModel.getType() == ChatRoomType.CHAT)
-            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.USER_INFO);
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.USER_INFO).show();
         else if (this.viewModel.getType() == ChatRoomType.CONV)
-            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.CONV_INFO);
+            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.CONV_INFO).show();
     }
 
     public void handleFetchRoomInfo(Event e) {
