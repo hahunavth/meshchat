@@ -53,11 +53,12 @@ public class SearchUserScreenHandler extends BaseScreenHandler {
 
         selectBtn.setOnAction(a -> {
             UserEntity selectedUser = usersTbl.getSelectionModel().getSelectedItem();
-            /* Return selected User to create conv screen or home screen */
+            viewModel.addSelectedUser(selectedUser);
+            viewModel.clearSelectUserViewModel();
         });
 
         cancelBtn.setOnAction(a -> {
-            /* Return to create conv screen or home screen */
+            viewModel.clearSelectUserViewModel();
         });
     }
 
@@ -76,5 +77,9 @@ public class SearchUserScreenHandler extends BaseScreenHandler {
     @Override
     public void onShow(){
 
+    }
+
+    public ISearchUserViewModel getViewModel(){
+        return viewModel;
     }
 }

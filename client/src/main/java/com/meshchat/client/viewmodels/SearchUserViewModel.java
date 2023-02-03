@@ -6,6 +6,7 @@ import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.DataStore;
 import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.viewmodels.interfaces.ISearchUserViewModel;
+import com.meshchat.client.views.base.SelectUserViewModel;
 
 import java.util.ArrayList;
 
@@ -14,6 +15,7 @@ public class SearchUserViewModel extends BaseViewModel implements ISearchUserVie
     public SearchUserViewModel(DataStore dataStore, TCPNativeClient client) {
         super(dataStore, client);
     }
+    private SelectUserViewModel selectUserViewModel = null;
 
     public ArrayList<UserEntity> handleSearch(String searchTxt, int limit, int offset){
         TCPNativeClient client = this.getTcpClient();
@@ -28,5 +30,18 @@ public class SearchUserViewModel extends BaseViewModel implements ISearchUserVie
             e.printStackTrace();
         }
         return res;
+    }
+
+    public void clearSelectUserViewModel() {
+        selectUserViewModel.clearSelectedUser();
+        selectUserViewModel = null;
+    }
+
+    public void setSelectUserViewModel(SelectUserViewModel viewModel){
+        selectUserViewModel = viewModel;
+    }
+
+    public void addSelectedUser(UserEntity user){
+        selectUserViewModel.addSelectedUser(user);
     }
 }
