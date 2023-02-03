@@ -6,6 +6,11 @@ import com.meshchat.client.viewmodels.CreateConvViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
+import com.meshchat.client.views.search.SearchUserScreenHandler;
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -48,7 +53,7 @@ public class CreateConvFormHandler extends BaseScreenHandler implements Initiali
         dialogScreenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
         createBtn.setOnAction((a)->{
             long conv_id = viewModel.handleCreate(gname.getText());
-            if(conv_id <0){
+            if(conv_id == 0){
                 dialogScreenHandler.getViewModel().setMessage("Cannot create conversation");
                 dialogScreenHandler.show();
             }
@@ -59,7 +64,8 @@ public class CreateConvFormHandler extends BaseScreenHandler implements Initiali
         });
 
         addBtn.setOnAction((a)->{
-            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_USER).show();
+            SearchUserScreenHandler screenHandler = (SearchUserScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_USER);
+            screenHandler.getViewModel().setSelectUserViewModel(this.viewModel);
         });
     }
 
@@ -73,7 +79,7 @@ public class CreateConvFormHandler extends BaseScreenHandler implements Initiali
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
 //        TableColumn<UserEntity, TextField> removeCol = new TableColumn<>();
         memberTbl.getColumns().addAll(idCol, phoneCol, emailCol);
-        memberTbl.setItems(viewModel.getSelectedUsers());
+        memberTbl.setItems(FXCollections.observableList(viewModel.getSelectedUsers()));
     }
 
     @Override

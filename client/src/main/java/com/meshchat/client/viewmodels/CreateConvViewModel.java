@@ -4,12 +4,15 @@ import com.meshchat.client.ModelSingleton;
 import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.net.client.TCPNativeClient;
+import com.meshchat.client.views.base.SelectMultipleUsersViewModel;
+import com.meshchat.client.views.base.SelectSingleUserViewModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
-public class CreateConvViewModel extends BaseViewModel{
+public class CreateConvViewModel extends BaseViewModel implements SelectMultipleUsersViewModel {
 
     private HashSet<UserEntity> selectedUsers;
 
@@ -31,11 +34,22 @@ public class CreateConvViewModel extends BaseViewModel{
         selectedUsers.add(user);
     }
 
-    public ObservableList<UserEntity> getSelectedUsers(){
-        ObservableList<UserEntity> ls = FXCollections.observableArrayList();
-        for(UserEntity u : selectedUsers){
-            ls.add(u);
-        }
-        return ls;
+    @Override
+    public ArrayList<UserEntity> getSelectedUsers() {
+        ArrayList<UserEntity> userls = new ArrayList<>();
+        selectedUsers.forEach(user->{
+            userls.add(user);
+        });
+        return userls;
+    }
+
+    @Override
+    public void addSelectedUser(UserEntity user) {
+        selectedUsers.add(user);
+    }
+
+    @Override
+    public void clearSelectedUser() {
+        selectedUsers.clear();
     }
 }
