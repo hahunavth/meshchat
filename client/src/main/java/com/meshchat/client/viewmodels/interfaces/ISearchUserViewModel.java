@@ -11,6 +11,7 @@ public interface ISearchUserViewModel {
     ArrayList<UserEntity> handleSearch(String searchTxt, int limit, int offset);
 
     // TODO: SelectSingleUserViewModel or SelectMultipleUsersViewModel ???
+    void handleCreateChat(UserEntity user);
     void setSelectUserViewModel(SelectUserViewModel viewModel);
     void clearSelectUserViewModel();
     void addSelectedUser(UserEntity user);

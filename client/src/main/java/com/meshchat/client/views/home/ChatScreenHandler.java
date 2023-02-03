@@ -91,7 +91,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
 
         newBtn.setOnMouseClicked((a) -> {
             if (chat.isSelected()) {
-                this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_USER).show();
+                this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_CHAT_USER).show();
             }
             else {
                 this.getNavigation().navigate(StackNavigation.WINDOW_LIST.CREATE_CONV).show();

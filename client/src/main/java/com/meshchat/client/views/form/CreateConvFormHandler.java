@@ -63,7 +63,7 @@ public class CreateConvFormHandler extends BaseScreenHandler {
         });
 
         addBtn.setOnAction((a)->{
-            SearchUserScreenHandler screenHandler = (SearchUserScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_USER);
+            SearchUserScreenHandler screenHandler = (SearchUserScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_CONV_USER);
             screenHandler.getViewModel().setSelectUserViewModel(this.viewModel);
         });
     }
@@ -78,6 +78,7 @@ public class CreateConvFormHandler extends BaseScreenHandler {
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
 //        TableColumn<UserEntity, TextField> removeCol = new TableColumn<>();
         memberTbl.getColumns().addAll(idCol, phoneCol, emailCol);
+        memberTbl.setItems(viewModel.getSelectedUsers());
         super.show();
     }
 

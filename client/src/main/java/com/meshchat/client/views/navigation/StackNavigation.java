@@ -27,6 +27,8 @@ public class StackNavigation extends FactoryBasedNavigation<StackNavigation.WIND
         LOGIN,
         SIGNUP,
         SEARCH_USER,
+        SEARCH_CHAT_USER,
+        SEARCH_CONV_USER,
         CREATE_CONV,
         CONV_INFO,
         USER_INFO,
