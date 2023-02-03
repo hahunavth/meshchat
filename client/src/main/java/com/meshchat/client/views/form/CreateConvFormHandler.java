@@ -63,7 +63,7 @@ public class CreateConvFormHandler extends BaseScreenHandler {
         });
 
         addBtn.setOnAction((a)->{
-            SearchUserScreenHandler screenHandler = (SearchUserScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_USER);
+            SearchUserScreenHandler screenHandler = (SearchUserScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_CONV_USER);
             screenHandler.getViewModel().setSelectUserViewModel(this.viewModel);
         });
     }

@@ -17,6 +17,14 @@ public class SearchUserViewModel extends BaseViewModel implements ISearchUserVie
     }
     private SelectUserViewModel selectUserViewModel = null;
 
+    public void handleCreateChat(UserEntity user){
+        try {
+            this.getTcpClient()._create_chat(user.getId());
+        } catch (APICallException e) {
+            e.printStackTrace();
+        }
+    }
+
     public ArrayList<UserEntity> handleSearch(String searchTxt, int limit, int offset){
         TCPNativeClient client = this.getTcpClient();
         ArrayList<UserEntity> res = new ArrayList<>();

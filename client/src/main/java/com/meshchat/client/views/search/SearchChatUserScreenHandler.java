@@ -24,7 +24,7 @@ public class SearchChatUserScreenHandler extends SearchUserScreenHandler {
 
         selectBtn.setOnAction(a -> {
             UserEntity selectedUser = usersTbl.getSelectionModel().getSelectedItem();
-            /* call library api to add selectedUser */
+            viewModel.handleCreateChat(selectedUser);
             this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME);
         });
 
