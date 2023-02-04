@@ -89,12 +89,12 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
         this.roomInfoHandler = roomInfoHandler;
     }
 
-    public void fetchMsgList() throws APICallException {
+    public void fetchMsgList(int limit, int offset) throws APICallException {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 msgListMap.removeAll(msgListMap);
-                List<Long> msgIdList = getTcpClient()._get_msg_all(type, room_id.intValue(), 10, 0);
+                List<Long> msgIdList = getTcpClient()._get_msg_all(type, room_id.intValue(), limit, offset);
                 System.out.println(msgIdList);
                 msgIdList.forEach(id -> {
                     MsgEntity msgEntity = null;

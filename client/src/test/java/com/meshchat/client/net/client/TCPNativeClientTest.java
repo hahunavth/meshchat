@@ -38,4 +38,9 @@ class TCPNativeClientTest {
         long [] ls = this.client._get_user_search("user", 10, 0);
         System.out.println(ls);
     }
+
+    @Test
+    void testGetConvInfo () {
+        this.client._get_conv_info(1);
+    }
 }

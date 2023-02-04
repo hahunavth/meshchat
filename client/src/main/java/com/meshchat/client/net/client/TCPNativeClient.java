@@ -265,12 +265,18 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         Conv conv = ds.getOConvMap().get(conv_id);
         if(conv == null){
             NativeLongByReference admin_id = new NativeLongByReference();
-            CharSequence gname = new StringBuffer();
-            int stt = this.lib._get_conv_info(this.lib.get_sockfd(), conv_id, admin_id, gname);
+            byte[] _gname = new byte[1000];
+            int stt = this.lib._get_conv_info(this.lib.get_sockfd(), conv_id, admin_id, _gname);
+            String gname = new String(_gname, StandardCharsets.UTF_8);
+            int nullIndex = gname.indexOf('\0');
+            if (nullIndex != -1) {
+                gname = gname.substring(0, nullIndex);
+            }
+            conv = new Conv();
             switch (stt){
                 case 200:
                     conv.setAdmin(_get_user_by_id(admin_id.intValue()));
-                    conv.setName(gname.toString());
+                    conv.setName(gname);
                     ds.addConv(conv_id, conv);
                     return conv;
                 default:

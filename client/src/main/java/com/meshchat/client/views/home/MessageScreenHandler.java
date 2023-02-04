@@ -5,7 +5,9 @@ import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.Message;
 import com.meshchat.client.net.client.ChatRoomType;
 import com.meshchat.client.utils.Config;
+import com.meshchat.client.utils.CustomUIBinding;
 import com.meshchat.client.viewmodels.interfaces.IMessageViewModel;
+import com.meshchat.client.viewmodels.interfaces.IPaginateViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
 import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.base.LazyInitialize;
@@ -14,9 +16,13 @@ import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.factories.MsgItemComponentFactory;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -49,35 +55,76 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     @FXML
     private Button infoBtn;
 
-    private IMessageViewModel viewModel;
-    private MsgItemComponentFactory msgItemComponentFactory;
-    private List<MsgItem> msgItemList = new ArrayList<>();
+    @FXML
+    private Button nextBtn;
+    @FXML
+    private Button prevBtn;
+
+
+    private final IMessageViewModel viewModel;
+    private IPaginateViewModel paginateViewModel;
+    private final MsgItemComponentFactory msgItemComponentFactory;
+    private final ObservableList<MsgItem> msgItemList;
 
     @Inject
-    public MessageScreenHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, IMessageViewModel viewModel) {
+    public MessageScreenHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, IMessageViewModel viewModel, IPaginateViewModel paginateViewModel) {
         super(Config.MSG_FLOW_PATH, navigation);
 
         // if add msg -> scroll to bottom
-        this.msgItemComponentFactory = new MsgItemComponentFactory();
-        this.viewModel = viewModel;
         msgList.heightProperty().addListener(observable -> scroll.setVvalue(1D));
+
+        // set vm
+        this.viewModel = viewModel;
+        this.paginateViewModel = paginateViewModel;
+
+        // binding
+        this.msgItemComponentFactory = new MsgItemComponentFactory();
         this.username.textProperty().bindBidirectional(this.viewModel.getName());
         this.avatar.textProperty().bindBidirectional(this.viewModel.getName());
-        // on change room update all
-        this.viewModel.getRoomId().addListener((observable, oldValue, newValue) -> {
-            this.onShow();
+        // bind msgItemList -> msgItemListNode
+        List<MsgItem> _msgItemList = new ArrayList<>();
+        msgItemList = FXCollections.observableArrayList(_msgItemList);
+        ObservableList<Node> msgNodeList = this.msgList.getChildren();
+        msgItemList.addListener(new CustomUIBinding<MsgItem, Node>(msgNodeList) {
+            @Override
+            public Node convert(MsgItem msgItem) {
+                return msgItem.getContent();
+            }
         });
-        //
+
+
+//        this.viewModel.getRoomId().addListener((observable, oldValue, newValue) -> {
+//            this.onShow();  // on change room update all
+//        });
+        // add msg if existed
         this.viewModel.getMsgList().forEach((item) -> {
             MsgItem msgItem = msgItemComponentFactory.getItem(item, this.viewModel.getCurrentUserId());
             addMsg(msgItem);
         });
+        // event
         this.viewModel.getMsgList().addListener(this::onMsgListChange);
-        // fixme: not working
         this.infoBtn.setOnAction(this::onInfoBtnPressed);
         this.viewModel.setRoomInfoHandler(this::handleFetchRoomInfo);
         this.submitBtn.setOnAction(this::onSubmit);
         this.input.setOnAction(this::onSubmit);
+        this.nextBtn.setOnMouseClicked((event -> {
+            try {
+                this.paginateViewModel.goToNextPage();
+                this.refreshMsgList();
+            } catch (Exception e) {
+                this.nextBtn.setVisible(false);
+            }
+            this.prevBtn.setVisible(true);
+        }));
+        this.prevBtn.setOnMouseClicked(event -> {
+            this.paginateViewModel.goToPrevPage();
+            try {
+                this.refreshMsgList();
+            } catch (APICallException e) {
+                    this.prevBtn.setVisible(false);
+            }
+            this.nextBtn.setVisible(true);
+        });
     }
 
     public void onMsgListChange(ListChangeListener.Change<? extends Message> e) {
@@ -122,12 +169,17 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     public void handleFetchRoomInfo(Event e) {
         try {
-            this.viewModel.fetchMsgList();
+            this.paginateViewModel.resetPage();
+            this.viewModel.fetchMsgList(this.paginateViewModel.getPageSize(), this.paginateViewModel.getOffset());
         } catch (APICallException ex) {
             DialogScreenHandler screenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
             screenHandler.getViewModel().setMessage(ex.getMessage());
             screenHandler.show();
         }
+    }
+
+    public void refreshMsgList() throws APICallException {
+        this.viewModel.fetchMsgList(this.paginateViewModel.getPageSize(), this.paginateViewModel.getOffset());
     }
 
     public void onSubmit(Event event) {
@@ -146,16 +198,10 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     protected void addMsg(MsgItem item) {
         this.msgItemList.add(item);
-        Platform.runLater(() -> {
-            this.msgList.getChildren().add(item.getContent());
-        });
+//        Platform.runLater(() -> {
+//            this.msgList.getChildren().add(item.getContent());
+//        });
     }
-
-
-//    public void addMsg (String content, Long from_uid, Long uid, Long msg_id) {
-//         TODO: handle msg id
-//        this.addMsg(new MsgItem(content, Objects.equals(from_uid, uid)));
-//    }
 
     public void disableMsg (Long msg_id) {
         // TODO: implement
@@ -177,10 +223,5 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     @Override
     public void onShow() {
-        try {
-        } catch (Exception e) {
-            e.printStackTrace();
-            // todo: dialog
-        }
     }
 }

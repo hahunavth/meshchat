@@ -40,6 +40,8 @@ import java.util.stream.Collectors;
 public class ChatScreenHandler extends BaseScreenHandler {
     @FXML
     private VBox chatList;
+    @FXML
+    private VBox convList;
 
     @FXML
     private TabPane tabPane;
@@ -53,6 +55,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
 
     private MessageScreenHandler messageScreenHandler;
     private ObservableList<ChatItem> chatItemList;
+    private ObservableList<ChatItem> convItemList;
     private IChatViewModel viewModel;
 
     @Inject
@@ -65,6 +68,15 @@ public class ChatScreenHandler extends BaseScreenHandler {
         chatItemList = FXCollections.observableArrayList(new ArrayList<>());
         ObservableList<Node> chatItemNodeList = this.chatList.getChildren();
         chatItemList.addListener(new CustomUIBinding<FXMLScreenHandler, Node>(chatItemNodeList) {
+            @Override
+            public Node convert(FXMLScreenHandler fxmlScreenHandler) {
+                return fxmlScreenHandler.getContent();
+            }
+        });
+        //
+        convItemList = FXCollections.observableArrayList(new ArrayList<>());
+        ObservableList<Node> convItemNodeList = this.convList.getChildren();
+        convItemList.addListener(new CustomUIBinding<FXMLScreenHandler, Node>(convItemNodeList) {
             @Override
             public Node convert(FXMLScreenHandler fxmlScreenHandler) {
                 return fxmlScreenHandler.getContent();
@@ -84,10 +96,18 @@ public class ChatScreenHandler extends BaseScreenHandler {
                 chat.id = key;
                 this.addChatItem(chat);
             } else if (e.wasRemoved()) {
-//                this.chatItemList.removeIf((chatItem) -> {
-//                    System.out.println(" " +  chatItem.getId().longValue()  + " +  " + e.getValueRemoved().id );
-//                    return chatItem.getId().equals(key);
-//                });
+            }
+        });
+        viewModel.getConvMap().forEach((id, conv) -> {
+            this.addChatItem(conv);
+        });
+        viewModel.getConvMap().addListener((MapChangeListener<? super Long, ? super Conv>) (e) -> {
+            Long key = e.getKey();
+            if (e.wasAdded()) {
+                Conv conv = e.getValueAdded();
+                conv.id = key;
+                this.addChatItem(conv);
+            } else if (e.wasRemoved()) {
             }
         });
 
@@ -105,12 +125,16 @@ public class ChatScreenHandler extends BaseScreenHandler {
         this.messageScreenHandler = messageScreenHandler;
     }
 
-    protected void addChatItem (ChatItem screenHandler) {
+    protected void addChatItem (ChatItemChat screenHandler) {
         this.chatItemList.add(screenHandler);
     }
 
+    protected void addChatItem (ChatItemConv screenHandler) {
+        this.convItemList.add(screenHandler);
+    }
+
     public void addChatItem(Conv chatRoom) {
-        ChatItem chatItem = new ChatItemConv(chatRoom);
+        ChatItemConv chatItem = new ChatItemConv(chatRoom);
         // TODO: implement this event
         chatItem.onClick((e) -> {
             System.out.println("Clicked");
@@ -120,7 +144,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
     }
 
     public void addChatItem(Chat chatRoom) {
-        ChatItem chatItem = new ChatItemChat(chatRoom);
+        ChatItemChat chatItem = new ChatItemChat(chatRoom);
         chatItem.onClick((e) -> {
             messageScreenHandler.getViewModel().setRoomInfo(ChatRoomType.CHAT, chatRoom.id, chatRoom);
         });

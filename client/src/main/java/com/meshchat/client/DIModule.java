@@ -32,5 +32,6 @@ public class DIModule extends AbstractModule{
         bind(ISearchUserViewModel.class).to(SearchUserViewModel.class);
         bind(ISignUpViewModel.class).to(SignUpViewModel.class);
         bind(IUserProfileViewModel.class).to(UserProfileViewModel.class);
+        bind(IPaginateViewModel.class).to(PaginateViewModel.class);
     }
 }

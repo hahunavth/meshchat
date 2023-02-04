@@ -21,6 +21,10 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
         return this.getDataStore().getOChatMap();
     }
 
+    public ObservableMap<Long, Conv> getConvMap() {
+        return this.getDataStore().getOConvMap();
+    }
+
     /**
      * Fetch chat list and add to DataStore
      */

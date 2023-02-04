@@ -15,7 +15,7 @@ public interface IMessageViewModel {
 
     void setRoomInfoHandler(EventHandler roomInfoHandler);
 
-    void fetchMsgList() throws APICallException;
+    void fetchMsgList(int limit, int offset) throws APICallException;
 
     void sendMsg(String msg) throws Exception;
 

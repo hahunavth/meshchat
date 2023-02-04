@@ -137,6 +137,13 @@ class CAPIServiceLibTest {
 //        System.out.println("msg_type: " + msg.msg_type.byteValue());
 //        MsgEntity msgEntity = new MsgEntity(msg);
 //        System.out.println(msgEntity);
+    }
 
+    @Test
+    void testGetConvInfo() {
+//        this.lib._login(this.lib.get_sockfd(), "user_1", "pass");
+//        NativeLongByReference admin_id = new NativeLongByReference();
+//        CharSequence gname = new StringBuffer();
+//        int stt = this.lib._get_conv_info(this.lib.get_sockfd(), 1, admin_id, gname);
     }
 }

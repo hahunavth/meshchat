@@ -56,4 +56,14 @@ public class SearchUserViewModel extends BaseViewModel implements ISearchUserVie
     public void addSelectedUser(UserEntity user){
         selectUserViewModel.addSelectedUser(user);
     }
+
+    @Override
+    public void clearSelectedUser() {
+
+    }
+
+    @Override
+    public UserEntity getSelectedUser() {
+        return null;
+    }
 }
