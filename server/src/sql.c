@@ -759,7 +759,7 @@ void msg_delivered(sqlite3 *db, uint32_t msg_id, int *lastrc)
 {
 	char query[QUERY_SMALL];
 	memset(query, 0, QUERY_SMALL);
-	snprintf(query, QUERY_SMALL, "UPDATE messages type=%d WHERE id=%" PRIu32 ";", MSG_DELIVERED, msg_id);
+	snprintf(query, QUERY_SMALL, "UPDATE messages SET type=%d WHERE id=%" PRIu32 ";", MSG_DELIVERED, msg_id);
 
 	int rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	if (rc != SQLITE_OK)
