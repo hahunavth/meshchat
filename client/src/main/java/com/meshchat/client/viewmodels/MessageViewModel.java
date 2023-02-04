@@ -17,6 +17,12 @@ import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class MessageViewModel extends BaseViewModel implements IMessageViewModel {
     private ChatRoomType type;
@@ -29,16 +35,8 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
     @Inject
     public MessageViewModel(@IDataSource DataStore dataStore, @ITCPService TCPNativeClient client) {
         super(dataStore, client);
-    }
 
-//    public ChatGen getChatGen() {
-//        if(type==ChatRoomType.CONV)
-//            return this.getDataStore().getOConvMap().get(room_id.get());
-//        else if(type == ChatRoomType.CHAT)
-//            return this.getDataStore().getOChatMap().get(room_id.get());
-//        else
-//            throw new Error("Not implemented");
-//    }
+    }
 
     public void removeListenerFromChatOrConv () {
         if (this.newMsgListener != null) {
@@ -83,6 +81,7 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
             System.out.println("Handle set room info");
             this.roomInfoHandler.handle(null);
         }
+
     }
 
     public void setRoomInfoHandler(EventHandler roomInfoHandler) {
@@ -112,6 +111,37 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
         };
         Thread thread = new Thread(task);
         thread.start();
+    }
+
+    /**
+     * polling
+     * @param limit
+     * @param offset
+     * @throws APICallException
+     */
+    @Override
+    public void notifyMsgList(int limit, int offset) throws APICallException {
+        List<Long> newLs = this.getTcpClient().notifyNewMsg();
+//        List<Long> delLs = this.getTcpClient().notifyDeleteMsg(type, this.room_id.get());
+        System.out.println("notify pooling ");
+        // remove notify flag
+        newLs.forEach((id) -> {
+            try {
+                this.getTcpClient()._get_msg_detail(id);
+            } catch (APICallException e) {
+                throw new RuntimeException(e);
+            }
+        });
+//        delLs.forEach((id) -> {
+//            try {
+//                this.getTcpClient()._get_msg_detail(id);
+//            } catch (APICallException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+
+        if(newLs.size() > 0)
+            this.fetchMsgList(limit, offset);
     }
 
     public void sendMsg(String msg) throws Exception {

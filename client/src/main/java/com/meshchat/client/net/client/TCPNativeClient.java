@@ -136,7 +136,6 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             default:
                 throw new APICallException(stt, "Cannot register");
         }
-
     }
 
     public boolean _login(String uname, String pass) {
@@ -291,8 +290,6 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return stt == 200;
     }
 
-
-
     public Message _send_msg(ChatRoomType type, long room_id, long replyTo, String msg) throws Exception {
         long conv_id = 0;
         long chat_id = 0;
@@ -330,6 +327,9 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             case CONV -> {
                 conv_id = roomId;
             }
+            default -> {
+                throw new RuntimeException("Not implemented");
+            }
         }
 
         int stt = 0;
@@ -352,13 +352,6 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
 
         return Arrays.stream(idls).limit(_len.intValue()).boxed().toList();
-//        List<Long> _idls = new ArrayList<>();
-//        for(int i = 0; i < idls.length; i++) {
-//            if (idls[i] < 0)
-//                break;
-//            _idls.add(idls[i]);
-//        }
-//        return _idls;
     }
 
     public MsgEntity _get_msg_detail(long msg_id) throws APICallException {
@@ -402,6 +395,62 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             default:
                 throw new APICallException(stt, "Cannot get msg detail");
         }
+    }
 
+    public void deleteMsg(long msg_id) throws APICallException {
+        int stt = this.lib._delete_msg(this.lib.get_sockfd(), msg_id);
+
+        switch (stt) {
+            case 200:
+                return;
+            default:
+                throw new APICallException(stt, "Notify new failed");
+        }
+    }
+
+    public List<Long> notifyDeleteMsg(ChatRoomType type, long roomId) throws APICallException {
+        long chatId = 0;
+        long convId = 0;
+        switch (type) {
+            case CHAT -> {
+                chatId = roomId;
+            }
+            case CONV -> {
+                convId = roomId;
+            }
+            default -> {
+                throw new RuntimeException("Not implemented");
+            }
+        }
+        long[] idls = new long[2048];
+        NativeLongByReference _len = new NativeLongByReference();
+        int stt = this.lib._notify_del_msg(
+                this.lib.get_sockfd(),
+                convId, chatId,
+                idls, _len
+                );
+
+        switch (stt) {
+            case 200:
+                return Arrays.stream(idls).limit(_len.intValue()).boxed().toList();
+            default:
+                throw new APICallException(stt, "Notify new failed");
+        }
+    }
+
+    public List<Long> notifyNewMsg() throws APICallException {
+        long[] idls = new long[2048];
+        NativeLongByReference _len = new NativeLongByReference();
+        int stt = this.lib._notify_new_msg(
+                this.lib.get_sockfd(),
+                idls, _len
+        );
+
+        switch (stt) {
+            case 200:
+                return Arrays.stream(idls).limit(_len.intValue()).boxed().toList();
+            default:
+                throw new APICallException(stt, "Notify new failed");
+        }
     }
 }

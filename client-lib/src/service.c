@@ -645,7 +645,7 @@ int _delete_msg(const int sockfd, const uint32_t msg_id)
   FREE_AND_RETURN_STT(res);
 }
 
-int _notify_new_msg(const int sockfd, const uint32_t user_id, uint32_t *_idls, uint32_t *_len)
+int _notify_new_msg(const int sockfd, uint32_t *_idls, uint32_t *_len)
 {
   make_request_msg_notify_new(_get_token(), _get_uid(), buf);
 

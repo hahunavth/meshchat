@@ -2,6 +2,7 @@ package com.meshchat.client.views.base;
 
 import com.meshchat.client.model.Chat;
 import com.meshchat.client.views.home.ChatScreenHandler;
+import com.meshchat.client.views.home.MessageScreenHandler;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -55,7 +56,7 @@ public abstract class BaseLayout<T> extends BaseScreenHandler{
      */
     public void addSessionContent(T key, FXMLScreenHandler screenHandler) {
         this.getSessionContainer(key).getChildren().add(screenHandler.getContent());
-        if (screenHandler instanceof ChatScreenHandler)
+        if (screenHandler instanceof ChatScreenHandler || screenHandler instanceof MessageScreenHandler)
             lazyShowList.add((LazyInitialize) screenHandler);
     }
 

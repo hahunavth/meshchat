@@ -93,6 +93,6 @@ public interface CAPIServiceLib {
     int _send_msg_text(@In int sockfd, @In @u_int32_t long conv_id, @In @u_int32_t long chat_id, @In @u_int32_t long reply_to, @In CharSequence msg, @Out @u_int32_t NativeLongByReference _msg_id);
      int _delete_msg(@In int sockfd, @In @u_int32_t long msg_id);
      // notify
-     int _notify_new_msg(@In int sockfd, @In @u_int32_t long user_id, @Out @u_int32_t long[] _idls, @Out @u_int32_t NativeLongByReference _len);
-     int _notify_del_msg(@In int sockfd, @In @u_int32_t long conv_id, @In @u_int32_t long chat_id, @Out @u_int32_t long[] _idls, @Out @u_int32_t NativeLongByReference _len);
+     int _notify_new_msg(@In int sockfd, @Out @u_int32_t long[] _idls, @Out @u_int32_t NativeLongByReference _len);
+     int _notify_del_msg(@In int sockfd, @In @u_int32_t long conv_id, @In @u_int32_t long chat_id, @Out @u_int32_t long[] _idls, @Out NativeLongByReference _len);
 }

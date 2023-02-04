@@ -33,6 +33,9 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MessageScreenHandler extends BaseScreenHandler implements LazyInitialize {
 
@@ -92,7 +95,6 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
             }
         });
 
-
 //        this.viewModel.getRoomId().addListener((observable, oldValue, newValue) -> {
 //            this.onShow();  // on change room update all
 //        });
@@ -130,7 +132,6 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     public void onMsgListChange(ListChangeListener.Change<? extends Message> e) {
         while (e.next()) {
             if (e.wasAdded()) {
-                System.out.println("add");
                 List<Message> ins = (List<Message>) e.getAddedSubList();
                 ins.forEach(item -> {
                     MsgItem msgItem = msgItemComponentFactory.getItem(item, this.viewModel.getCurrentUserId());
@@ -198,9 +199,6 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     protected void addMsg(MsgItem item) {
         this.msgItemList.add(item);
-//        Platform.runLater(() -> {
-//            this.msgList.getChildren().add(item.getContent());
-//        });
     }
 
     public void disableMsg (Long msg_id) {
@@ -221,7 +219,27 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         this.stage = stage;
     }
 
+
+    private ScheduledExecutorService executor;
+
     @Override
     public void onShow() {
+        System.out.println("showwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+        executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(() -> {
+            // NOTE: HARDCODE LIMIT AND OFFSET HERE
+            try {
+                this.paginateViewModel.resetPage();
+                this.viewModel.notifyMsgList(this.paginateViewModel.getPageSize(), this.paginateViewModel.getOffset());
+            } catch (APICallException e) {
+                throw new RuntimeException(e);
+            }
+        }, 0, 5000, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        this.onShow();
     }
 }

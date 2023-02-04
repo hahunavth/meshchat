@@ -43,4 +43,25 @@ class TCPNativeClientTest {
     void testGetConvInfo () {
         this.client._get_conv_info(1);
     }
+
+    @Test
+    void testNotifyNew() throws APICallException {
+        List<Long> ls1 = this.client.notifyNewMsg();
+
+        System.out.println("Msg id: " + ls1.get(1));
+        System.out.println(this.client._get_msg_detail(ls1.get(1)));
+
+        List<Long> ls2 = this.client.notifyNewMsg();
+        assertNotEquals(ls1, ls2);
+    }
+
+    @Test
+    void testNotifyDelete() throws APICallException {
+        this.client.deleteMsg(2);
+        System.out.println(this.client._get_msg_detail(1));
+        List<Long> ls1 = this.client.notifyDeleteMsg(ChatRoomType.CHAT, 1);
+        System.out.println(ls1);
+        assertFalse(ls1.contains(1L));
+    }
+
 }

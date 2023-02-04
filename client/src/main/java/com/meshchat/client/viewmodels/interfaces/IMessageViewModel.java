@@ -17,6 +17,8 @@ public interface IMessageViewModel {
 
     void fetchMsgList(int limit, int offset) throws APICallException;
 
+    void notifyMsgList(int limit, int offset) throws APICallException;
+
     void sendMsg(String msg) throws Exception;
 
     ObservableList<Message> getMsgList();

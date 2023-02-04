@@ -22,7 +22,7 @@ int main()
 
   // notify new msg -> len = 0
   DIVIDER();
-  stt = _notify_new_msg(get_sockfd(), _get_uid(), (uint32_t *)&idls, &idls_len);
+  stt = _notify_new_msg(get_sockfd(), (uint32_t *)&idls, &idls_len);
   assert(stt == 200);
   assert(idls_len == 0);
   SUCCESS("notify_new_msg no new msg:200 pass");
@@ -54,7 +54,7 @@ int main()
 
   // notify new msg -> len = 1
   DIVIDER();
-  stt = _notify_new_msg(get_sockfd(), _get_uid(), (uint32_t *)&idls, &idls_len);
+  stt = _notify_new_msg(get_sockfd(), (uint32_t *)&idls, &idls_len);
   assert(stt == 200);
   assert(idls_len == 2);
   assert(idls[0] == msg2_id);
