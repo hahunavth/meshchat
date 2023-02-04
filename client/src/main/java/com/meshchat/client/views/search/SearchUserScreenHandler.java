@@ -16,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SearchUserScreenHandler extends BaseScreenHandler {
 
@@ -43,10 +44,11 @@ public class SearchUserScreenHandler extends BaseScreenHandler {
         super(Config.SEARCH_USER_PATH, navigation);
 
         this.viewModel = viewModel;
-        searchBtn.setOnAction(a -> {
+
+        searchBtn.setOnMouseClicked(a -> {
             String searchTxt = searchField.getText();
             if(searchTxt.length() == 0) return;
-            ArrayList<UserEntity> searchRes = viewModel.handleSearch(searchTxt, 0, 20);
+            List<UserEntity> searchRes = viewModel.handleSearch(searchTxt, 20, 0);
             usersTbl.getItems().clear();
             usersTbl.getItems().addAll(searchRes);
         });

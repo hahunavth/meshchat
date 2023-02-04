@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.meshchat.client.db.entities.UserEntity;
 import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.DataStore;
+import com.meshchat.client.model.UserProfile;
 import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.viewmodels.interfaces.ISearchUserViewModel;
 import com.meshchat.client.views.base.SelectUserViewModel;
@@ -31,7 +32,10 @@ public class SearchUserViewModel extends BaseViewModel implements ISearchUserVie
         try {
             long[] ls = client._get_user_search(searchTxt, limit, offset);
             for(long id : ls){
-                res.add(client._get_user_by_id(id));
+                // fixme: sometime fn return null
+                UserEntity ue = client._get_user_by_id(id);
+                if (ue != null)
+                    res.add(ue);
             }
             return res;
         } catch (APICallException e) {

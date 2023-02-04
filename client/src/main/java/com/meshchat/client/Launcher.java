@@ -31,6 +31,7 @@ public class Launcher extends Application {
                         StackNavigation navigation = injector.getInstance(StackNavigation.class);
                         // init
                         notifyProcess(0.1);     // set progress bar
+
                         // add navigation option
                         notifyProcess(0.2);
                         navigation.addScreenFactory(StackNavigation.WINDOW_LIST.HOME, new HomeWindowFactory());
@@ -41,16 +42,20 @@ public class Launcher extends Application {
                         navigation.addScreenFactory(StackNavigation.WINDOW_LIST.CONV_INFO, new ConvInfoWindowFactory());
                         navigation.addScreenFactory(StackNavigation.WINDOW_LIST.USER_INFO, new UserProfileScreenFactory());
                         navigation.addScreenFactory(StackNavigation.WINDOW_LIST.DIALOG, new DialogScreenFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.SEARCH_CHAT_USER, new SearchChatUserWindowFactory());
+                        navigation.addScreenFactory(StackNavigation.WINDOW_LIST.SEARCH_CONV_USER, new SearchConvUserWindowFactory());
+
+                        // preload screen
                         notifyProcess(0.3);
                         navigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SEARCH_USER);
                         notifyProcess(0.4);
                         navigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.SIGNUP);
-                        // preload screen
                         notifyProcess(0.6);
                         navigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.LOGIN);
                         notifyProcess(0.8);
                         navigation.preloadScreenHandler(StackNavigation.WINDOW_LIST.HOME);
-                        //
+
+                        // done
                         notifyProcess(1);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -83,11 +88,7 @@ public class Launcher extends Application {
 
         try {
             StackNavigation navigation = injector.getInstance(StackNavigation.class);
-            // close all on exit app
-//            stage.setOnCloseRequest((event -> {
-//                Platform.exit();
-//                System.exit(0);
-//            }));
+
             stage.close();
 
             // After the app is ready, show the stage

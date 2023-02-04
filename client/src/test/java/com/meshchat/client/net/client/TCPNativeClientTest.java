@@ -14,8 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * NOTE: run seed first
  */
 class TCPNativeClientTest {
-    @Inject
-    public TCPNativeClient client;
+    public TCPNativeClient client = new TCPNativeClient("127.0.0.1", 9000);
     @BeforeEach
     void setUp() {
         client.initClient("127.0.0.1", 9000);
@@ -32,5 +31,11 @@ class TCPNativeClientTest {
     void testGetMsgDetailRaw() throws APICallException {
         MsgEntity msg = this.client._get_msg_detail(3);
         System.out.println(msg);
+    }
+
+    @Test
+    void testSearchUserList () throws APICallException {
+        long [] ls = this.client._get_user_search("user", 10, 0);
+        System.out.println(ls);
     }
 }

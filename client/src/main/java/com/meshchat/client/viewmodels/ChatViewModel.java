@@ -26,11 +26,11 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
      */
     @Override
     public void fetchChatList() {
+        this.getDataStore().getOChatMap().forEach((i, j) -> this.getDataStore().getOChatMap().remove(i));
+
         List<Long> chatIdls = this.getTcpClient()._get_chat_list();
         System.out.println("Chat list: " + chatIdls);
-        this.getDataStore().getOChatMap().forEach((i, c) -> {
-            this.getDataStore().getOChatMap().remove(i);
-        });
+
         chatIdls.forEach((chatId) -> {
             try {
                 Chat chat = this.getTcpClient()._get_chat_info(chatId);
@@ -43,11 +43,11 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
 
     @Override
     public void fetchConvList() {
+        this.getDataStore().getOConvMap().forEach((i, j) -> this.getDataStore().getOConvMap().remove(i));
+
         List<Long> convIdls = this.getTcpClient()._get_conv_list();
         System.out.println("conv list: " + convIdls);
-        this.getDataStore().getOConvMap().forEach((i, c) -> {
-            this.getDataStore().getOConvMap().remove(i);
-        });
+
         convIdls.forEach((chatId) -> {
             try {
                 Conv conv = this.getTcpClient()._get_conv_info(chatId);

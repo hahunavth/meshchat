@@ -1,6 +1,7 @@
 package com.meshchat.client;
 
 import com.google.inject.Inject;
+import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.net.client.ChatRoomType;
 import com.meshchat.client.net.client.TCPNativeClient;
 import org.junit.jupiter.api.AfterEach;
@@ -30,11 +31,10 @@ public class Seed {
      * 0 < * < 100 <br>
      */
     @Test
-    void createAcc () {
+    void createAcc () throws APICallException {
         boolean ret;
         for(int i = 0; i < 100; i++) {
-            ret = client._register("user_" + i, "pass" + i, "0987654321", "a" + i + "@b.c");
-            assertTrue(ret);
+            client._register("user_" + i, "pass" + i, "0987654321", "a" + i + "@b.c");
         }
     }
 

@@ -15,6 +15,7 @@ module com.meshchat.client {
 
     requires com.google.guice;
 
+    opens com.meshchat.client.db.entities to javafx.base;
     opens com.meshchat.client.net.client to com.google.guice;
     opens com.meshchat.client to javafx.fxml, com.google.guice;
     opens com.meshchat.client.viewmodels to javafx.fxml, com.google.guice;

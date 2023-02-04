@@ -26,7 +26,7 @@ public class CreateConvViewModel extends BaseViewModel implements ICreateConvVie
         try {
             conv_id =  client._create_conv(gname);
             for(UserEntity u : selectedUsers){
-                client._conv_join(conv_id, u.getId());
+                client._conv_join(conv_id, this.getTcpClient().get_uid());
             }
         } catch (APICallException e) {
             e.printStackTrace();

@@ -30,6 +30,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +52,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
     private Button newBtn;
 
     private MessageScreenHandler messageScreenHandler;
-    private ObservableList<FXMLScreenHandler> chatItemList;
+    private ObservableList<ChatItem> chatItemList;
     private IChatViewModel viewModel;
 
     @Inject
@@ -81,11 +82,12 @@ public class ChatScreenHandler extends BaseScreenHandler {
             if (e.wasAdded()) {
                 Chat chat = e.getValueAdded();
                 chat.id = key;
-                System.out.println(chat.id);
                 this.addChatItem(chat);
             } else if (e.wasRemoved()) {
-                // TODO: IMPL
-//                this.removeChatItem(key, MessageViewModel.Type.CHAT);
+//                this.chatItemList.removeIf((chatItem) -> {
+//                    System.out.println(" " +  chatItem.getId().longValue()  + " +  " + e.getValueRemoved().id );
+//                    return chatItem.getId().equals(key);
+//                });
             }
         });
 
@@ -103,7 +105,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
         this.messageScreenHandler = messageScreenHandler;
     }
 
-    protected void addChatItem (FXMLScreenHandler screenHandler) {
+    protected void addChatItem (ChatItem screenHandler) {
         this.chatItemList.add(screenHandler);
     }
 
@@ -119,7 +121,6 @@ public class ChatScreenHandler extends BaseScreenHandler {
 
     public void addChatItem(Chat chatRoom) {
         ChatItem chatItem = new ChatItemChat(chatRoom);
-        // TODO: implement this event
         chatItem.onClick((e) -> {
             messageScreenHandler.getViewModel().setRoomInfo(ChatRoomType.CHAT, chatRoom.id, chatRoom);
         });

@@ -59,12 +59,14 @@ public class CreateConvFormHandler extends BaseScreenHandler {
         viewModel = Launcher.injector.getInstance(CreateConvViewModel.class);
 
         cancelBtn.setOnAction((a)->{
-            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.HOME).show();
+            this.getNavigation().goBack().show();
         });
 
         addBtn.setOnAction((a)->{
+            // createConvFormHandler to SearchConvUser
             SearchUserScreenHandler screenHandler = (SearchUserScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.SEARCH_CONV_USER);
             screenHandler.getViewModel().setSelectUserViewModel(this.viewModel);
+            screenHandler.show();
         });
     }
 

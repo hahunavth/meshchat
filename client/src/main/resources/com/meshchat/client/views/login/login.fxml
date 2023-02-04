@@ -68,8 +68,8 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="username" prefHeight="25.0" prefWidth="175.0" promptText="Username" GridPane.columnIndex="1" />
-                              <TextField fx:id="password" prefHeight="25.0" prefWidth="175.0" promptText="Password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <TextField fx:id="username" prefHeight="25.0" prefWidth="175.0" promptText="Username" text="user_1" GridPane.columnIndex="1" />
+                              <TextField fx:id="password" prefHeight="25.0" prefWidth="175.0" promptText="Password" text="pass" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
                      </content>

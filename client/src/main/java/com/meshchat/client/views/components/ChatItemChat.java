@@ -36,7 +36,8 @@ public class ChatItemChat extends ChatItem<Chat> {
 
     // getter
     public Long getId() {
-        return this.getProps().getUser2().getId();
+        return this.getProps().id;
+//        return this.getProps().getUser2().getId();
     }
 
     // set event
