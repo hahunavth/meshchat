@@ -31,10 +31,16 @@ public class HomeWindowFactory implements ScreenFactory<BaseScreenHandler> {
         layout.addSessionContent(TabsLayout.Sessions.TAB, navigation);
 
         HomeScreenHandler homeScreenHandler = new HomeScreenFactory().getScreenHandler();
+        UserProfileScreenHandler userProfileScreenHandler = Launcher.injector.getInstance(UserProfileScreenHandler.class);
+        userProfileScreenHandler.getViewModel().setUserId(
+                userProfileScreenHandler.getViewModel().getCurrentUserId()
+        );
+
         layout.lazyShowList.add(homeScreenHandler);
+        layout.lazyShowList.add(userProfileScreenHandler);
 
         navigation.addScreenHandler(Config.MSG_ICON_PATH, homeScreenHandler);
-        navigation.addScreenHandler(Config.USER_PROFILE_ICON_PATH, Launcher.injector.getInstance(UserProfileScreenHandler.class));
+        navigation.addScreenHandler(Config.USER_PROFILE_ICON_PATH, userProfileScreenHandler);
 //        navigation.addScreenHandler(Config.SETTING_ICON_PATH, Launcher.injector.getInstance(SettingDetailsScreenHandler.class));
 
         return layout;

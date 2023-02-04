@@ -156,7 +156,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
 
     public UserEntity _get_user_by_id(long uid){
         UserProfile up = ds.getUserProfileCache().get(uid);
-        if (up == null){
+        if (up == null) {
             ResponseUser ru = new ResponseUser(this.rt);
             int stt = this.lib._get_user_info(this.lib.get_sockfd(), uid, ru);
             switch (stt){
@@ -164,12 +164,12 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
                     up = new UserProfile(uid, ru.uname.get(), null, ru.phone.get(), ru.email.get());
                     ds.addUserProfileCache(up);
                     return up.getEntity();
-    //            case 404:
-    //                break;
                 default:
+                    return null;
             }
+        } else {
+            return up.getEntity();
         }
-        return null;
     }
 
     public long[] _get_user_search(String searchTxt, int limit, int offset) throws APICallException{

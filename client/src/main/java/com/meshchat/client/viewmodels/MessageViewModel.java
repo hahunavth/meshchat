@@ -17,12 +17,6 @@ import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class MessageViewModel extends BaseViewModel implements IMessageViewModel {
     private ChatRoomType type;
@@ -32,11 +26,13 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
     private MapChangeListener<Long, Message> newMsgListener;
     private EventHandler roomInfoHandler;
 
+
     @Inject
     public MessageViewModel(@IDataSource DataStore dataStore, @ITCPService TCPNativeClient client) {
         super(dataStore, client);
 
     }
+
 
     public void removeListenerFromChatOrConv () {
         if (this.newMsgListener != null) {
@@ -166,6 +162,7 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
     public StringProperty getName() {
         return this.name;
     }
+
     public long getCurrentUserId() {
         return this.getTcpClient().get_uid();
     }

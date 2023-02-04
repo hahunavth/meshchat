@@ -14,6 +14,7 @@ import com.meshchat.client.views.base.LazyInitialize;
 import com.meshchat.client.views.components.MsgItem;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.factories.MsgItemComponentFactory;
+import com.meshchat.client.views.form.UserProfileScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleListProperty;
@@ -162,8 +163,11 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     public void onInfoBtnPressed (Event event) {
         System.out.println("Info btn pressed");
-        if (this.viewModel.getType() == ChatRoomType.CHAT)
-            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.USER_INFO).show();
+        if (this.viewModel.getType() == ChatRoomType.CHAT) {
+            UserProfileScreenHandler userProfileScreenHandler = (UserProfileScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.USER_INFO);
+            userProfileScreenHandler.getViewModel().setUserId(this.viewModel.getRoomId().get());
+            userProfileScreenHandler.show();
+        }
         else if (this.viewModel.getType() == ChatRoomType.CONV)
             this.getNavigation().navigate(StackNavigation.WINDOW_LIST.CONV_INFO).show();
     }

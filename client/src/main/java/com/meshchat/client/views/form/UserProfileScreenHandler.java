@@ -14,7 +14,7 @@ import javafx.scene.control.Label;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class UserProfileScreenHandler extends BaseScreenHandler implements Initializable {
+public class UserProfileScreenHandler extends BaseScreenHandler {
 
     @FXML
     private Label uname;
@@ -32,19 +32,30 @@ public class UserProfileScreenHandler extends BaseScreenHandler implements Initi
         super(Config.USER_PROFILE_PATH, navigation);
 
         this.viewModel = viewModel;
-        UserEntity user = viewModel.getUserEntity();
-        uname.setText(user.getUsername());
-        phone.setText(user.getPhone());
-        email.setText(user.getEmail());
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
+    public IUserProfileViewModel getViewModel() {
+        return this.viewModel;
     }
+
+
 
     @Override
     public void onShow() {
+        long userId = this.viewModel.getUserId();
+        if (userId == 0) {
+            userId = this.viewModel.getCurrentUserId();
+        }
+        UserEntity user =
+                this.viewModel.fetchUserProfile(userId);
+        uname.textProperty().bind(user.usernameProperty());
+        phone.textProperty().bind(user.phoneProperty());
+        email.textProperty().bind(user.emailProperty());
+    }
 
+    @Override
+    public void show() {
+        super.show();
+        this.onShow();
     }
 }
