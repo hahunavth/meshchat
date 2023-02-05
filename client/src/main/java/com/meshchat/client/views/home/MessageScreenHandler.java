@@ -102,7 +102,7 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 //        });
         // add msg if existed
         this.viewModel.getMsgList().forEach((item) -> {
-            MsgItem msgItem = msgItemComponentFactory.getItem(item, this.viewModel.getCurrentUserId());
+            MsgItem msgItem = msgItemComponentFactory.getItem(this.viewModel.getType(), item, this.viewModel.getCurrentUserId());
             addMsg(msgItem);
         });
         // event
@@ -136,7 +136,7 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
             if (e.wasAdded()) {
                 List<Message> ins = (List<Message>) e.getAddedSubList();
                 ins.forEach(item -> {
-                    MsgItem msgItem = msgItemComponentFactory.getItem(item, this.viewModel.getCurrentUserId());
+                    MsgItem msgItem = msgItemComponentFactory.getItem(this.viewModel.getType(), item, this.viewModel.getCurrentUserId());
                     addMsg(msgItem);
                 });
             }

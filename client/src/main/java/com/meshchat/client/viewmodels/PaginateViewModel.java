@@ -41,7 +41,7 @@ public class PaginateViewModel implements IPaginateViewModel {
 
     @Override
     public void goToNextPage() throws Exception {
-        if (page.get() > 1)
+        if (page.get() >= 1)
             this.page.set(this.page.get() - 1);
         else
             throw new Exception("Cannot go to page < 1");
