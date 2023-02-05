@@ -12,17 +12,22 @@ import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConvInfoScreenHandler extends BaseScreenHandler {
+
+    @FXML
+    private Text title;
 
     @FXML
     private TextField gname;
@@ -47,6 +52,11 @@ public class ConvInfoScreenHandler extends BaseScreenHandler {
 
         this.viewModel = viewModel;
 
+        this.title.setText("Conversation info");
+        this.gname.setDisable(true);
+        this.cancelBtn.setOnAction(this::goBack);
+        this.createBtn.setText("Ok");
+
         TableColumn<UserEntity, Long> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         TableColumn<UserEntity, TextField> nameCol = new TableColumn<>("Name");
@@ -56,11 +66,15 @@ public class ConvInfoScreenHandler extends BaseScreenHandler {
         TableColumn<UserEntity, TextField> emailCol = new TableColumn<>("email");
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
 //        TableColumn<UserEntity, TextField> removeCol = new TableColumn<>();
-        memberTbl.getColumns().addAll(idCol, phoneCol, emailCol);
+        memberTbl.getColumns().addAll(idCol, nameCol, phoneCol, emailCol);
     }
 
     public IConvInfoViewModel getViewModel() {
         return viewModel;
+    }
+
+    public void goBack(Event e) {
+        this.getNavigation().goBack().show();
     }
 
     @Override

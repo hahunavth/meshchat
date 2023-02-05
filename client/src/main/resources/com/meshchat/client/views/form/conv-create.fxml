@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox prefHeight="530.0" prefWidth="694.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="530.0" prefWidth="694.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="720.0" prefWidth="694.0" style="-fx-background-color: #f8f8fa;">
          <children>
-            <Text layoutX="47.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Create group chat">
+            <Text fx:id="title" layoutX="47.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Create group chat">
                <font>
                   <Font name="Comic Sans MS" size="24.0" />
                </font>
