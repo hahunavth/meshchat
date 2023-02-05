@@ -238,7 +238,7 @@ void response_parse_msg(response *res, const char *body)
 		rm->msg_type = body[24];
 		rm->content_type = body[25];
 		rm->content_length = parse_uint32_from_buf(body + 26);
-		rm->msg_content = string_new_n(body + 30, header->body_len - 20);
+		rm->msg_content = string_new_n(body + 30, header->body_len - 30);
 		break;
 	case 0x02:
 		rm->msg_id = parse_uint32_from_buf(body);
