@@ -6,6 +6,7 @@ import com.meshchat.client.model.Conv;
 import com.meshchat.client.model.DataStore;
 import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.viewmodels.interfaces.IChatViewModel;
+import javafx.application.Platform;
 import javafx.collections.ObservableMap;
 
 import java.util.ArrayList;
@@ -33,7 +34,13 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
      */
     @Override
     public void fetchChatList() {
-        this.getDataStore().getOChatMap().forEach((i, j) -> this.getDataStore().getOChatMap().remove(i));
+        try {
+        this.getDataStore().getOChatMap().forEach((i, j) -> {
+            Platform.runLater(() -> {
+                this.getDataStore().getOChatMap().remove(i);
+            });
+        });
+        } catch (Exception e) {}
 
         List<Long> chatIdls = new ArrayList<>(this.getTcpClient()._get_chat_list());
         Collections.sort(chatIdls, Comparator.reverseOrder());

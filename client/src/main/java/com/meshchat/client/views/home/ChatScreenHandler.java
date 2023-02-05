@@ -16,6 +16,7 @@ import com.meshchat.client.views.components.ChatItem;
 import com.meshchat.client.views.components.ChatItemChat;
 import com.meshchat.client.views.components.ChatItemConv;
 import com.meshchat.client.views.navigation.StackNavigation;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -160,6 +161,12 @@ public class ChatScreenHandler extends BaseScreenHandler {
                 // wait 1 second
 //                Thread.sleep(1000);
 //                System.out.println("call api");
+        Platform.runLater(() -> {
+            this.chatList.getChildren().clear();
+        });
+        Platform.runLater(() -> {
+            this.convList.getChildren().clear();
+        });
                 viewModel.fetchChatList();
                 viewModel.fetchConvList();
 //                return null;
