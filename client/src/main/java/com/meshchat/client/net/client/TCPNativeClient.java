@@ -239,7 +239,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         Conv conv = new Conv();
         int stt = this.lib._create_conv(this.lib.get_sockfd(), gname, gid);
         switch (stt){
-            case 201:
+            case 201: case 408:
                 return gid.intValue();
             default:
                 throw new APICallException(stt, "Cannot create chat");
@@ -256,8 +256,8 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     public void _conv_join(long conv_id, long user_id) throws APICallException{
         int stt = this.lib._join_conv(this.lib.get_sockfd(), conv_id, user_id);
         // FIXME: api return 408 but success?
-        if(stt != 201 && stt != 408){
-            throw new APICallException(stt, "Cannot join conv");
+        if(stt != 200 && stt != 408){
+            throw new APICallException(stt, "Failed to join user "+user_id+" to conv "+conv_id);
         }
     }
 

@@ -273,7 +273,7 @@ static void handle_conv_join(int cfd, request *req, char *buf, int *close_conn)
 {
 	int rc;
 	request_conv *rconv = &(req->body->r_conv);
-	int is_member = conv_is_admin(db, rconv->conv_id, (req->header).user_id, &rc);
+	int is_member = conv_is_member(db, rconv->conv_id, (req->header).user_id, &rc);
 	if (sql_is_err(rc))
 		RESPONSE_ERR(500, 2, 4);
 	if (!is_member)

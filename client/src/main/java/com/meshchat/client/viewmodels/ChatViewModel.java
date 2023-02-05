@@ -40,7 +40,7 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
                 this.getDataStore().getOChatMap().remove(i);
             });
         });
-        } catch (Exception e) {}
+        } catch (Exception e) {e.printStackTrace();}
 
         List<Long> chatIdls = new ArrayList<>(this.getTcpClient()._get_chat_list());
         Collections.sort(chatIdls, Comparator.reverseOrder());
@@ -58,7 +58,13 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
 
     @Override
     public void fetchConvList() {
-        this.getDataStore().getOConvMap().forEach((i, j) -> this.getDataStore().getOConvMap().remove(i));
+        try{
+            this.getDataStore().getOConvMap().forEach((i, j) -> {
+                Platform.runLater(() -> {
+                    this.getDataStore().getOConvMap().remove(i);
+                });
+            });
+        }catch(Exception e){e.printStackTrace();}
 
         List<Long> convIdls = new ArrayList<>(this.getTcpClient()._get_conv_list());
         Collections.sort(convIdls, Comparator.reverseOrder());

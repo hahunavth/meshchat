@@ -64,6 +64,7 @@ public class CreateConvFormHandler extends BaseScreenHandler {
                 dialogScreenHandler.getViewModel().setMessage("Cannot create conversation");
                 dialogScreenHandler.show();
             }
+            this.getNavigation().goBack().show();
         });
 
         viewModel = Launcher.injector.getInstance(CreateConvViewModel.class);
