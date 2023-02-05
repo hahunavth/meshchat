@@ -97,6 +97,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
                 chat.id = key;
                 this.addChatItem(chat);
             } else if (e.wasRemoved()) {
+                this.viewModel.getChatMap().remove(key);
             }
         });
         viewModel.getConvMap().forEach((id, conv) -> {
@@ -109,6 +110,7 @@ public class ChatScreenHandler extends BaseScreenHandler {
                 conv.id = key;
                 this.addChatItem(conv);
             } else if (e.wasRemoved()) {
+                this.viewModel.getConvMap().remove(key);
             }
         });
 
@@ -167,8 +169,8 @@ public class ChatScreenHandler extends BaseScreenHandler {
         Platform.runLater(() -> {
             this.convList.getChildren().clear();
         });
-                viewModel.fetchChatList();
-                viewModel.fetchConvList();
+        viewModel.fetchChatList();
+        viewModel.fetchConvList();
 //                return null;
 //            }
 //        };

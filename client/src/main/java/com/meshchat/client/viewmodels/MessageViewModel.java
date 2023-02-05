@@ -52,32 +52,11 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
     public void setRoomInfo (ChatRoomType type, Long room_id, ChatGen chatRoom) {
         this.type = type;
         this.room_id.set(room_id);
-//        if (this.getChatGen() != null) {
-            // set room name
-//            this.name.set(this.getChatGen().getName().get());
-            // add message
-//            this.msgListMap.removeAll(this.msgListMap);
-//            System.out.println(this.msgListMap.size());
-//            this.getChatGen().getOMsgMap().forEach((id, msg) -> {
-//                this.msgListMap.add(msg);
-//            });
-            // listen when msg list change
-//            this.getChatGen().getOMsgMap().addListener((MapChangeListener<? super Long, ? super Message>) (e) -> {
-//                if (e.wasAdded()) {
-//                    this.msgListMap.add(e.getValueAdded());
-//                }
-//                if (e.wasRemoved()) {
-//                    this.msgListMap.remove(e.getValueAdded());
-//                }
-//                System.out.println("event .............");
-//            });
-//        }
         this.name.set(chatRoom.getName().get());
         if (this.roomInfoHandler != null) {
             System.out.println("Handle set room info");
             this.roomInfoHandler.handle(null);
         }
-
     }
 
     public void setRoomInfoHandler(EventHandler roomInfoHandler) {
