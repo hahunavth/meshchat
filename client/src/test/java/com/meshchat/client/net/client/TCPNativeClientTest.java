@@ -40,7 +40,7 @@ class TCPNativeClientTest {
     }
 
     @Test
-    void testGetConvInfo () {
+    void testGetConvInfo () throws APICallException {
         this.client._get_conv_info(1);
     }
 

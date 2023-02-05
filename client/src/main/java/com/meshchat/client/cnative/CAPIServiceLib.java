@@ -74,7 +74,7 @@ public interface CAPIServiceLib {
      int _join_conv(@In int sockfd, @In @u_int32_t long conv_id, @In @u_int32_t long user2_id);
      int _quit_conv(@In int sockfd, @In @u_int32_t long conv_id, @In @u_int32_t long user2_id);
      int _get_conv_info(@In int sockfd, @In @u_int32_t long conv_id, @Out @u_int32_t NativeLongByReference _admin_id, @Out byte[] _gname);
-     int _get_conv_members(@In int sockfd, @In @u_int32_t long conv_id, @Out @u_int32_t NativeLongByReference _res, @Out @u_int32_t NativeLongByReference _len);
+     int _get_conv_members(@In int sockfd, @In @u_int32_t long conv_id, @Out @u_int32_t long[] _res, @Out @u_int32_t NativeLongByReference _len);
      int _get_conv_list(@In int sockfd, @In @int32_t long limit, @In @int32_t long offset, @Out @u_int32_t long[] _idls, @Out @u_int32_t NativeLongByReference _len);
      // chat
      int _create_chat(@In int sockfd, @In @u_int32_t long user2_id, @Out @u_int32_t NativeLongByReference  chat_id);

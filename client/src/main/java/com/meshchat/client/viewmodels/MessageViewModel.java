@@ -119,11 +119,13 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
     public void notifyMsgList(int limit, int offset) throws APICallException {
         List<Long> newLs = this.getTcpClient().notifyNewMsg();
 //        List<Long> delLs = this.getTcpClient().notifyDeleteMsg(type, this.room_id.get());
-        System.out.println("notify pooling ");
+        System.out.println("notify pooling: " + newLs);
         // remove notify flag
         newLs.forEach((id) -> {
             try {
-                this.getTcpClient()._get_msg_detail(id);
+                if (msgListMap.get(id.intValue()) == null) {
+                    this.getTcpClient()._get_msg_detail(id);
+                }
             } catch (APICallException e) {
                 throw new RuntimeException(e);
             }

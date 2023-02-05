@@ -14,6 +14,7 @@ import com.meshchat.client.views.base.LazyInitialize;
 import com.meshchat.client.views.components.MsgItem;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.factories.MsgItemComponentFactory;
+import com.meshchat.client.views.form.ConvInfoScreenHandler;
 import com.meshchat.client.views.form.UserProfileScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.application.Platform;
@@ -162,14 +163,18 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     }
 
     public void onInfoBtnPressed (Event event) {
-        System.out.println("Info btn pressed");
         if (this.viewModel.getType() == ChatRoomType.CHAT) {
             UserProfileScreenHandler userProfileScreenHandler = (UserProfileScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.USER_INFO);
             userProfileScreenHandler.getViewModel().setUserId(this.viewModel.getRoomId().get());
             userProfileScreenHandler.show();
         }
         else if (this.viewModel.getType() == ChatRoomType.CONV)
-            this.getNavigation().navigate(StackNavigation.WINDOW_LIST.CONV_INFO).show();
+        {
+            ConvInfoScreenHandler convInfoScreenHandler = (ConvInfoScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.CONV_INFO);
+            convInfoScreenHandler.getViewModel().setConvId(this.viewModel.getRoomId().get());
+            convInfoScreenHandler.show();
+        }
+
     }
 
     public void handleFetchRoomInfo(Event e) {
@@ -228,7 +233,7 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     @Override
     public void onShow() {
-        System.out.println("showwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+        // polling notify
         executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(() -> {
             // NOTE: HARDCODE LIMIT AND OFFSET HERE
@@ -238,7 +243,7 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
             } catch (APICallException e) {
                 throw new RuntimeException(e);
             }
-        }, 0, 5000, TimeUnit.MILLISECONDS);
+        }, 0, 1000, TimeUnit.MILLISECONDS);
     }
 
     @Override

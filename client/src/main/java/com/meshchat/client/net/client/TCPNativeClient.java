@@ -260,25 +260,40 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public Conv _get_conv_info(long conv_id){
+    public Conv _get_conv_info(long conv_id) throws APICallException {
         Conv conv = ds.getOConvMap().get(conv_id);
         if(conv == null){
             NativeLongByReference admin_id = new NativeLongByReference();
             byte[] _gname = new byte[1000];
             int stt = this.lib._get_conv_info(this.lib.get_sockfd(), conv_id, admin_id, _gname);
-            String gname = new String(_gname, StandardCharsets.UTF_8);
-            int nullIndex = gname.indexOf('\0');
-            if (nullIndex != -1) {
-                gname = gname.substring(0, nullIndex);
-            }
-            conv = new Conv();
             switch (stt){
                 case 200:
+                    String gname = new String(_gname, StandardCharsets.UTF_8);
+                    int nullIndex = gname.indexOf('\0');
+                    if (nullIndex != -1) {
+                        gname = gname.substring(0, nullIndex);
+                    }
+                    conv = new Conv();
                     conv.setAdmin(_get_user_by_id(admin_id.intValue()));
                     conv.setName(gname);
                     ds.addConv(conv_id, conv);
-                    return conv;
+                    break;
                 default:
+                    throw new APICallException(stt, "get conv info failed");
+            }
+
+            long[] idls = new long[2048];
+            NativeLongByReference len = new NativeLongByReference();
+            stt = this.lib._get_conv_members(this.lib.get_sockfd(), conv_id, idls, len);
+            switch (stt) {
+                case 200:
+                    for(int i = 0; i < len.intValue(); i++) {
+                        ResponseUser user = new ResponseUser(rt);
+                        stt = this.lib._get_user_info(this.lib.get_sockfd(), idls[i], user);
+                        if (stt != 200)
+                            throw new APICallException(stt, "get user info failed");
+                        conv.members.put(idls[i], new UserProfile(idls[i], user.uname.get(), "", user.phone.get(), user.email.get()));
+                    }
             }
         }
         return conv;

@@ -11,7 +11,6 @@ import com.meshchat.client.views.base.INavigation;
 import com.meshchat.client.views.dialog.DialogScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
 import com.meshchat.client.views.search.SearchUserScreenHandler;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
