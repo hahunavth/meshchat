@@ -29,6 +29,12 @@ target_link_libraries(server
 	PUBLIC response
 )
 
-IF(NOT CMAKE_BUILD_TYPE MATCHES DEBUG)
-	set_target_properties(server PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
-ENDIF(NOT CMAKE_BUILD_TYPE MATCHES DEBUG)
+set_target_properties(server PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
+add_executable(seed seed.c)
+target_link_libraries(seed
+	PUBLIC OpenSSL::SSL
+	PUBLIC sql
+	PUBLIC util_random
+)
+set_target_properties(seed PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
