@@ -10,6 +10,7 @@ import com.meshchat.client.viewmodels.interfaces.ISearchUserViewModel;
 import com.meshchat.client.views.base.SelectUserViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SearchUserViewModel extends BaseViewModel implements ISearchUserViewModel {
     @Inject
@@ -30,7 +31,7 @@ public class SearchUserViewModel extends BaseViewModel implements ISearchUserVie
         TCPNativeClient client = this.getTcpClient();
         ArrayList<UserEntity> res = new ArrayList<>();
         try {
-            long[] ls = client._get_user_search(searchTxt, limit, offset);
+            List<Long> ls = client._get_user_search(searchTxt, limit, offset);
             for(long id : ls){
                 // fixme: sometime fn return null
                 UserEntity ue = client._get_user_by_id(id);

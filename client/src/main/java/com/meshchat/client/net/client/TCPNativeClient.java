@@ -172,7 +172,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public long[] _get_user_search(String searchTxt, int limit, int offset) throws APICallException{
+    public List<Long> _get_user_search(String searchTxt, int limit, int offset) throws APICallException{
         long[] ls = new long[limit];
         NativeLongByReference len = new NativeLongByReference();
         int stt = this.lib._get_user_search(this.lib.get_sockfd(), searchTxt, offset, limit, ls, len);
@@ -183,7 +183,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             default:
                 throw new APICallException(stt, "Failed to search");
         }
-        return ls;
+        return Arrays.stream(ls).limit(len.intValue()).boxed().toList();
     }
 
     public long get_uid() {
