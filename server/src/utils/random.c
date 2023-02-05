@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define ALPHABET_LEN 62
 
@@ -9,6 +10,7 @@ const char* alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123
 
 int rand_int(int min, int max)
 {
+	srand(time(NULL));
 	int interval = max-min;
 	return (rand()%interval + min);
 }
