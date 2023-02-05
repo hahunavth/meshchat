@@ -255,7 +255,8 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
 
     public void _conv_join(long conv_id, long user_id) throws APICallException{
         int stt = this.lib._join_conv(this.lib.get_sockfd(), conv_id, user_id);
-        if(stt != 201){
+        // FIXME: api return 408 but success?
+        if(stt != 201 && stt != 408){
             throw new APICallException(stt, "Cannot join conv");
         }
     }
