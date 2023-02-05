@@ -400,10 +400,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
                 msgEntity.setCreated_at(createdAt.intValue());
                 msgEntity.setType(contentType.byteValue());
                 String _msgContent = new String(msgContent, StandardCharsets.UTF_8);
-                int nullIndex = _msgContent.indexOf('\0');
-                if (nullIndex != -1) {
-                    _msgContent = _msgContent.substring(0, nullIndex);
-                }
+                _msgContent = _msgContent.substring(0, contentLength.intValue());
                 msgEntity.setContent(_msgContent);
                 return msgEntity;
             case 404:
