@@ -43,6 +43,17 @@ public class CreateConvFormHandler extends BaseScreenHandler {
     public CreateConvFormHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, ICreateConvViewModel viewModel) {
         super(Config.CREATE_CONV_FORM_PATH, navigation);
 
+        TableColumn<UserEntity, Long> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        TableColumn<UserEntity, TextField> nameCol = new TableColumn<>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
+        TableColumn<UserEntity, TextField> phoneCol = new TableColumn<>("Phone");
+        phoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        TableColumn<UserEntity, TextField> emailCol = new TableColumn<>("email");
+        emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
+        memberTbl.getColumns().addAll(idCol, nameCol, phoneCol, emailCol);
+        memberTbl.setItems(viewModel.getSelectedUsers());
+
         this.viewModel = viewModel;
 
         dialogScreenHandler = (DialogScreenHandler) this.getNavigation().navigate(StackNavigation.WINDOW_LIST.DIALOG);
@@ -71,15 +82,6 @@ public class CreateConvFormHandler extends BaseScreenHandler {
 
     @Override
     public void show(){
-        TableColumn<UserEntity, Long> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        TableColumn<UserEntity, TextField> phoneCol = new TableColumn<>("Phone");
-        phoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
-        TableColumn<UserEntity, TextField> emailCol = new TableColumn<>("email");
-        emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
-//        TableColumn<UserEntity, TextField> removeCol = new TableColumn<>();
-        memberTbl.getColumns().addAll(idCol, phoneCol, emailCol);
-        memberTbl.setItems(viewModel.getSelectedUsers());
         super.show();
     }
 

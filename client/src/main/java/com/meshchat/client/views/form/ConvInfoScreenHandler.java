@@ -49,6 +49,8 @@ public class ConvInfoScreenHandler extends BaseScreenHandler {
 
         TableColumn<UserEntity, Long> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        TableColumn<UserEntity, TextField> nameCol = new TableColumn<>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
         TableColumn<UserEntity, TextField> phoneCol = new TableColumn<>("Phone");
         phoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
         TableColumn<UserEntity, TextField> emailCol = new TableColumn<>("email");

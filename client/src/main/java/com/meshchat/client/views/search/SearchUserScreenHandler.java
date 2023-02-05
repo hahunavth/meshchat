@@ -43,6 +43,16 @@ public class SearchUserScreenHandler extends BaseScreenHandler {
     public SearchUserScreenHandler(INavigation<StackNavigation.WINDOW_LIST> navigation, ISearchUserViewModel viewModel) {
         super(Config.SEARCH_USER_PATH, navigation);
 
+        TableColumn<UserEntity, Long> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        TableColumn<UserEntity, TextField> nameCol = new TableColumn<>("Name");
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
+        TableColumn<UserEntity, TextField> phoneCol = new TableColumn<>("Phone");
+        phoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
+        TableColumn<UserEntity, TextField> emailCol = new TableColumn<>("email");
+        emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
+        usersTbl.getColumns().addAll(idCol, nameCol, phoneCol, emailCol);
+
         this.viewModel = viewModel;
 
         searchBtn.setOnMouseClicked(a -> {
@@ -52,18 +62,6 @@ public class SearchUserScreenHandler extends BaseScreenHandler {
             usersTbl.getItems().clear();
             usersTbl.getItems().addAll(searchRes);
         });
-    }
-
-    @Override
-    public void show() {
-        TableColumn<UserEntity, Long> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        TableColumn<UserEntity, TextField> phoneCol = new TableColumn<>("Phone");
-        phoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
-        TableColumn<UserEntity, TextField> emailCol = new TableColumn<>("email");
-        emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
-        usersTbl.getColumns().addAll(idCol, phoneCol, emailCol);
-        super.show();
     }
 
     @Override
