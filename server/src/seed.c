@@ -73,12 +73,13 @@ void gen_conv(int n_convs_per_user, int n_users_per_conv, int n_users)
 			selected[i] = 1;
 			snprintf(conv_name, 8, "conv%d", k++);
 			uint32_t conv_id = conv_create(db, (uint32_t)i, conv_name, &rc);
+			int user = i+1;
 			for(int joined=0; joined<n_users_per_conv; joined++)
 			{
-				int user = rand_int(1, n_users);
 				if(selected[user]) continue;
 				selected[user] = 1;
 				conv_join(db, (uint32_t)user, conv_id, &rc);
+				if(++user > n_users) user=1;
 			}
 		}
 	}
@@ -99,7 +100,7 @@ void gen_chat(int n_users)
 
 int main(int argc, char **argv)
 {
-	const char *db_path = "db/meshchat.db";
+	const char *db_path = "db/meshserver.db";
 	if(argc > 1)
 	{
 		db_path = argv[1];

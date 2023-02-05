@@ -8,3 +8,4 @@ db/.fuse*
 tmp.sql
 
 storage
+seed
