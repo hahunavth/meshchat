@@ -8,6 +8,9 @@ import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.viewmodels.interfaces.IChatViewModel;
 import javafx.collections.ObservableMap;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ChatViewModel extends BaseViewModel implements IChatViewModel {
@@ -32,7 +35,8 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
     public void fetchChatList() {
         this.getDataStore().getOChatMap().forEach((i, j) -> this.getDataStore().getOChatMap().remove(i));
 
-        List<Long> chatIdls = this.getTcpClient()._get_chat_list();
+        List<Long> chatIdls = new ArrayList<>(this.getTcpClient()._get_chat_list());
+        Collections.sort(chatIdls, Comparator.reverseOrder());
         System.out.println("Chat list: " + chatIdls);
 
         chatIdls.forEach((chatId) -> {
@@ -49,7 +53,8 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
     public void fetchConvList() {
         this.getDataStore().getOConvMap().forEach((i, j) -> this.getDataStore().getOConvMap().remove(i));
 
-        List<Long> convIdls = this.getTcpClient()._get_conv_list();
+        List<Long> convIdls = new ArrayList<>(this.getTcpClient()._get_conv_list());
+        Collections.sort(convIdls, Comparator.reverseOrder());
         System.out.println("conv list: " + convIdls);
 
         convIdls.forEach((chatId) -> {
