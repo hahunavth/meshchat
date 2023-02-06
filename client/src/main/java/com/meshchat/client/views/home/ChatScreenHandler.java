@@ -122,6 +122,18 @@ public class ChatScreenHandler extends BaseScreenHandler {
                 this.getNavigation().navigate(StackNavigation.WINDOW_LIST.CREATE_CONV).show();
             }
         });
+
+        IChatViewModel finalViewModel = viewModel;
+        tabPane.setOnMouseClicked(e -> {
+//            Platform.runLater(() -> {
+//                this.chatList.getChildren().clear();
+//            });
+//            Platform.runLater(() -> {
+//                this.convList.getChildren().clear();
+//            });
+            finalViewModel.fetchChatList();
+            finalViewModel.fetchConvList();
+        });
     }
 
     public void setMessageScreenHandler(MessageScreenHandler messageScreenHandler) {
