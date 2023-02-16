@@ -4,8 +4,9 @@ import com.google.inject.Inject;
 import com.meshchat.client.exceptions.APICallException;
 import com.meshchat.client.model.Message;
 import com.meshchat.client.net.client.ChatRoomType;
+import com.meshchat.client.observablebinding.ScreenHandlerToNodeBinding;
 import com.meshchat.client.utils.Config;
-import com.meshchat.client.utils.CustomUIBinding;
+import com.meshchat.client.observablebinding.CustomUIBinding;
 import com.meshchat.client.viewmodels.interfaces.IMessageViewModel;
 import com.meshchat.client.viewmodels.interfaces.IPaginateViewModel;
 import com.meshchat.client.views.base.BaseScreenHandler;
@@ -18,7 +19,6 @@ import com.meshchat.client.views.form.ConvInfoScreenHandler;
 import com.meshchat.client.views.form.UserProfileScreenHandler;
 import com.meshchat.client.views.navigation.StackNavigation;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -90,23 +90,22 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         List<MsgItem> _msgItemList = new ArrayList<>();
         msgItemList = FXCollections.observableArrayList(_msgItemList);
         ObservableList<Node> msgNodeList = this.msgList.getChildren();
-        msgItemList.addListener(new CustomUIBinding<MsgItem, Node>(msgNodeList) {
+        msgItemList.addListener(new ScreenHandlerToNodeBinding(msgNodeList));
+
+        // add msg if existed
+//        this.viewModel.getMsgList().forEach((item) -> {
+//            MsgItem msgItem = msgItemComponentFactory.getItem(this.viewModel.getType(), item, this.viewModel.getCurrentUserId());
+//            addMsg(msgItem);
+//        });
+        this.viewModel.getMsgList().clear();
+        // event
+        this.viewModel.getMsgList().addListener(new CustomUIBinding<Message, MsgItem>(msgItemList) {
             @Override
-            public Node convert(MsgItem msgItem) {
-                return msgItem.getContent();
+            public MsgItem convert(Message message) {
+                MsgItem msgItem = msgItemComponentFactory.getItem(viewModel.getType(), message, viewModel.getCurrentUserId());
+                return msgItem;
             }
         });
-
-//        this.viewModel.getRoomId().addListener((observable, oldValue, newValue) -> {
-//            this.onShow();  // on change room update all
-//        });
-        // add msg if existed
-        this.viewModel.getMsgList().forEach((item) -> {
-            MsgItem msgItem = msgItemComponentFactory.getItem(this.viewModel.getType(), item, this.viewModel.getCurrentUserId());
-            addMsg(msgItem);
-        });
-        // event
-        this.viewModel.getMsgList().addListener(this::onMsgListChange);
         this.infoBtn.setOnAction(this::onInfoBtnPressed);
         this.viewModel.setRoomInfoHandler(this::handleFetchRoomInfo);
         this.submitBtn.setOnAction(this::onSubmit);
@@ -132,34 +131,35 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     }
 
     public void onMsgListChange(ListChangeListener.Change<? extends Message> e) {
-        while (e.next()) {
-            if (e.wasAdded()) {
-                List<Message> ins = (List<Message>) e.getAddedSubList();
-                ins.forEach(item -> {
-                    MsgItem msgItem = msgItemComponentFactory.getItem(this.viewModel.getType(), item, this.viewModel.getCurrentUserId());
-                    addMsg(msgItem);
-                });
-            }
-            if (e.wasRemoved()) {
-                // on remove -> remove all
-                this.msgItemList.removeAll(this.msgItemList);
-                this.msgList.getChildren().forEach(i -> {
-                    Platform.runLater(() -> {
-                        this.msgList.getChildren().removeAll(this.msgList.getChildren());
-                    });
-                });
-//                    e.next();
-            }
-            if (e.wasUpdated()) {
-                // handle msg was deleted
-            }
-            if (e.wasReplaced()) {
 
-            }
-            if (e.wasPermutated()) {
-
-            }
-        }
+//        while (e.next()) {
+//            if (e.wasAdded()) {
+//                List<Message> ins = (List<Message>) e.getAddedSubList();
+//                ins.forEach(item -> {
+//                    MsgItem msgItem = msgItemComponentFactory.getItem(this.viewModel.getType(), item, this.viewModel.getCurrentUserId());
+//                    addMsg(msgItem);
+//                });
+//            }
+//            if (e.wasRemoved()) {
+//                // on remove -> remove all
+//                this.msgItemList.removeAll(this.msgItemList);
+//                this.msgList.getChildren().forEach(i -> {
+//                    Platform.runLater(() -> {
+//                        this.msgList.getChildren().removeAll(this.msgList.getChildren());
+//                    });
+//                });
+////                    e.next();
+//            }
+//            if (e.wasUpdated()) {
+//                // handle msg was deleted
+//            }
+//            if (e.wasReplaced()) {
+//
+//            }
+//            if (e.wasPermutated()) {
+//
+//            }
+//        }
     }
 
     public void onInfoBtnPressed (Event event) {
@@ -179,6 +179,9 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
 
     public void handleFetchRoomInfo(Event e) {
         try {
+            Platform.runLater(() -> {
+                this.msgList.getChildren().clear();
+            });
             this.paginateViewModel.resetPage();
             this.viewModel.fetchMsgList(this.paginateViewModel.getPageSize(), this.paginateViewModel.getOffset());
         } catch (APICallException ex) {
@@ -228,7 +231,6 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
         this.stage = stage;
     }
 
-
     private ScheduledExecutorService executor;
 
     @Override
@@ -249,6 +251,6 @@ public class MessageScreenHandler extends BaseScreenHandler implements LazyIniti
     @Override
     public void show() {
         super.show();
-        this.onShow();
+//        this.onShow();
     }
 }

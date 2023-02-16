@@ -1,6 +1,7 @@
 package com.meshchat.client.viewmodels;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.meshchat.client.binding.IDataSource;
 import com.meshchat.client.binding.ITCPService;
 import com.meshchat.client.db.entities.MsgEntity;
@@ -9,6 +10,7 @@ import com.meshchat.client.model.*;
 import com.meshchat.client.net.client.ChatRoomType;
 import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.viewmodels.interfaces.IMessageViewModel;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -18,6 +20,7 @@ import javafx.event.EventHandler;
 
 import java.util.List;
 
+//@Singleton
 public class MessageViewModel extends BaseViewModel implements IMessageViewModel {
     private ChatRoomType type;
     private final SimpleLongProperty room_id = new SimpleLongProperty();    // chat id or conv id
@@ -33,14 +36,16 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
 
     }
 
-
+    /**
+     * Todo:
+     */
     public void removeListenerFromChatOrConv () {
         if (this.newMsgListener != null) {
             ChatGen room;
             // add msg list
-            if (type == ChatRoomType.CHAT) room = this.getDataStore().getOChatMap().get(room_id.get());
-            else room = this.getDataStore().getOChatMap().get(room_id.get());
-            room.getOMsgMap().removeListener(this.newMsgListener);
+//            if (type == ChatRoomType.CHAT) room = this.getDataStore().getOChatMap().get(room_id.get());
+//            else room = this.getDataStore().getOChatMap().get(room_id.get());
+//            room.getOMsgMap().removeListener(this.newMsgListener);
         }
     }
 
@@ -50,6 +55,7 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
      * @param room_id
      */
     public void setRoomInfo (ChatRoomType type, Long room_id, ChatGen chatRoom) {
+
         this.type = type;
         this.room_id.set(room_id);
         this.name.set(chatRoom.getName().get());
@@ -78,8 +84,6 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
                         throw new RuntimeException(e);
                     }
                     msgListMap.add(new Message(msgEntity));
-                    // TODO: DO NOT USE DATA SOURCE FOR STORE MSG LIST
-                    // getDataStore().addMsg(msgEntity);
                 });
                 return null;
             }
@@ -109,13 +113,6 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
                 throw new RuntimeException(e);
             }
         });
-//        delLs.forEach((id) -> {
-//            try {
-//                this.getTcpClient()._get_msg_detail(id);
-//            } catch (APICallException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
 
         if(newLs.size() > 0)
             this.fetchMsgList(limit, offset);

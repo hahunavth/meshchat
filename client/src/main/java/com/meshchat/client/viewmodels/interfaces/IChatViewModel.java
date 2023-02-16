@@ -2,11 +2,11 @@ package com.meshchat.client.viewmodels.interfaces;
 
 import com.meshchat.client.model.Chat;
 import com.meshchat.client.model.Conv;
-import javafx.collections.ObservableMap;
+import javafx.collections.ObservableList;
 
 public interface IChatViewModel {
     void fetchChatList();
     void fetchConvList();
-    ObservableMap<Long, Chat> getChatMap();
-    ObservableMap<Long, Conv> getConvMap();
+    ObservableList<Chat> getChatList();
+    ObservableList<Conv> getConvList();
 }

@@ -1,4 +1,4 @@
-package com.meshchat.client.utils;
+package com.meshchat.client.observablebinding;
 
 import com.meshchat.client.views.base.FXMLScreenHandler;
 import javafx.application.Platform;
@@ -29,7 +29,7 @@ public abstract class CustomUIBinding<A, B> implements ListChangeListener<A> {
                     });
                 }
             } else if (change.wasRemoved()) {
-                for (A a : change.getAddedSubList()) {
+                for (A a : change.getRemoved()) {
                     B b = convert(a);
                     Platform.runLater(() -> {
                         listOut.remove(b);

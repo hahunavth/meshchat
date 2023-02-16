@@ -50,6 +50,6 @@ public class TabsLayout extends BaseLayout<TabsLayout.Sessions> {
     @Override
     public void show() {
         super.show();
-        this.onShow();
+//        this.onShow();
     }
 }

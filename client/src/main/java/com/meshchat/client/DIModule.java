@@ -15,13 +15,14 @@ import com.meshchat.client.views.navigation.StackNavigation;
  * Dependency injection using IOC Google Guice
  * define bindings
  */
-public class DIModule extends AbstractModule{
+public class DIModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(BaseViewModel.class).to(MessageViewModel.class);
         // singleton
         bind(DataStore.class).annotatedWith(IDataSource.class).toInstance(new DataStore());
-        bind(TCPNativeClient.class).annotatedWith(ITCPService.class).toInstance(new TCPNativeClient("127.0.0.1", 9000));
+        bind(TCPNativeClient.class).annotatedWith(ITCPService.class).to(TCPNativeClient.class);
+//                .toInstance(new TCPNativeClient("127.0.0.1", 9000));
         bind(new TypeLiteral<INavigation<StackNavigation.WINDOW_LIST>>() {}).to(StackNavigation.class).asEagerSingleton();
         // view models
         bind(IChatViewModel.class).to(ChatViewModel.class);

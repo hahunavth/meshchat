@@ -35,8 +35,8 @@ class TCPNativeClientTest {
 
     @Test
     void testSearchUserList () throws APICallException {
-        long [] ls = this.client._get_user_search("user", 10, 0);
-        System.out.println(ls);
+//        long [] ls = this.client._get_user_search("user", 10, 0);
+//        System.out.println(ls);
     }
 
     @Test

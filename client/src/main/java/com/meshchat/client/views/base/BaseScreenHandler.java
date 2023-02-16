@@ -53,7 +53,7 @@ public abstract class BaseScreenHandler extends FXMLScreenHandler implements Laz
         Platform.runLater(() -> {
             this.stage.show();
         });
-//        this.onShow();
+        this.onShow();
     }
 
     public void hide() {

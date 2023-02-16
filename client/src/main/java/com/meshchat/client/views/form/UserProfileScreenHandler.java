@@ -56,6 +56,6 @@ public class UserProfileScreenHandler extends BaseScreenHandler {
     @Override
     public void show() {
         super.show();
-        this.onShow();
+//        this.onShow();
     }
 }

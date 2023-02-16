@@ -15,6 +15,7 @@ import jnr.ffi.byref.NativeLongByReference;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * TCPNativeClient <br>
@@ -26,24 +27,28 @@ import java.util.List;
 @Singleton
 public class TCPNativeClient extends TCPBasedClient implements Runnable {
 
-    CAPIServiceLib lib;
-    Runtime rt;
+    private Logger logger;
 
-    @Inject
-    DataStore ds;
+    private final CAPIServiceLib lib;
+    private final Runtime rt;
+
+    private DataStore ds;
 
     private int sockfd = -1;
 
     @Inject
-    public TCPNativeClient(DataStore ds) {
+    public TCPNativeClient(DataStore ds, Logger logger) {
         super("127.0.0.1", 9000);
         this.ds = ds;
+        this.logger = logger;
+
         this.lib = CAPIServiceLib.load();
         this.rt = Runtime.getRuntime(lib);
     }
 
     public TCPNativeClient(String host, int port) {
         super(host, port);
+
         this.lib = CAPIServiceLib.load();
         this.rt = Runtime.getRuntime(lib);
     }
@@ -54,19 +59,17 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         this.setPort(port);
         Thread clientThread = new Thread(this);
         clientThread.start();
-        // TODO: handle connection failed: throw exception
     }
 
     @Override
     protected void connect() {
         do {
             if (this.isCloseFlag()) {
-//                this.setCloseFlag(false);
                 return;
             }
             sockfd = this.lib.connect_server(this.host, this.port);
             if (sockfd == -1) {
-                System.out.println("Try reconnect in 3 second!");
+                logger.info("Try reconnect in 3 second!");
                 // wait 3 second and reconnect
                 try {
                     Thread.sleep(3000);
@@ -76,7 +79,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             }
         } while (sockfd == -1);
         this.setConnected(true);
-        System.out.println("Connect successfully!");
+        logger.info("Connect successfully!");
     }
 
     @Override
@@ -91,7 +94,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
                 this.setCloseFlag(true);
             }
         } else {
-            System.out.println("Lib is null");
+            logger.info("Lib is null");
         }
     }
 
@@ -101,14 +104,11 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             connect();
             if (isConnected()) {
                 while(true) {
-                    System.out.println(this.lib.get_sockfd());
                     if(this.lib.get_sockfd() == -1) {
-                        System.out.println("reconnect");
+                        logger.info("reconnect");
                         this.setConnected(false);
                         if (!this.isCloseFlag())
                             connect();
-                    } else {
-//                        System.out.println(receive());
                     }
                     Thread.sleep(3000);
                     this.sockfd = this.lib.get_sockfd();
@@ -118,7 +118,6 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             e.printStackTrace();
         }
     }
-
 
     public void _register(String uname, String pass, String phone, String email) throws APICallException {
         int stt;
@@ -155,20 +154,15 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     }
 
     public UserEntity _get_user_by_id(long uid){
-        UserProfile up = ds.getUserProfileCache().get(uid);
-        if (up == null) {
-            ResponseUser ru = new ResponseUser(this.rt);
-            int stt = this.lib._get_user_info(this.lib.get_sockfd(), uid, ru);
-            switch (stt){
-                case 200:
-                    up = new UserProfile(uid, ru.uname.get(), null, ru.phone.get(), ru.email.get());
-                    ds.addUserProfileCache(up);
-                    return up.getEntity();
-                default:
-                    return null;
-            }
-        } else {
-            return up.getEntity();
+        UserProfile up;
+        ResponseUser ru = new ResponseUser(this.rt);
+        int stt = this.lib._get_user_info(this.lib.get_sockfd(), uid, ru);
+        switch (stt){
+            case 200:
+                up = new UserProfile(uid, ru.uname.get(), null, ru.phone.get(), ru.email.get());
+                return up.getEntity();
+            default:
+                return null;
         }
     }
 
@@ -262,11 +256,13 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     }
 
     public Conv _get_conv_info(long conv_id) throws APICallException {
-        Conv conv = ds.getOConvMap().get(conv_id);
-        if(conv == null){
+        Conv conv;
+        int stt;
+        {
             NativeLongByReference admin_id = new NativeLongByReference();
             byte[] _gname = new byte[1000];
-            int stt = this.lib._get_conv_info(this.lib.get_sockfd(), conv_id, admin_id, _gname);
+
+            stt = this.lib._get_conv_info(this.lib.get_sockfd(), conv_id, admin_id, _gname);
             switch (stt){
                 case 200:
                     String gname = new String(_gname, StandardCharsets.UTF_8);
@@ -275,14 +271,15 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
                         gname = gname.substring(0, nullIndex);
                     }
                     conv = new Conv();
+                    conv.id = conv_id;
                     conv.setAdmin(_get_user_by_id(admin_id.intValue()));
                     conv.setName(gname);
-                    ds.addConv(conv_id, conv);
                     break;
                 default:
                     throw new APICallException(stt, "get conv info failed");
             }
-
+        }
+        {
             long[] idls = new long[2048];
             NativeLongByReference len = new NativeLongByReference();
             stt = this.lib._get_conv_members(this.lib.get_sockfd(), conv_id, idls, len);

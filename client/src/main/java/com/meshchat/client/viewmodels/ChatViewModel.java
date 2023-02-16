@@ -1,32 +1,35 @@
 package com.meshchat.client.viewmodels;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.meshchat.client.model.Chat;
 import com.meshchat.client.model.Conv;
 import com.meshchat.client.model.DataStore;
 import com.meshchat.client.net.client.TCPNativeClient;
 import com.meshchat.client.viewmodels.interfaces.IChatViewModel;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class ChatViewModel extends BaseViewModel implements IChatViewModel {
+    private final ObservableList<Chat> oChatMap = FXCollections.observableArrayList();
+    private final ObservableList<Conv> oConvMap = FXCollections.observableArrayList();
 
     @Inject
     public ChatViewModel(DataStore dataStore, TCPNativeClient client) {
         super(dataStore, client);
     }
 
-    public ObservableMap<Long, Chat> getChatMap() {
-        return this.getDataStore().getOChatMap();
+    public ObservableList<Chat> getChatList() {
+        return this.oChatMap;
     }
 
-    public ObservableMap<Long, Conv> getConvMap() {
-        return this.getDataStore().getOConvMap();
+    public ObservableList<Conv> getConvList() {
+        return this.oConvMap;
     }
 
     /**
@@ -34,22 +37,25 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
      */
     @Override
     public void fetchChatList() {
-        try {
-        this.getDataStore().getOChatMap().forEach((i, j) -> {
-            Platform.runLater(() -> {
-                this.getDataStore().getOChatMap().remove(i);
-            });
-        });
-        } catch (Exception e) {e.printStackTrace();}
+//        this.oChatMap.forEach((i, j) -> {
+//            Platform.runLater(() -> {
+//                this.oChatMap.remove(i);
+//            });
+//        });
+//        Platform.runLater(() -> {
+            this.oChatMap.clear();
+//        });
 
         List<Long> chatIdls = new ArrayList<>(this.getTcpClient()._get_chat_list());
-        Collections.sort(chatIdls, Comparator.reverseOrder());
+        chatIdls.sort(Comparator.reverseOrder());
         System.out.println("Chat list: " + chatIdls);
 
         chatIdls.forEach((chatId) -> {
             try {
                 Chat chat = this.getTcpClient()._get_chat_info(chatId);
-                this.getDataStore().addChat(chatId, chat);
+                Platform.runLater(() -> {
+                    this.oChatMap.add(chat);
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -58,22 +64,22 @@ public class ChatViewModel extends BaseViewModel implements IChatViewModel {
 
     @Override
     public void fetchConvList() {
-        try{
-            this.getDataStore().getOConvMap().forEach((i, j) -> {
-                Platform.runLater(() -> {
-                    this.getDataStore().getOConvMap().remove(i);
-                });
-            });
-        }catch(Exception e){e.printStackTrace();}
+//        try{
+//            this.oConvMap.forEach((i, j) -> {
+//                Platform.runLater(() -> {
+//                    this.oConvMap.remove(i);
+//                });
+//            });
+//        }catch(Exception e){e.printStackTrace();}
 
         List<Long> convIdls = new ArrayList<>(this.getTcpClient()._get_conv_list());
-        Collections.sort(convIdls, Comparator.reverseOrder());
+        convIdls.sort(Comparator.reverseOrder());
         System.out.println("conv list: " + convIdls);
 
         convIdls.forEach((chatId) -> {
             try {
                 Conv conv = this.getTcpClient()._get_conv_info(chatId);
-                this.getDataStore().addConv(chatId, conv);
+                this.oConvMap.add(conv);
             } catch (Exception e) {
                 e.printStackTrace();
             }
