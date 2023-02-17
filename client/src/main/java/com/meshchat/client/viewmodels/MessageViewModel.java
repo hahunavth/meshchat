@@ -150,17 +150,6 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
         });
 
         System.out.println("Notify: " + newItems);
-//            try {
-//                if (msgListMap.get(id.intValue()) == null) {
-//                    this.getTcpClient()._get_msg_detail(id);
-//                }
-//            } catch (APICallException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//
-//        if(newLs.size() > 0)
-//            this.fetchMsgList(limit, offset);
     }
 
     public void sendMsg(String msg) throws Exception {

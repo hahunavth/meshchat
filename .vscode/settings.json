@@ -28,6 +28,7 @@
     "stat.h": "c",
     "pthread.h": "c",
     "errno.h": "c",
-    "utils.h": "c"
+    "utils.h": "c",
+    "auth.h": "c"
   }
 }

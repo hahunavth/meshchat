@@ -12,4 +12,6 @@ extern int is_authenticated();
 extern uint32_t _get_uid();
 extern char *_get_token();
 
+extern void console_printf(const char *fmt, ...);
+
 #endif

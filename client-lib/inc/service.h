@@ -8,15 +8,15 @@
 /**
  * utils
  */
-#define CHECK_MSG(op, msg)                                   \
-    do                                                       \
-    {                                                        \
-        if (!(op))                                           \
-        {                                                    \
-            printf("%s (%s:%d)\n", msg, __FILE__, __LINE__); \
-            return 1;                                        \
-        }                                                    \
+#define CHECK_MSG(op, msg) \
+    do                     \
+    {                      \
+        if (!(op))         \
+        {                  \
+            return 1;      \
+        }                  \
     } while (0)
+// printf("%s (%s:%d)\n", msg, __FILE__, __LINE__);
 
 #define CHECK_ECHO(op) CHECK_MSG(op, #op)
 
@@ -30,7 +30,16 @@
         printf("%02hhX ", token[i]);    \
     }                                   \
     puts("");
-#define PRINT_STATUS_CODE(status_code) printf(YELLOW "status_code: %d\n" RESET, status_code);
+
+#define PRINT_STATUS_CODE(status_code) \
+    {                                  \
+    }
+
+// setvbuf(stdout, NULL, _IONBF, 0);
+// printf(YELLOW "status_code: %d\n" RESET, status_code);
+// fflush(stdout);
+// __fpurge(stdout);
+// console_printf(YELLOW "status_code: %d\n" RESET, status_code);
 
 /**
  * External API

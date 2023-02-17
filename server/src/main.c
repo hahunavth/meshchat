@@ -55,8 +55,8 @@ int main(int argc, char **argv)
 	signal(SIGINT, shutdown_server);
 	signal(SIGABRT, shutdown_server);
 	signal(SIGSEGV, shutdown_server);
-	
-	if(!init_handler("./db/meshserver.db", SECRETE_KEY, close_sock))
+
+	if (!init_handler("./db/meshserver.db", SECRETE_KEY, close_sock))
 	{
 		puts("init_handler() failed");
 		exit(EXIT_FAILURE);

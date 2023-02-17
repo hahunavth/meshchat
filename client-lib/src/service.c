@@ -449,7 +449,6 @@ int _get_msg_all(const int sockfd, const int limit, const int offset,
   make_request_msg_get_all(_get_token(), _get_uid(), limit, offset, conv_id, chat_id, buf);
 
   response *res = api_call(sockfd, buf);
-  printf("res: %d\n", res->header.count);
 
   HANDLE_RES_STT(res)
   {

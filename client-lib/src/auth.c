@@ -1,6 +1,27 @@
 #include "auth.h"
 #include "utils.h"
 
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdarg.h>
+
+// print utils
+void console_printf(const char *fmt, ...)
+{
+  int fd = open("/dev/console", O_WRONLY);
+  char buffer[1000];
+  if (fd < 0)
+    return;
+
+  va_list ap;
+  va_start(ap, fmt);
+  vsprintf(buffer, fmt, ap);
+  va_end(ap);
+
+  write(fd, buffer, strlen(buffer));
+  close(fd);
+}
+
 // auth
 static uint32_t __uid;
 static char __token[TOKEN_LEN];

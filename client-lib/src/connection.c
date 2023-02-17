@@ -112,14 +112,13 @@ int __recv(char *buff)
   UNLOCK;
   if ((bytes_recv) < 0)
   {
-    // free(buff);
-    perror("\nError: ");
+    // perror("\nError: ");
     close_conn();
     return -1;
   }
   if (bytes_recv == 0)
   {
-    printf(YELLOW "Connection closed\n" RESET);
+    // printf(YELLOW "Connection closed\n" RESET);
     close_conn();
   }
 
@@ -154,7 +153,7 @@ response *api_call(const int sockfd, const char *req)
   }
   else if (sz == 0)
   {
-    printf(YELLOW "Connection closed\n" RESET);
+    // printf(YELLOW "Connection closed\n" RESET);
     UNLOCK;
     return NULL;
   }
