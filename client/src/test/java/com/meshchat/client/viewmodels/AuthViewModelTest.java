@@ -25,7 +25,9 @@ class AuthViewModelTest {
         viewModel = Launcher.injector.getInstance(SignUpViewModel.class);
         loginViewModel = Launcher.injector.getInstance(LoginViewModel.class);
         // connect
-        client.initClient("127.0.0.1", 9000);
+        client = Launcher.injector.getInstance(TCPNativeClient.class);
+//        client.initClient("127.0.0.1", 9000);
+        client.initClient("13.230.248.35", 9000);
     }
     @Test
     void handleSignUp() throws APICallException {

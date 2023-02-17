@@ -29,18 +29,18 @@ sqlite3 *db;
 static BF_KEY key;
 static void (*close_sock)(int);
 
-#define SEND_RESPONSE()                        \
-	{                                          \
+#define SEND_RESPONSE()                    \
+	{                                        \
 		if (write(cfd, buf, BUFSIZ) != BUFSIZ) \
 		{                                      \
-			perror("write() failed");          \
-			close_sock(cfd);                   \
-			*close_conn = 1;                   \
+			perror("write() failed");            \
+			close_sock(cfd);                     \
+			*close_conn = 1;                     \
 		}                                      \
 	}
 
-#define RESPONSE_ERR(status, group, action)                                        \
-	{                                                                              \
+#define RESPONSE_ERR(status, group, action)                                    \
+	{                                                                            \
 		printf("response errror on line %d\n", __LINE__);                          \
 		make_err_response((uint32_t)status, (uint8_t)group, (uint8_t)action, buf); \
 		SEND_RESPONSE();                                                           \
@@ -48,9 +48,9 @@ static void (*close_sock)(int);
 	}
 
 #define RESPONSE_ERR_FREE(status, group, action, resource, freefn) \
-	{                                                              \
-		freefn(resource);                                          \
-		RESPONSE_ERR(status, group, action);                       \
+	{                                                                \
+		freefn(resource);                                              \
+		RESPONSE_ERR(status, group, action);                           \
 	}
 
 int init_handler(const char *db_file, const char *secrete_key, void (*close_sock_fn)(int))
@@ -148,10 +148,10 @@ static void handle_auth_register(int cfd, in_addr_t addr, request *req, char *bu
 		RESPONSE_ERR(500, 0, 0);
 
 	user_schema user = {
-		.uname = ra->uname,
-		.password = hashed_password, /* Hash password before saving */
-		.email = ra->email,
-		.phone = ra->phone};
+			.uname = ra->uname,
+			.password = hashed_password, /* Hash password before saving */
+			.email = ra->email,
+			.phone = ra->phone};
 
 	/* Save the new user to db */
 	uint32_t id = user_create(db, &user, &rc);
@@ -541,7 +541,7 @@ static void handle_msg_get_detail(int cfd, request *req, char *buf, int *close_c
 	}
 
 	response_msg rm = {
-		.msg_id = msg->id, .from_uid = msg->from_uid, .reply_to = msg->reply_to, .conv_id = msg->conv_id, .chat_id = msg->chat_id, .created_at = msg->created_at, .msg_type = msg->type, .content_length = msg->content_length, .content_type = msg->content_type, .msg_content = msg->content};
+			.msg_id = msg->id, .from_uid = msg->from_uid, .reply_to = msg->reply_to, .conv_id = msg->conv_id, .chat_id = msg->chat_id, .created_at = msg->created_at, .msg_type = msg->type, .content_length = msg->content_length, .content_type = msg->content_type, .msg_content = msg->content};
 	make_response_msg_get_detail(200, &rm, buf);
 	SEND_RESPONSE();
 
@@ -574,10 +574,10 @@ void process_fname(const char *fname, char *res)
 }
 
 #define FILE_ERROR_HANDLING() \
-	close(fd);                \
-	remove(fname);            \
-	close_sock(cfd);          \
-	*close_conn = 1;          \
+	close(fd);                  \
+	remove(fname);              \
+	close_sock(cfd);            \
+	*close_conn = 1;            \
 	return;
 
 static void handle_msg_send(int cfd, request *req, char *buf, int *close_conn)
@@ -601,7 +601,7 @@ static void handle_msg_send(int cfd, request *req, char *buf, int *close_conn)
 	}
 
 	msg_schema msg = {
-		.from_uid = (req->header).user_id, .reply_to = rm->reply_id, .conv_id = rm->conv_id, .chat_id = rm->chat_id, .content_type = content_type, .content = rm->msg_content};
+			.from_uid = (req->header).user_id, .reply_to = rm->reply_id, .conv_id = rm->conv_id, .chat_id = rm->chat_id, .content_type = content_type, .content = rm->msg_content};
 
 	if (content_type == MSG_TEXT)
 	{
@@ -884,22 +884,35 @@ void handle_req(int epoll_fd, int cfd)
 	char buf[BUFSIZ + 1];
 	struct sockaddr_in addr;
 	socklen_t socklen = sizeof(addr);
-	ssize_t nbytes;
+	ssize_t nbytes = 0;
 
 	printf("Thread #%lu working on %d\n", pthread_self(), cfd);
 
-	if ((nbytes = recv(cfd, buf, BUFSIZ, 0)) < 0)
+	// NOTE: recv full buffer
 	{
-		perror("recv() failed");
-		close_sock(cfd);
-		return;
-	}
+		nbytes = 0;
+		do
+		{
+			int cur_recv = 0;
+			if ((cur_recv = recv(cfd, buf + nbytes, BUFSIZ, 0)) < 0)
+			{
+				if (nbytes > 0)
+					break;
+				// error
+				perror("recv() failed");
+				close_sock(cfd);
+				return;
+			}
 
-	if (nbytes == 0)
-	{
-		printf("Connection closed on %d\n", cfd);
-		close_sock(cfd);
-		return;
+			if (cur_recv == 0)
+			{
+				printf("Connection closed on %d\n", cfd);
+				close_sock(cfd);
+				return;
+			}
+			printf(">>> recv() %d bytes\n", cur_recv);
+			nbytes += cur_recv;
+		} while (nbytes < BUFSIZ);
 	}
 
 	if (getpeername(cfd, (struct sockaddr *)&addr, &socklen) >= 0)

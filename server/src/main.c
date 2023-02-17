@@ -104,6 +104,22 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	{
+		int bufsize = BUFSIZ;
+		if (setsockopt(listen_fd, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize)) < 0)
+		{
+			perror("setsockopt() failed");
+			close(listen_fd);
+			exit(EXIT_FAILURE);
+		}
+		if (setsockopt(listen_fd, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize)) < 0)
+		{
+			perror("setsockopt() failed");
+			close(listen_fd);
+			exit(EXIT_FAILURE);
+		}
+	}
+
 	/* Set socket to be nonblocking */
 	rc = fcntl(listen_fd, F_GETFL, 0);
 	if (rc < 0)
@@ -282,6 +298,22 @@ void accept_new_client()
 	{
 		perror("accept failed");
 		return;
+	}
+
+	{
+		int bufsize = BUFSIZ;
+		if (setsockopt(csock, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize)) < 0)
+		{
+			perror("setsockopt() failed");
+			close(csock);
+			exit(EXIT_FAILURE);
+		}
+		if (setsockopt(csock, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize)) < 0)
+		{
+			perror("setsockopt() failed");
+			close(csock);
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	// if (set_nonblocking(csock) < 0)

@@ -54,11 +54,18 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
     }
 
     public void initClient(String host, int port) {
+
+        System.out.println("Init client: " + host + "/" + port);
         this.setCloseFlag(false);
         this.setHost(host);
         this.setPort(port);
         Thread clientThread = new Thread(this);
         clientThread.start();
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -79,7 +86,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
             }
         } while (sockfd == -1);
         this.setConnected(true);
-        logger.info("Connect successfully!");
+        logger.info("Connect successfully!" + this.lib.get_sockfd());
     }
 
     @Override
@@ -119,14 +126,15 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public void _register(String uname, String pass, String phone, String email) throws APICallException {
+    public synchronized void  _register(String uname, String pass, String phone, String email) throws APICallException {
         int stt;
         RequestAuth auth = new RequestAuth(rt);
         auth.uname.set(uname);
         auth.password.set(pass);
         auth.phone.set(phone);
         auth.email.set(email);
-        stt = this.lib._register(this.sockfd, auth);
+
+        stt = this.lib._register(this.lib.get_sockfd(), auth);
 
         switch (stt) {
             case 201:
@@ -137,23 +145,20 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public boolean _login(String uname, String pass) {
+    public synchronized boolean _login(String uname, String pass) {
         int stt;
-        try {
-            Thread.sleep(100);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         stt = this.lib._login(this.lib.get_sockfd(), uname, pass);
+        System.out.println("Status: " + stt);
 
         return stt == 200;
     }
 
-    public boolean _logout() {
+    public synchronized boolean _logout() {
         return this.lib._logout(this.lib.get_sockfd()) == 201;
     }
 
-    public UserEntity _get_user_by_id(long uid){
+    public synchronized UserEntity _get_user_by_id(long uid){
         UserProfile up;
         ResponseUser ru = new ResponseUser(this.rt);
         int stt = this.lib._get_user_info(this.lib.get_sockfd(), uid, ru);
@@ -166,7 +171,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public List<Long> _get_user_search(String searchTxt, int limit, int offset) throws APICallException{
+    public synchronized List<Long> _get_user_search(String searchTxt, int limit, int offset) throws APICallException{
         long[] ls = new long[limit];
         NativeLongByReference len = new NativeLongByReference();
         int stt = this.lib._get_user_search(this.lib.get_sockfd(), searchTxt, offset, limit, ls, len);
@@ -180,11 +185,11 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return Arrays.stream(ls).limit(len.intValue()).boxed().toList();
     }
 
-    public long get_uid() {
+    public synchronized long get_uid() {
         return this.lib._get_uid();
     }
 
-    public long _create_chat(long u2id) throws APICallException {
+    public synchronized long _create_chat(long u2id) throws APICallException {
         NativeLongByReference chat_id = new NativeLongByReference();
         int stt = this.lib._create_chat(this.lib.get_sockfd(), u2id, chat_id);
         switch (stt) {
@@ -195,14 +200,14 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public List<Long> _get_chat_list() {
+    public synchronized List<Long> _get_chat_list() {
         long[] idls = new long[10];
         NativeLongByReference len = new NativeLongByReference(0);
         this.lib._get_chat_list(this.lib.get_sockfd(), 10, 0, idls, len);
         return Arrays.stream(idls).limit(len.intValue()).boxed().toList();
     }
 
-    public Chat _get_chat_info(long chat_id) throws APICallException {
+    public synchronized Chat _get_chat_info(long chat_id) throws APICallException {
         Chat chat = new Chat();
         //
         NativeLongByReference mem1_id = new NativeLongByReference(-1);
@@ -228,7 +233,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return chat;
     }
 
-    public long _create_conv(String gname) throws  APICallException {
+    public synchronized long _create_conv(String gname) throws  APICallException {
         NativeLongByReference gid = new NativeLongByReference();
         Conv conv = new Conv();
         int stt = this.lib._create_conv(this.lib.get_sockfd(), gname, gid);
@@ -240,14 +245,14 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public List<Long> _get_conv_list() {
+    public synchronized List<Long> _get_conv_list() {
         long[] idls = new long[10];
         NativeLongByReference len = new NativeLongByReference(0);
         this.lib._get_conv_list(this.lib.get_sockfd(), 10, 0, idls, len);
         return Arrays.stream(idls).limit(len.intValue()).boxed().toList();
     }
 
-    public void _conv_join(long conv_id, long user_id) throws APICallException{
+    public synchronized void _conv_join(long conv_id, long user_id) throws APICallException{
         int stt = this.lib._join_conv(this.lib.get_sockfd(), conv_id, user_id);
         // FIXME: api return 408 but success?
         if(stt != 200 && stt != 408){
@@ -255,7 +260,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public Conv _get_conv_info(long conv_id) throws APICallException {
+    public synchronized Conv _get_conv_info(long conv_id) throws APICallException {
         Conv conv;
         int stt;
         {
@@ -297,13 +302,13 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return conv;
     }
 
-    public boolean _quit_conv(long gid, long user2_id){
+    public synchronized boolean _quit_conv(long gid, long user2_id){
 //        NativeLongByReference gid = new NativeLongByReference();
         int stt = this.lib._quit_conv(this.lib.get_sockfd(), gid, user2_id);
         return stt == 200;
     }
 
-    public Message _send_msg(ChatRoomType type, long room_id, long replyTo, String msg) throws Exception {
+    public synchronized Message _send_msg(ChatRoomType type, long room_id, long replyTo, String msg) throws Exception {
         long conv_id = 0;
         long chat_id = 0;
         switch (type) {
@@ -329,7 +334,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public List<Long> _get_msg_all(ChatRoomType type, int roomId, int limit, int offset) throws APICallException {
+    public synchronized List<Long> _get_msg_all(ChatRoomType type, int roomId, int limit, int offset) throws APICallException {
 
         int conv_id = 0;
         int chat_id = 0;
@@ -367,7 +372,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         return Arrays.stream(idls).limit(_len.intValue()).boxed().toList();
     }
 
-    public MsgEntity _get_msg_detail(long msg_id) throws APICallException {
+    public synchronized MsgEntity _get_msg_detail(long msg_id) throws APICallException {
         NativeLongByReference chatId = new NativeLongByReference(-1);
         NativeLongByReference convId = new NativeLongByReference(-1);
         NativeLongByReference replyTo = new NativeLongByReference(-1);
@@ -407,7 +412,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public void deleteMsg(long msg_id) throws APICallException {
+    public synchronized void deleteMsg(long msg_id) throws APICallException {
         int stt = this.lib._delete_msg(this.lib.get_sockfd(), msg_id);
 
         switch (stt) {
@@ -418,7 +423,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public List<Long> notifyDeleteMsg(ChatRoomType type, long roomId) throws APICallException {
+    public synchronized List<Long> notifyDeleteMsg(ChatRoomType type, long roomId) throws APICallException {
         long chatId = 0;
         long convId = 0;
         switch (type) {
@@ -448,7 +453,7 @@ public class TCPNativeClient extends TCPBasedClient implements Runnable {
         }
     }
 
-    public List<Long> notifyNewMsg() throws APICallException {
+    public synchronized List<Long> notifyNewMsg() throws APICallException {
         long[] idls = new long[2048];
         NativeLongByReference _len = new NativeLongByReference();
         int stt = this.lib._notify_new_msg(

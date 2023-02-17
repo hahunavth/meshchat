@@ -145,19 +145,27 @@ response *api_call(const int sockfd, const char *req)
   }
   memset(buf, 0, BUFSIZ);
 
-  sz = recv(sockfd, buf, BUFSIZ, 0);
-  if ((sz) < 0)
+  sz = 0;
+  do
   {
-    UNLOCK;
-    HANDLE_SOCKET_ERRNO_AND_RETURN_NULL;
-  }
-  else if (sz == 0)
-  {
-    // printf(YELLOW "Connection closed\n" RESET);
-    UNLOCK;
-    return NULL;
-  }
-  else
+    int cur_recv = 0;
+    cur_recv = recv(sockfd, buf + cur_recv, BUFSIZ, 0);
+    sz += cur_recv;
+    printf("recv: %d\n", cur_recv);
+    if ((cur_recv) < 0)
+    {
+      UNLOCK;
+      HANDLE_SOCKET_ERRNO_AND_RETURN_NULL;
+    }
+    else if (cur_recv == 0)
+    {
+      // printf(YELLOW "Connection closed\n" RESET);
+      UNLOCK;
+      return NULL;
+    }
+  } while (sz < BUFSIZ);
+
+  printf("recv all: %d", sz);
   {
     response *res = response_parse(buf);
     UNLOCK;
