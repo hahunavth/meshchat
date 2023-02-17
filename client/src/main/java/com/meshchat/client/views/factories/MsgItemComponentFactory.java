@@ -20,7 +20,8 @@ public class MsgItemComponentFactory {
             // NOTE: anti pattern
             TCPNativeClient client = Launcher.injector.getInstance(TCPNativeClient.class);
             UserEntity ue = client._get_user_by_id(message.getEntity().getFrom_user_id());
-            return (new MsgItemRecv(message, ue.getUsername()));
+            assert ue != null;
+            return new MsgItemRecv(message, ue.getUsername());
         }
 //            if (type == ChatRoomType.CHAT)
 //            return (new MsgItemRecv(message));

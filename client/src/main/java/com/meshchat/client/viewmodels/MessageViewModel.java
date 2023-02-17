@@ -18,6 +18,8 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 //@Singleton
@@ -28,6 +30,7 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
     private final ObservableList<Message> msgListMap = FXCollections.observableArrayList();
     private MapChangeListener<Long, Message> newMsgListener;
     private EventHandler roomInfoHandler;
+    private List<Long> lastedIds = new ArrayList<>();
 
 
     @Inject
@@ -55,7 +58,6 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
      * @param room_id
      */
     public void setRoomInfo (ChatRoomType type, Long room_id, ChatGen chatRoom) {
-
         this.type = type;
         this.room_id.set(room_id);
         this.name.set(chatRoom.getName().get());
@@ -100,22 +102,65 @@ public class MessageViewModel extends BaseViewModel implements IMessageViewModel
      */
     @Override
     public void notifyMsgList(int limit, int offset) throws APICallException {
-        List<Long> newLs = this.getTcpClient().notifyNewMsg();
-//        List<Long> delLs = this.getTcpClient().notifyDeleteMsg(type, this.room_id.get());
-        System.out.println("notify pooling: " + newLs);
-        // remove notify flag
-        newLs.forEach((id) -> {
-            try {
-                if (msgListMap.get(id.intValue()) == null) {
-                    this.getTcpClient()._get_msg_detail(id);
+
+        if(type == null) {
+            System.out.println("Notify null");
+            return;
+        }
+
+        List<Long> newLs = this.getTcpClient()._get_msg_all(this.type, this.room_id.intValue(), limit, offset);
+        List<Long> oldLs = this.lastedIds;
+        List<Long> newItems = new ArrayList<>();
+
+        System.out.println("Notify ls: new=" + newLs + ", old=" + oldLs);
+
+        if (oldLs.size() != 10) {
+            oldLs.clear();
+            oldLs.addAll(newLs);
+
+            return ;
+        }
+        assert newLs.size() == 10;
+
+        boolean closeFlag = false;
+        for(int i = oldLs.size() - 1; i >= 0; i--) {
+            for(int j = newLs.size() - 1; j >= 0; j--) {
+                if(oldLs.get(i).equals(newLs.get(j))) {
+                    closeFlag = true;
+                } else {
+                    newItems.add(newLs.get(j));
                 }
+                if(closeFlag) break;
+            }
+            if(closeFlag) break;
+        }
+
+        oldLs.clear();
+        oldLs.addAll(newLs);
+
+        newItems.forEach(id -> {
+            MsgEntity msgEntity = null;
+            try {
+                msgEntity = getTcpClient()._get_msg_detail(id);
             } catch (APICallException e) {
                 throw new RuntimeException(e);
             }
+            if(msgEntity.getFrom_user_id() != getCurrentUserId())
+                msgListMap.add(new Message(msgEntity));
         });
 
-        if(newLs.size() > 0)
-            this.fetchMsgList(limit, offset);
+        System.out.println("Notify: " + newItems);
+//            try {
+//                if (msgListMap.get(id.intValue()) == null) {
+//                    this.getTcpClient()._get_msg_detail(id);
+//                }
+//            } catch (APICallException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//
+//        if(newLs.size() > 0)
+//            this.fetchMsgList(limit, offset);
     }
 
     public void sendMsg(String msg) throws Exception {

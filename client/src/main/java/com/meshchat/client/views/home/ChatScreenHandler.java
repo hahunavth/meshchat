@@ -71,12 +71,12 @@ public class ChatScreenHandler extends BaseScreenHandler {
 
         IChatViewModel finalViewModel = viewModel;
         tabPane.setOnMouseClicked(e -> {
-//            Platform.runLater(() -> {
-//                this.chatList.getChildren().clear();
-//            });
-//            Platform.runLater(() -> {
-//                this.convList.getChildren().clear();
-//            });
+            Platform.runLater(() -> {
+                this.chatList.getChildren().clear();
+            });
+            Platform.runLater(() -> {
+                this.convList.getChildren().clear();
+            });
             finalViewModel.fetchChatList();
             finalViewModel.fetchConvList();
         });
