@@ -1,9 +1,13 @@
-# Client
+# MeshChat Client
+MeshChat Client is a messaging application that allows users to communicate with each other in a secure network. This repository contains the code for the client-side implementation of the application, written in Java.
 
-## Native library
-
-- libcli_service: TCP socket API library for client in `client/src/main/resources/libcli_service.so`
-  - How to build: [here](../client-lib/README.md)
+# Dependencies
+To build and run MeshChat Client, you will need:
+- Java Development Kit (JDK) 17 or later
+- JavaFX SDK 17 or later
+- Gradle build system
+The native library libcli_service.so is also included in the repository, which provides the TCP socket API for the client.
+- How to build: [here](../client-lib/README.md)
 
 ### Map type
 ```java
