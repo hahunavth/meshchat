@@ -1,12 +1,16 @@
-# meshchat
-Chat application using TCP protocol. 
+# Meshchat
+Welcome to the meshchat repository! This repository contains the code for a secure chat application with TCP protocol.
 
-## Folder structure
-- client: application java client
-- server: application c server
-- client-lib: c library build for client
+## Structure
+The repository contains three main folders:
 
-## Setup
+- `client`: This folder contains the Java code for the client application.
+- `client-lib`: This folder contains C code for building a library that can be called from Java using jnr-ffi.
+- `server`: This folder contains the Java code for the server application.
+
+## Getting started
+To use the meshchat application, follow these steps:
+
 - Server: 
   ```shell
   cd ./server
@@ -22,3 +26,5 @@ Chat application using TCP protocol.
     ```
   - Run java client using intellji idea
 
+## Contributing
+We welcome contributions to the meshchat project! If you find a bug or have an idea for a new feature, please submit a pull request.
