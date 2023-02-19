@@ -28,3 +28,6 @@ To use the meshchat application, follow these steps:
 
 ## Contributing
 We welcome contributions to the meshchat project! If you find a bug or have an idea for a new feature, please submit a pull request.
+
+## License
+The MeshChat Client code is licensed under the MIT license. See the [LICENSE](./LICENSE.md) file for more details.
